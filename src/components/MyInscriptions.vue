@@ -6,7 +6,7 @@ import { onBeforeMount, onMounted, reactive } from "vue";
 import openapi from "../crypto/openapi";
 import SDK, { ICollectedUTXOResp } from "../crypto/sdk/sdk";
 import { generateBitcoinAddr, signAsync } from "../crypto/sign";
-import { ExtApi } from "../router/domain";
+import { ExtApi, LoadingSvg } from "../router/domain";
 import service from "../router/service";
 import { InsType, InscriptionItem, SettingItem } from "../router/type";
 import { classifiyImageWith } from "../router/util";
@@ -49,6 +49,7 @@ let stat = reactive({
         amount: 0,
     },
     dialogueWidth: '96%',
+    loading: true,
 })
 
 function load() {
@@ -57,6 +58,7 @@ function load() {
             element = classifiyImageWith(element)
         });
         stat.items = val.data.result;
+        stat.loading = false
     })
 }
 
@@ -241,14 +243,7 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    let localAddr = localStorage.getItem('bitcoin_address');
-    if (localAddr) {
-        stat.addr = localAddr
-
-        loadavatar(localAddr)
-        load()
-    }
-
+    stat.loading = true
     stat.setItems = [{
         id: 0,
         title: 'Set as avatar',
@@ -266,17 +261,28 @@ onMounted(() => {
     } else {
         stat.dialogueWidth = '50%';
     }
+
+    let localAddr = localStorage.getItem('bitcoin_address');
+    if (localAddr) {
+        stat.addr = localAddr
+        loadavatar(localAddr)
+        load()
+    }
 })
 </script>
 
 <template>
     <div class="ins-container-view">
-        <ul class="infinite-list">
+        <ul class="infinite-list" v-if="!stat.loading">
             <li v-for="(item, i) in stat.items" :key="i" class="infinite-list-item">
                 <div class="card-item">
                     <img class="pic-view" v-if="item.type == InsType.IMAGE" :src="item.detail.content" alt=""
                         loading="lazy">
+                    <img class="pic-view" v-else-if="item.type == InsType.GIF" :src="item.detail.content" alt=""
+                        loading="lazy">
                     <img class="pic-view" v-else-if="item.type == InsType.TEXT" src="../assets/pic_txt@2x.png" alt=""
+                        loading="lazy">
+                    <img class="pic-view" v-else-if="item.type == InsType.HTML" src="../assets/pic_html@2x.png" alt=""
                         loading="lazy">
                     <img class="pic-view" v-else-if="item.type == InsType.AUDIO" src="../assets/pic_mp3@2x.png" alt=""
                         loading="lazy">
@@ -312,6 +318,10 @@ onMounted(() => {
                 </div>
             </li>
         </ul>
+
+        <div class="loading-view" v-else>
+            <img :src="LoadingSvg" width="40" height="40" alt="">
+        </div>
 
         <!-- <div class="loadmore-view" @click="loadmoreAction">load more</div> -->
 
@@ -385,6 +395,11 @@ onMounted(() => {
     padding: 5px;
     margin-bottom: 100px;
     list-style: none;
+}
+
+.loading-view {
+    text-align: center;
+    min-height: 300px;
 }
 
 .flex-view {

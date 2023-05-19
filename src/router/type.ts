@@ -26,6 +26,28 @@ export interface DomainInfo {
     isAvailable: boolean;
 }
 
+export interface Domain {
+    cost_fee: string;
+    create_time: string;
+    create_date: string;
+    dom_name: string;
+    dom_state: number;
+    dom_type: string;
+    expire_time: string;
+    register_date: string;
+    fee_rate: number;
+    img_url: string;
+    inscribe_id: string;
+    out_wallet: string;
+    owner_address: string;
+    tx_hash: string;
+    update_time: string;
+    wallet_id: string;
+    is_available: boolean;
+    short_ins_id: string;
+    short_owner_addr: string;
+}
+
 export interface DomainHistory {
     date: string;
     records: string[];
@@ -45,7 +67,7 @@ export interface PersonInfo {
 
 export const Types = {
     precision: 6,
-    queryBalInterval: 10000,
+    queryBalInterval: 5000,
     resetRatioInterval: 10000, //1200000
     countDownInterval: 1000,
 };
@@ -90,12 +112,15 @@ export enum InsType {
     AUDIO,
     VIDEO,
     DOMAIN,
+    HTML,
     OTHER,
 }
 
 export interface Ratio {
-    price: string;
-    symbol: string;
+    time: string;
+    asset_id_base: string;
+    asset_id_quote: string;
+    rate: number;
 }
 
 export interface History {
@@ -111,6 +136,7 @@ export interface PaymentMethod {
     name: string;
     icon: string;
     desc: string;
+    bal: string;
 }
 
 export interface PayParams {
@@ -141,18 +167,26 @@ export interface PayinParams {
     validUntil: string;
 }
 
+export interface DomainLink {
+    type: string;
+    domain: string;
+    obj_ins_id: string;
+    public_key: string;
+    sig: string;
+}
+
 export const Links = {
     doc: "https://docs.btcdomains.io",
     openOrdex: "https://btcdomains.click/openordex-open-2f8217",
     magicEden: "https://magiceden.io/ordinals/marketplace/btcdomain",
-
     twitter: "http://twitter.com/btcdomain_btc",
     trees: "https://linktr.ee/btcdomain",
     github: "https://github.com/btcdomain",
     discord: 'https://www.discord.gg/btcdomain',
     medium: "http://medium.com/@btcdomain",
+    telgram: "https://t.me/btcdomain_btc",
 }
 
 export const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk.";
-
 export const MinSats = 1000;
+export const rate = 100000000;

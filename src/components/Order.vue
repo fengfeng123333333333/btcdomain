@@ -79,7 +79,6 @@ function loadWallet() {
     let loadingInstance = ElLoading.service({ fullscreen: true });
 
     let localWalletStr = localStorage.getItem(state.info.name);
-
     if (!localWalletStr) {
         service.queryWallet(state.info.name).then((val1) => {
             state.info.midAddr = val1.data.receive_address;
@@ -417,7 +416,7 @@ onMounted(() => {
 }
 
 .continue-view {
-    width: 380px;
+    width: 360px;
     height: 50px;
     background: #4540D6;
     border-radius: 8px;

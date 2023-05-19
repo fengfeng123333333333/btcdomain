@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import BigNumber from "bignumber.js";
 import { validate } from 'bitcoin-address-validation';
+import domtoimage from 'dom-to-image-more';
 import type { TabsPaneContext } from 'element-plus';
 import { ElMessage } from "element-plus";
+import { MaxUint256 } from "ethers";
 import { onBeforeMount, onMounted, reactive, ref } from 'vue';
 import useClipboard from "vue-clipboard3";
 import FooterView from "../components/Footer.vue";
@@ -12,23 +14,25 @@ import InscriptionView from "../components/MyInscriptions.vue";
 import openapi from "../crypto/openapi";
 import SDK, { ICollectedUTXOResp, ISendBTCReq } from "../crypto/sdk/sdk";
 import { generateBitcoinAddr } from "../crypto/sign";
+import { domain } from "../router/domain";
 import router from "../router/index";
 import service from "../router/service";
-import { MinSats, PersonInfo, Ratio } from "../router/type";
-import { shortenAddr } from "../router/util";
+import { InsType, InscriptionItem, MinSats, PersonInfo, Ratio, rate } from "../router/type";
+import { classifiyImageWith, shortenAddr } from "../router/util";
 import { Account, BitcoinBalance, FeeSummary } from "../shared/types";
 
-import { domain } from "../router/domain";
-
-const rate = 100000000;
-const subSLen = 8;
-const defaultAvatar = domain.domainImgUrl + 'assets/icon_btc@2x.png';
+const givenOgInsId = 2497668 //2248354
+const subSLen = 5;
+const defaultAvatar = domain.domainImgUrl + 'assets/avater_def@2x.png';
+const webLink = domain.domainImgUrl + 'assets/banner_getwebsite@2x.png';
+const mobileLink = domain.domainImgUrl + 'assets/banner_getwebsite_mobile@2x.png';
 
 const headerRef = ref();
 const insRef = ref();
 const historyRef = ref();
 
 let stat = reactive({
+    isMobile: false,
     dialogueWidth: '50%',
     receiveddiaW: '20%',
     pinfo: {
@@ -56,6 +60,38 @@ let stat = reactive({
         curIdx: 2,
         amount: 0,
         availBal: '',
+    },
+    bCard: {
+        isVisiable: false,
+        qrlink: '',
+        isOg: false,
+        ogLink: '',
+        icons: [{
+            name: 'btc',
+            isHighlight: false,
+            file_sel: '',
+            file_dis: '',
+        }, {
+            name: 'avatar',
+            isHighlight: false,
+            file_sel: '',
+            file_dis: '',
+        }, {
+            name: 'img',
+            isHighlight: false,
+            file_sel: '',
+            file_dis: '',
+        }, {
+            name: 'music',
+            isHighlight: false,
+            file_sel: '',
+            file_dis: '',
+        }, {
+            name: 'txt',
+            isHighlight: false,
+            file_sel: '',
+            file_dis: '',
+        }]
     }
 })
 
@@ -81,30 +117,21 @@ async function sendBtcsAction() {
     stat.sendInsOrBtc.isSendInsOrBtcShow = true
 
     // determine how much btc are available to transfer
-    let inscriptions = await openapi.getAddressInscriptions(addr);
-    console.log(inscriptions)
 
-    let totalSatoshi = new BigNumber(0)
-    inscriptions.forEach(element => {
-        if (element.detail) {
-            let tmp = new BigNumber(element.detail.output_value)
-            totalSatoshi = totalSatoshi.plus(tmp)
-        }
-    });
-    let amout_tmp = new BigNumber(stat.winfo.amount);
-    let amount_sat = amout_tmp.multipliedBy(rate);
-    let available_sat = amount_sat.minus(totalSatoshi);
-    let availBtcStr = available_sat.div(rate).toPrecision(8).toString();
-    stat.sendInsOrBtc.availBal = availBtcStr;
+    let available_sat = await loadBtcBalance()
+    if (available_sat) {
+        let availBtcStr = available_sat.div(rate).toPrecision(8).toString();
+        stat.sendInsOrBtc.availBal = availBtcStr;
 
-    openapi.getFeeSummary().then(feeRet => {
-        stat.sendInsOrBtc.feeSums = feeRet
-        stat.sendInsOrBtc.feeSums.list.push({
-            title: 'Customize Sats',
-            desc: '',
-            feeRate: 0,
+        openapi.getFeeSummary().then(feeRet => {
+            stat.sendInsOrBtc.feeSums = feeRet
+            stat.sendInsOrBtc.feeSums.list.push({
+                title: 'Customize Sats',
+                desc: '',
+                feeRate: 0,
+            })
         })
-    })
+    }
 }
 
 function clickFeeCardAction(idx: any) {
@@ -119,6 +146,7 @@ async function submitBtcTxAction() {
     }
 
     // to address
+
     let tempAddr = ''
     if (!stat.sendInsOrBtc.toAddr) {
         ElMessage.warning("to address must not be empty")
@@ -163,9 +191,10 @@ async function submitBtcTxAction() {
     }
 
     // availBal
+
     let avail = new BigNumber(stat.sendInsOrBtc.availBal)
     if (one.gte(avail)) {
-        ElMessage.warning("max value you must transfer is" + stat.sendInsOrBtc.availBal + 'btc')
+        ElMessage.warning("max value you must transfer is " + stat.sendInsOrBtc.availBal + 'btc')
         return
     }
 
@@ -207,12 +236,10 @@ async function submitBtcTxAction() {
     } as ISendBTCReq
 
     const { txID, txHex } = await SDK.sendBTCTransaction(sBtcResq)
-    console.log('txID: ' + txID)
-    console.log('txHex: ' + txHex)
 
     // submit
+
     const subRet = await openapi.pushTx(txHex)
-    console.log(subRet)
 
     ElMessage.info("tx: " + subRet + " has been publiced")
 }
@@ -259,9 +286,65 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     }
 }
 
-function disconnectAction() {
-    headerRef.value.doDisconnect()
-    router.push({ name: 'home' })
+function shareAction() {
+    stat.bCard.isVisiable = true
+}
+
+function settingAction() {
+    router.push({ name: 'setting', params: { addr: stat.pinfo.address } })
+}
+
+function cardShareAction() {
+    var node = document.getElementById("personal-card-view");
+    domtoimage
+        .toJpeg(node, { quality: 0.95 })
+        .then(function (dataUrl: any) {
+            var link = document.createElement("a");
+            link.download = "card.jpeg";
+            link.href = dataUrl;
+            link.click();
+        });
+}
+
+async function loadCategory() {
+    service.queryInsWith(stat.pinfo.address).then((val) => {
+        val.data.result.forEach((element: InscriptionItem) => {
+            element = classifiyImageWith(element)
+
+            switch (element.type) {
+                case InsType.IMAGE:
+                    stat.bCard.icons[2].isHighlight = true
+                    break;
+
+                case InsType.TEXT:
+                    stat.bCard.icons[4].isHighlight = true
+                    break;
+
+                case InsType.AUDIO:
+                    stat.bCard.icons[3].isHighlight = true
+                    break;
+
+                case InsType.DOMAIN:
+                    if (element.number <= givenOgInsId && !stat.bCard.isOg) {
+                        stat.bCard.isOg = true
+                    }
+                    break;
+
+                case InsType.VIDEO:
+                    break;
+
+                case InsType.GIF:
+                    stat.bCard.icons[2].isHighlight = true
+                    break;
+
+                case InsType.OTHER:
+                    break;
+
+                default:
+                    break;
+            }
+        });
+    })
 }
 
 function loadavatar() {
@@ -274,43 +357,111 @@ function loadavatar() {
             if (avatarRet.data.length > 0) {
                 stat.pinfo = avatarRet.data[0]
                 stat.pinfo.short_addr = shortenAddr(stat.pinfo.address, subSLen)
+                if (stat.pinfo.content_url) {
+                    stat.bCard.icons[1].isHighlight = true
+                }
+                if (stat.pinfo.domain) {
+                    stat.bCard.qrlink = "https://app.btcdomains.io/#/?search=" + stat.pinfo.domain
+                }
             }
         });
     }
 }
 
-function loadBalance() {
+async function loadBalance() {
     let addr = localStorage.getItem('bitcoin_address')
     if (addr) {
         openapi.getAddressBalance(addr).then(balance => {
-            stat.winfo = balance
-            service.queryRatio('BTCUSDT').then((ratio: Ratio) => {
-                console.log(ratio)
-                let ratioNum = new BigNumber(ratio.price);
-                let btcNum = new BigNumber(stat.winfo.amount);
-                let usdtNum = ratioNum.multipliedBy(btcNum);
-                stat.winfo.usd_value = usdtNum.toString();
+            openapi.getAddressInscriptions(addr!).then((inscriptions) => {
+                let totalSatoshi = new BigNumber(0)
+                inscriptions.forEach(element => {
+                    if (element.detail) {
+                        let tmp = new BigNumber(element.detail.output_value)
+                        totalSatoshi = totalSatoshi.plus(tmp)
+                    }
+                });
+
+                let amout_tmp = new BigNumber(balance.confirm_amount);
+                let amount_sat = amout_tmp.multipliedBy(rate);
+                let available_sat = amount_sat.minus(totalSatoshi);
+                if (available_sat.gt(0)) {
+                    stat.bCard.icons[0].isHighlight = true
+                }
+                stat.winfo = balance
+                stat.winfo.amount = available_sat.div(rate).toPrecision(8).toString();
+
+                service.queryCoinRatio().then((ratio: Ratio) => {
+                    let ratioNum = new BigNumber(ratio.rate);
+                    let btcNum = new BigNumber(stat.winfo.amount);
+                    let usdtNum = ratioNum.multipliedBy(btcNum);
+                    stat.winfo.usd_value = usdtNum.toPrecision(8).toString();
+                });
             });
         });
     }
 }
 
-onBeforeMount(() => {
-})
+async function loadBtcBalance() {
+    let addr = localStorage.getItem('bitcoin_address')
+    if (addr) {
+        let available_ret = new BigNumber(0)
+        let balance = await openapi.getAddressBalance(addr!);
+        let inscriptions = await openapi.getAddressInscriptions(addr!);
 
-onMounted(() => {
+        let totalSatoshi = new BigNumber(0)
+        inscriptions.forEach(element => {
+            if (element.detail) {
+                let tmp = new BigNumber(element.detail.output_value)
+                totalSatoshi = totalSatoshi.plus(tmp)
+            }
+        });
+
+        let amout_tmp = new BigNumber(balance.confirm_amount);
+        let amount_sat = amout_tmp.multipliedBy(rate);
+        available_ret = amount_sat.minus(totalSatoshi);
+        return available_ret
+    }
+}
+
+function assembleIcons() {
+    stat.bCard.icons.forEach(element => {
+        element.file_sel = domain.domainImgUrl + 'assets/bcard/' + element.name + '_sel@2x.png';
+        element.file_dis = domain.domainImgUrl + 'assets/bcard/' + element.name + '_dis@2x.png';
+    });
+    stat.bCard.ogLink = domain.domainImgUrl + 'assets/bcard/' + 'og@2x.png';
+}
+
+function calculateWidth() {
     if (window.innerWidth < 767) {
+        stat.isMobile = true
         stat.dialogueWidth = '96%';
         stat.receiveddiaW = '96%';
     } else {
+        stat.isMobile = false
         stat.dialogueWidth = '50%';
         stat.receiveddiaW = '30%';
     }
-    
-    loadavatar()
-    loadBalance()
+}
+
+function goToBtcSite() {
+    if (localStorage.getItem('public_key')) {
+        router.push({ name: 'bsite' })   
+    } else {
+        ElMessage.warning('you should login firstly')
+        return
+    }
+}
+
+onBeforeMount(() => {
+    assembleIcons()
 })
 
+onMounted(() => {
+    calculateWidth()
+    loadavatar()
+    loadBalance()
+    loadCategory()
+})
 </script>
 
 <template>
@@ -325,16 +476,26 @@ onMounted(() => {
                             alt="">
                         <div class="nick-addr-view">
                             <div class="nickname-view">{{ stat.pinfo.domain ? stat.pinfo.domain : '' }}</div>
-                            <div class="addrname-view">{{ stat.pinfo.short_addr }}<img
-                                    src="../assets/icon_copy_white@2x.png"
-                                    style="width: 24px;height: 24px;cursor: pointer;margin-left: 10px;" alt=""
-                                    @click="copyAction"><img src="../assets/icon_qrcode@2x.png"
-                                    style="width: 24px;height: 24px;cursor: pointer;;margin-left: 10px;" alt=""
-                                    @click="showQrCodeAction"></div>
+                            <div class="addrname-view">{{ stat.pinfo.short_addr }}
+                                <img src="../assets/icon_copy_white@2x.png"
+                                    style="width: 20px;height: 20px;cursor: pointer;margin-left: 5px;" alt=""
+                                    @click="copyAction">
+                                <img src="../assets/icon_qrcode@2x.png"
+                                    style="width: 20px;height: 20px;cursor: pointer;;margin-left: 5px;" alt=""
+                                    @click="showQrCodeAction">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="disconnect-view dis-postion web-hidden" @click="disconnectAction">Disconnect</div>
+                    <div class="setting-view">
+                        <div class="disconnect-view pad-l-r-10" @click="shareAction">
+                            <img src="../assets/icon_share@2x.png" width="24" height="24" alt="">Share
+                        </div>
+
+                        <div class="disconnect-view" @click="settingAction">
+                            <img src="../assets/icon_setting@2x.png" width="24" height="24" alt="">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="line-view"></div>
@@ -360,6 +521,12 @@ onMounted(() => {
         </div>
 
         <div class="mid-content-view">
+            <br>
+            <div class="getsite-entry-view" @click="goToBtcSite">
+                <img :src="stat.isMobile ? mobileLink : webLink" alt="">
+            </div>
+            
+            <br>
             <el-tabs v-model="stat.activeName" class="mywallet-tabs" @tab-click="handleClick">
                 <el-tab-pane label="Inscription" name="inscription">
                     <InscriptionView ref="insRef" :address="stat.pinfo.address" @reload-avatar="loadavatar" />
@@ -390,8 +557,8 @@ onMounted(() => {
             </div>
         </el-dialog>
 
-        <el-dialog v-model="stat.sendInsOrBtc.isSendInsOrBtcShow" :show-close="true" :align-center="true" :width="stat.dialogueWidth"
-            class="send-dialogue-view">
+        <el-dialog v-model="stat.sendInsOrBtc.isSendInsOrBtcShow" :show-close="true" :align-center="true"
+            :width="stat.dialogueWidth" class="send-dialogue-view">
             <template #header="{ close, titleId, titleClass }">
                 <div class="my-header">
                     <h4 :id="titleId" :class="titleClass">Send BTC</h4>
@@ -416,7 +583,8 @@ onMounted(() => {
                 <br>
                 <div class="fee-tit-view">Select the network fee you want to pay:</div>
                 <div class="fee-summary-view">
-                    <div class="fee-card-view fee-card-dif-view" v-for="(item, idx) in stat.sendInsOrBtc.feeSums.list" :key="idx"
+                    <div class="fee-card-view fee-card-dif-view" v-for="(item, idx) in stat.sendInsOrBtc.feeSums.list"
+                        :key="idx"
                         :class="stat.sendInsOrBtc.curIdx == idx ? 'fee-card-view-selected' : 'fee-card-view-normal'"
                         @click="clickFeeCardAction(idx)">
                         <div class="fee-title-view">{{ item.title }}</div>
@@ -430,6 +598,48 @@ onMounted(() => {
                 </div>
                 <br>
                 <div class="send-btn-view" @click="submitBtcTxAction">Send</div>
+            </div>
+        </el-dialog>
+
+        <el-dialog v-model="stat.bCard.isVisiable" :show-close="true" :align-center="true" :width="380">
+            <template #header="{ close, titleId, titleClass }">
+                <div class="my-header">
+                    <h4 :id="titleId" :class="titleClass">Share Picture</h4>
+                </div>
+            </template>
+
+            <div class="share-card-view">
+                <div class="card-view" id="personal-card-view">
+                    <div class="card-top-view">
+                        <div class="card-avatar-view">
+                            <img class="card-avatar-img" referrerpolicy="no-referrer"
+                                :src="stat.pinfo.content_url ? stat.pinfo.content_url : defaultAvatar" width="80"
+                                height="80" alt="">
+                            <img class="card-avatar-og" v-if="stat.bCard.isOg" referrerpolicy="no-referrer"
+                                :src="stat.bCard.ogLink" width="30" height="30" alt="">
+                        </div>
+                        <div class="card-content-view">
+                            <div class="card-name-view">{{ stat.pinfo.domain ? stat.pinfo.domain : '' }}</div>
+                            <div class="card-icon-view">
+                                <div v-for="(item, idx) in stat.bCard.icons" :key="idx">
+                                    <img referrerpolicy="no-referrer"
+                                        :src="item.isHighlight ? item.file_sel : item.file_dis" width="18" height="18"
+                                        alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-qr-view" v-if="stat.bCard.qrlink">
+                        <vue-qrcode :value="stat.bCard.qrlink" :options="{ width: 70 }"></vue-qrcode>
+                    </div>
+                </div>
+
+                <div class="share-view">
+                    <div class="share-btn" @click="cardShareAction">
+                        <img src="../assets/icon_save@2x.png" width="24" height="24" alt="">
+                        Save Picture
+                    </div>
+                </div>
             </div>
         </el-dialog>
     </div>
@@ -467,6 +677,7 @@ onMounted(() => {
     margin-top: 20px;
     margin-left: 20px;
     border-radius: 70px;
+    border: 2px solid white;
 }
 
 .nick-addr-view {
@@ -494,10 +705,15 @@ onMounted(() => {
     background: rgba(69, 64, 214, 0.3);
 }
 
+.setting-view {
+    display: flex;
+}
+
 .disconnect-view {
-    width: 100px;
+    min-width: 36px;
     height: 36px;
     margin-top: 60px;
+    margin-right: 10px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 24px;
     font-size: 13px;
@@ -506,6 +722,11 @@ onMounted(() => {
     line-height: 36px;
     text-align: center;
     cursor: pointer;
+}
+
+.pad-l-r-10 {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .line-view {
@@ -535,7 +756,6 @@ onMounted(() => {
 }
 
 .btc-view {
-    height: 48px;
     font-size: 34px;
     font-weight: 600;
     color: #FFFFFF;
@@ -564,12 +784,6 @@ onMounted(() => {
 }
 
 @media screen and (max-width: 767px) {
-    .dis-postion {
-        position: absolute;
-        right: 10px;
-        top: 20px;
-    }
-
     .actions-view {
         display: flex;
         justify-content: center;
@@ -603,10 +817,6 @@ onMounted(() => {
         margin-left: 19px;
     }
 
-    .dis-postion {
-        margin-top: 60px;
-    }
-
     .topwarp-view {
         display: flex;
     }
@@ -617,7 +827,16 @@ onMounted(() => {
 .mid-content-view {
     max-width: 1200px;
     margin: 0 auto;
-    margin-top: 20px;
+}
+
+.getsite-entry-view {
+    margin: 0 auto;
+    width: 96%;
+    cursor: pointer;
+}
+
+.getsite-entry-view img {
+    width: 100%;
 }
 </style>
 
@@ -717,6 +936,78 @@ onMounted(() => {
     color: #FFFFFF;
     line-height: 50px;
     text-align: center;
+    cursor: pointer;
+}
+</style>
+
+<style scoped>
+.share-card-view {}
+
+.card-view {
+    width: 335px;
+    height: 223px;
+    background-image: url(../../src/assets/bcard/card_bg@2x.png);
+    background-size: contain;
+}
+
+.card-top-view {
+    display: flex;
+}
+
+.card-avatar-view {
+    margin-left: 20px;
+    margin-top: 20px;
+    position: relative;
+}
+
+.card-avatar-img {
+    border-radius: 40px;
+    border: 2px solid white;
+}
+
+.card-avatar-og {
+    position: absolute;
+    right: -10px;
+    top: 0;
+}
+
+.card-content-view {
+    margin-left: 30px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.card-name-view {
+    color: #FFFFFF;
+    font-size: 20px;
+    min-height: 30px;
+}
+
+.card-icon-view {
+    display: flex;
+    margin-top: 12px;
+}
+
+.card-qr-view {
+    margin-top: 50px;
+    margin-left: 260px;
+}
+
+.share-view {
+    text-align: center;
+}
+
+.share-btn {
+    width: 275px;
+    height: 50px;
+    margin: 0 auto;
+    margin-top: 40px;
+    background: #2E2F3E;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 50px;
     cursor: pointer;
 }
 </style>

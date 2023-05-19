@@ -6,18 +6,17 @@ import { Buffer } from 'buffer';
 import { ElMessage } from 'element-plus';
 import { ethers } from "ethers";
 import { onBeforeMount, onMounted, reactive } from "vue";
+import { domain } from "../router/domain";
 import service from "../router/service";
 import { GivingMsg, Links } from "../router/type";
 import { shortenAddr, toXOnly } from "../router/util";
-
-import { domain } from "../router/domain";
 
 const defaultPath = "m/86'/0'/0'/0/0";
 const subSLen = 8;
 
 const menuIcon = domain.domainImgUrl + 'assets/icon_menu@2x.png';
 const closeIcon = domain.domainImgUrl + 'assets/icon_close_nav@2x.png';
-const avatarIcon = domain.domainImgUrl + 'assets/icon_btc@2x.png';
+const avatarIcon = domain.domainImgUrl + 'assets/avater_def@2x.png';
 
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -41,6 +40,7 @@ function doDisconnect() {
 
 defineExpose({
   doDisconnect,
+  exportPrivateKey,
 })
 
 function reloadPage() {
@@ -91,7 +91,7 @@ async function generateBitcoinAddr() {
 
   const taprootChild = root.derivePath(defaultPath);
 
-  const privKey = taprootChild.privateKey?.toString('hex')
+  // const privKey = taprootChild.privateKey?.toString('hex')
   const pubKey = taprootChild.publicKey;
 
   const { address: taprootAddress } = bitcoin.payments.p2tr({
@@ -102,6 +102,7 @@ async function generateBitcoinAddr() {
     state.bitcoinAddr = taprootAddress
     state.shortAddr = shortenAddr(state.bitcoinAddr, subSLen);
 
+    localStorage.setItem('eth_address', state.account)
     localStorage.setItem('bitcoin_address', taprootAddress)
     localStorage.setItem('public_key', pubKey.toString('hex'))
 
@@ -109,6 +110,31 @@ async function generateBitcoinAddr() {
   } else {
     ElMessage.error("generate your bitcoin address failed, please retry.")
   }
+}
+
+async function exportPrivateKey() {
+  if (typeof window.ethereum === 'undefined') {
+    alert("Matamask is not installed!")
+    return
+  }
+
+  let provider = new ethers.BrowserProvider(window.ethereum)
+
+  let signer = await provider.getSigner();
+
+  let sig = await signer.signMessage(GivingMsg);
+
+  const seed = ethers.toUtf8Bytes(
+    ethers.keccak256(ethers.toUtf8Bytes(sig))
+  );
+
+  let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+
+  const taprootChild = root.derivePath(defaultPath);
+
+  const privKey = taprootChild.privateKey?.toString('hex');
+
+  return privKey
 }
 
 function connectAction() {
@@ -121,7 +147,6 @@ function connectAction() {
 
 function loadavatar(addr: string) {
   service.avatarGet(addr).then(avatarRet => {
-    console.log(avatarRet)
     if (avatarRet.data.length > 0) {
       state.avatar = avatarRet.data[0].content_url
     }

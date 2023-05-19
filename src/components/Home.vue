@@ -34,10 +34,12 @@ function searchAction() {
 }
 
 function searchAddr() {
+  let loadingInstance = ElLoading.service({ fullscreen: true });
   state.stage = ''
   service.queryInsWith(state.input).then((val) => {
     state.searchItem = val.data.result
     state.stage = 'searchIns'
+    loadingInstance.close()
   })
 }
 
@@ -183,7 +185,7 @@ onMounted(() => {
     <PayView v-else-if="state.stage == 'pay'" :ref="state.stage" class="pay-view" :gas-info="state.gasInfo"
       @back-action="backAction" @to-processing="toProcessing" />
 
-    <RegisteriedView v-else-if="state.stage == 'registered'" :ref="state.stage" class="registered-view"
+    <RegisteriedView v-else-if="state.stage == 'registered'" :ref="state.stage" class="registered-view" @connect-parent-action="connectParentAction"
       :domain-name="state.inputAppend" :is-available="state.isAvailable" />
 
     <RegisteringView v-else-if="state.stage == 'registering'" :ref="state.stage" class="registering-view"

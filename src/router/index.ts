@@ -1,7 +1,9 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
+import Bsite from "../components/Bsite.vue";
 import Home from "../components/Home.vue";
 import MyWallet from "../components/MyWallet.vue";
+import Setting from "../components/Setting.vue";
 
 const routes = [
     {
@@ -14,6 +16,16 @@ const routes = [
         path: '/wallet/:addr',
         name: "wallet",
         component: MyWallet,
+        props: true,
+    },{
+        path: '/setting/:addr',
+        name: 'setting',
+        component: Setting,
+        props: true,
+    },{
+        path: '/bsite',
+        name: 'bsite',
+        component: Bsite,
         props: true,
     }
 ]
@@ -28,19 +40,5 @@ router.afterEach((to, from, next) => {
     document.body.scrollTop = 0
     document.documentElement.scrollTop = 0
 })
-
-// router.beforeEach((to, from, next) => {
-//     let token = localStorage.getItem("WalletAcount");
-//     let isAuthenticated = true;
-//     if (token == undefined || token == null) {
-//       isAuthenticated = false;
-//     }
-  
-//     if (to.name !== 'home' && !isAuthenticated) {
-//       next({ name: 'home' })
-//     } else {
-//       next()
-//     }
-//   })
 
 export default router
