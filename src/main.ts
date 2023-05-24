@@ -21,7 +21,7 @@ app.use(ElementPlus)
 app.component(VueQrcode.name, VueQrcode)
 
 app.use(VueGtag, {
-    config: { id: "G-9R1F693PB3"}
+    config: { id: "G-9R1F693PB3" }
 })
 
 app.use(router)
@@ -34,6 +34,7 @@ declare global {
         provider: any,
         singer: any,
         buffer: any,
+        unisat: any
     }
 }
 
