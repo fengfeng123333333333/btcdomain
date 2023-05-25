@@ -11,7 +11,7 @@ import { domain } from "../router/domain";
 import service from "../router/service";
 import { GivingMsg, Links } from "../router/type";
 import { shortenAddr, toXOnly } from "../router/util";
-
+import tp from "tp-js-sdk";
 const defaultPath = "m/86'/0'/0'/0/0";
 const subSLen = 8;
 
@@ -127,6 +127,19 @@ async function generateBitcoinAddrUnisat() {
     loadavatar(taprootAddress);
   } else {
     ElMessage.error("generate your bitcoin address failed, please retry.");
+  }
+}
+async function generateBitcoinAddrTpWallet() {
+  if (!tp.isConnected()) {
+    console.log("please downLoad TokenPocket App");
+  } else {
+    tp.getCurrentWallet().then((result: any) => {
+      alert(JSON.stringify(result));
+      const account = result.data.address;
+      state.account = result.data.address;
+      state.shortAddr = shortenAddr(account, subSLen);
+      localStorage.setItem("bitcoin_address", account);
+    });
   }
 }
 async function exportPrivateKey() {

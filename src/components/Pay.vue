@@ -4,6 +4,7 @@ import { validate } from "bitcoin-address-validation";
 import Decimal from "decimal.js";
 import { ElMessage } from "element-plus";
 import { ethers } from "ethers";
+import tp from "tp-js-sdk";
 import {
   onBeforeMount,
   onBeforeUnmount,
@@ -85,6 +86,7 @@ let state = reactive({
     amount: 0,
     availBal: "",
   },
+  isMobile: true,
 });
 
 onBeforeUnmount(() => {
@@ -312,13 +314,12 @@ function tiggerPaymentAction() {
   if (state.payment.isEnough != 1) {
     return;
   }
-  console.log(state.payment.curIdx);
-  if (state.payment.curIdx == 0) {
+  if (state.payment.methods[state.payment.curIdx].id == 0) {
     tiggerBtcPaymentAction();
-  } else if (state.payment.curIdx == 2) {
+  } else if (state.payment.methods[state.payment.curIdx].id == 2) {
     unisatAction();
-  } else {
-    tiggerMetamaskAction();
+  } else if (state.payment.methods[state.payment.curIdx].id === 3) {
+    tptWalletAction();
   }
 }
 async function unisatAction() {
@@ -332,19 +333,15 @@ async function unisatAction() {
     }
   );
   ElMessage.info("submit transaction: " + txid);
-
   clearTimer();
-
   state.payment.conformTimer = window.setInterval(() => {
     if (state.payment.comformSec <= 0) {
       clearInterval(state.payment.conformTimer);
       window.clearInterval(state.payment.conformTimer);
       state.payment.conformTimer = 1;
-
       conformAction(); // tigger conform
     }
     state.payment.comformSec--;
-    console.log(state.payment.comformSec);
   }, Types.countDownInterval);
 }
 async function tiggerBtcPaymentAction() {
@@ -389,18 +386,25 @@ async function tiggerMetamaskAction() {
   inner.className = "eth-pay-loading-view";
   document.body.appendChild(inner);
 }
-
-async function switchPayMethod(id: number) {
-  if (id == state.payment.curIdx) {
+async function tptWalletAction() {
+  console.log("dfdf");
+  tp.btcTokenTransfer({
+    from: localStorage.getItem("bitcoin_address"),
+    to: state.info.midAddr,
+    amount: state.info.total,
+  }).then((result: any) => {});
+}
+async function switchPayMethod(index: number) {
+  if (index == state.payment.curIdx) {
     return;
   }
-  state.payment.curIdx = id;
+  state.payment.curIdx = index;
   state.payment.isEnough = 0;
-  if (id != 1) {
+  if (state.payment.methods[state.payment.curIdx].id != 1) {
     state.info.switchAddr = state.info.midAddr;
     state.info.switchCurr = "BTC";
     clearTimer();
-    let available_sat = await loadBalance(id);
+    let available_sat = await loadBalance(state.payment.curIdx);
     let needpay_big_total = new BigNumber(state.info.total);
     let needpay_sat = needpay_big_total.multipliedBy(rate);
     if (available_sat.isGreaterThan(needpay_sat)) {
@@ -408,7 +412,7 @@ async function switchPayMethod(id: number) {
     } else {
       state.payment.isEnough = 2;
     }
-  } else if (id == 1) {
+  } else if (state.payment.methods[state.payment.curIdx].id == 1) {
     state.info.switchAddr = "";
     state.info.switchCurr = "";
     state.payment.comformSec = confirmInterval;
@@ -475,7 +479,7 @@ async function countDown() {
   state.payment.countText = TimeFormat(state.payment.countDown);
 }
 
-async function loadBalance(id: number) {
+async function loadBalance(index: number) {
   let available_ret = new BigNumber(0);
   let addr = localStorage.getItem("bitcoin_address");
 
@@ -493,7 +497,7 @@ async function loadBalance(id: number) {
   let amout_tmp = new BigNumber(balance.confirm_amount);
   let amount_sat = amout_tmp.multipliedBy(rate);
   available_ret = amount_sat.minus(totalSatoshi);
-  state.payment.methods[id].bal = available_ret
+  state.payment.methods[index].bal = available_ret
     .div(rate)
     .toPrecision(8)
     .toString();
@@ -516,6 +520,11 @@ async function startRatio() {
 }
 
 onBeforeMount(() => {
+  if (window.innerWidth < 767) {
+    state.isMobile = true;
+  } else {
+    state.isMobile = false;
+  }
   state.info = props.gasInfo! as GasInfo;
   window.addEventListener("beforeunload", (e) => unload(e));
 });
@@ -525,35 +534,58 @@ function unload(e: Event) {
 }
 
 onMounted(() => {
-  state.payment.methods = [
-    {
-      name: "BTC",
-      icon: domain.domainImgUrl + "assets/icon_btc@2x.png",
-      desc: "",
-      bal: "",
-      id: 0,
-    },
-    {
-      name: "ETH",
-      icon: domain.domainImgUrl + "assets/eth@2x.png",
-      desc: "About 3% of exchange fees",
-      bal: "",
-      id: 1,
-    },
-    {
-      name: "UniSat",
-      icon: "/src/assets/walletbox/connect_unisat@2x.png",
-      desc: "",
-      bal: "",
-      id: 2,
-    },
-  ] as PaymentMethod[];
-
+  if (state.isMobile) {
+    state.payment.methods = [
+      {
+        name: "BTC",
+        icon: domain.domainImgUrl + "assets/icon_btc@2x.png",
+        desc: "",
+        bal: "",
+        id: 0,
+      },
+      {
+        name: "ETH",
+        icon: domain.domainImgUrl + "assets/eth@2x.png",
+        desc: "About 3% of exchange fees",
+        bal: "",
+        id: 1,
+      },
+      {
+        name: "tokenPocket ",
+        icon: "/src/assets/walletbox/connect_unisat@2x.png",
+        desc: "",
+        bal: "",
+        id: 3,
+      },
+    ] as PaymentMethod[];
+  } else {
+    state.payment.methods = [
+      {
+        name: "BTC",
+        icon: domain.domainImgUrl + "assets/icon_btc@2x.png",
+        desc: "",
+        bal: "",
+        id: 0,
+      },
+      {
+        name: "ETH",
+        icon: domain.domainImgUrl + "assets/eth@2x.png",
+        desc: "About 3% of exchange fees",
+        bal: "",
+        id: 1,
+      },
+      {
+        name: "UniSat",
+        icon: "/src/assets/walletbox/connect_unisat@2x.png",
+        desc: "",
+        bal: "",
+        id: 2,
+      },
+    ] as PaymentMethod[];
+  }
   state.info.switchAddr = state.info.midAddr;
   state.info.switchCurr = "BTC";
-
   switchPayMethod(0);
-
   useRequest(updateBalance, {
     pollingInterval: Types.queryBalInterval,
     pollingWhenHidden: false,
@@ -655,7 +687,7 @@ function updateBalance() {
         <div class="list-t-view">Select transaction currency</div>
         <div class="payway-content-view">
           <div v-for="(item, index) in state.payment.methods" :key="index" class="pay-item-view pay-item-dif" :class="state.payment.curIdx == index ? 'pay-item-view-selected' : 'pay-item-view-normal'"
-            @click="switchPayMethod(item.id)">
+            @click="switchPayMethod(index)">
             <img :src="item.icon" alt="" width="24" height="24">
             <div>
               <div class="pay-tit-view">{{ item.name }}</div>
@@ -664,9 +696,7 @@ function updateBalance() {
           </div>
         </div>
       </div>
-
       <div class="dash-line-view"></div>
-
       <div class="rate-value-view">
         <div class="thin-title-view"><span style="color: #4540D6;">&#9679; </span>You Will Pay:</div>
         <div style="padding-left: 20px;">
