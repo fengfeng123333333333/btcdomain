@@ -137,6 +137,7 @@ export interface PaymentMethod {
     icon: string;
     desc: string;
     bal: string;
+    id: number;
 }
 
 export interface PayParams {

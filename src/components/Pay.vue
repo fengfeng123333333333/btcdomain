@@ -143,68 +143,7 @@ function conformAction() {
       }
     });
 }
-function tiggerMetamaskAction(index: number) {
-  if (index === 1) {
-    metamaskAction();
-  } else if (index === 2) {
-    unisatAction();
-  }
-}
-async function metamaskAction() {
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
-  let value = state.payment.exchangeRet.fromAmount.toString();
-  let weivalue = ethers.parseUnits(value, "ether");
-  let weiStr = weivalue.toString(16);
 
-  let txHash = await window.ethereum.request({
-    method: "eth_sendTransaction",
-    params: [
-      {
-        from: accounts[0],
-        to: state.payment.exchangeRet.payinAddress,
-        value: weiStr,
-        gasPrice: "",
-        gas: "",
-      },
-    ],
-  });
-
-  ElMessage.info("Send ETH tx: " + txHash + " has been publiced");
-
-  clearTimer();
-
-  let textHtml =
-    '<div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;height: 100vh;width: 100vw;background: rgba(255, 255, 255, 0.7);text-align: center;"><div style="margin-top: 340px;"><img src="https://btcdomains.io/images/loading.svg" width="40" height="40" alt=""></div><br><div class="text-blue" style="font-size: 24px;font-weight: 600;color: #4540D6;line-height: 33px;">Do not close this window until confirmation is complete !</div><br><div class="text-block" style="font-size: 24px;font-weight: 600;color: #202842;line-height: 33px;">Payment has been made and is currently being confirmed. It may take 20 minutes to wait</div></div>';
-  let inner = document.createElement("div");
-  inner.innerHTML = textHtml;
-  inner.className = "eth-pay-loading-view";
-  document.body.appendChild(inner);
-}
-async function unisatAction() {
-  const accounts = await window.unisat.getAccounts();
-  console.log("accounts", accounts);
-  let value = state.payment.exchangeRet.fromAmount.toString();
-  let weivalue = ethers.parseUnits(value, "ether");
-  let weiStr = weivalue.toString(16);
-  console.log(state.info.midAddr);
-  const txid = await (window as any).unisat.sendBitcoin(
-    state.info.midAddr,
-    weiStr,
-    {
-      // feeRate: 0.000000000000001,
-    }
-  );
-  ElMessage.info("submit transaction: " + txid);
-  clearTimer();
-  let textHtml =
-    '<div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;height: 100vh;width: 100vw;background: rgba(255, 255, 255, 0.7);text-align: center;"><div style="margin-top: 340px;"><img src="https://btcdomains.io/images/loading.svg" width="40" height="40" alt=""></div><br><div class="text-blue" style="font-size: 24px;font-weight: 600;color: #4540D6;line-height: 33px;">Do not close this window until confirmation is complete !</div><br><div class="text-block" style="font-size: 24px;font-weight: 600;color: #202842;line-height: 33px;">Payment has been made and is currently being confirmed. It may take 20 minutes to wait</div></div>';
-  let inner = document.createElement("div");
-  inner.innerHTML = textHtml;
-  inner.className = "eth-pay-loading-view";
-  document.body.appendChild(inner);
-}
 async function addressChange() {
   if (state.sendInsOrBtc.toAddr.endsWith(".btc")) {
     let ret = await service.queryDomain(state.sendInsOrBtc.toAddr);
@@ -234,7 +173,7 @@ async function sendBtcsAction() {
 
   // determine how much btc are available to transfer
 
-  let available_sat = await loadBalance();
+  let available_sat = await loadBalance(state.payment.curIdx);
   let availBtcStr = available_sat.div(rate).toPrecision(8).toString();
 
   state.sendInsOrBtc.availBal = availBtcStr;
@@ -330,7 +269,8 @@ async function submitBtcTxAction() {
     return;
   }
 
-  const privKey = await generateBitcoinAddr();
+  const walletType = localStorage.walletType;
+  const privKey = await generateBitcoinAddr(walletType);
   if (!privKey) {
     ElMessage.warning("private key must not be empty");
     return;
@@ -372,32 +312,95 @@ function tiggerPaymentAction() {
   if (state.payment.isEnough != 1) {
     return;
   }
-
+  console.log(state.payment.curIdx);
   if (state.payment.curIdx == 0) {
     tiggerBtcPaymentAction();
+  } else if (state.payment.curIdx == 2) {
+    unisatAction();
   } else {
     tiggerMetamaskAction();
   }
 }
+async function unisatAction() {
+  const num = new BigNumber(state.info.total);
+  const weivalue = num.multipliedBy(100000000).toNumber();
+  const txid = await (window as any).unisat.sendBitcoin(
+    state.info.midAddr,
+    weivalue,
+    {
+      // feeRate: 0.000000000000001,
+    }
+  );
+  ElMessage.info("submit transaction: " + txid);
 
+  clearTimer();
+
+  state.payment.conformTimer = window.setInterval(() => {
+    if (state.payment.comformSec <= 0) {
+      clearInterval(state.payment.conformTimer);
+      window.clearInterval(state.payment.conformTimer);
+      state.payment.conformTimer = 1;
+
+      conformAction(); // tigger conform
+    }
+    state.payment.comformSec--;
+    console.log(state.payment.comformSec);
+  }, Types.countDownInterval);
+}
 async function tiggerBtcPaymentAction() {
   await sendBtcsAction();
 }
 
-async function switchPayMethod(idx: number) {
-  if (idx == state.payment.curIdx) {
+async function tiggerMetamaskAction() {
+  const accounts = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+  let value = state.payment.exchangeRet.fromAmount.toString();
+  console.log("state.payment.exchangeRet", state.payment.exchangeRet);
+  console.log(
+    "state.payment.exchangeRet.fromAmount",
+    state.payment.exchangeRet.fromAmount
+  );
+  console.log("state.payment.exchangeRet.fromAmount   value", value);
+  let weivalue = ethers.parseUnits(value, "ether");
+  console.log("weivalue", weivalue);
+  let weiStr = weivalue.toString(16);
+  console.log("weiStr", weiStr);
+
+  let txHash = await window.ethereum.request({
+    method: "eth_sendTransaction",
+    params: [
+      {
+        from: accounts[0],
+        to: state.payment.exchangeRet.payinAddress,
+        value: weiStr,
+        gasPrice: "",
+        gas: "",
+      },
+    ],
+  });
+
+  ElMessage.info("Send ETH tx: " + txHash + " has been publiced");
+  clearTimer();
+  let textHtml =
+    '<div style="position: fixed;top: 0;left: 0;right: 0;bottom: 0;height: 100vh;width: 100vw;background: rgba(255, 255, 255, 0.7);text-align: center;"><div style="margin-top: 340px;"><img src="https://btcdomains.io/images/loading.svg" width="40" height="40" alt=""></div><br><div class="text-blue" style="font-size: 24px;font-weight: 600;color: #4540D6;line-height: 33px;">Do not close this window until confirmation is complete !</div><br><div class="text-block" style="font-size: 24px;font-weight: 600;color: #202842;line-height: 33px;">Payment has been made and is currently being confirmed. It may take 20 minutes to wait</div></div>';
+  let inner = document.createElement("div");
+  inner.innerHTML = textHtml;
+  inner.className = "eth-pay-loading-view";
+  document.body.appendChild(inner);
+}
+
+async function switchPayMethod(id: number) {
+  if (id == state.payment.curIdx) {
     return;
   }
-  state.payment.curIdx = idx;
+  state.payment.curIdx = id;
   state.payment.isEnough = 0;
-  if (idx == 0) {
+  if (id != 1) {
     state.info.switchAddr = state.info.midAddr;
     state.info.switchCurr = "BTC";
     clearTimer();
-    let available_sat = await loadBalance();
-    if (state.payment.curIdx == 1) {
-      return;
-    }
+    let available_sat = await loadBalance(id);
     let needpay_big_total = new BigNumber(state.info.total);
     let needpay_sat = needpay_big_total.multipliedBy(rate);
     if (available_sat.isGreaterThan(needpay_sat)) {
@@ -405,15 +408,12 @@ async function switchPayMethod(idx: number) {
     } else {
       state.payment.isEnough = 2;
     }
-  } else if (idx == 1) {
+  } else if (id == 1) {
     state.info.switchAddr = "";
     state.info.switchCurr = "";
     state.payment.comformSec = confirmInterval;
     // request ratio
     let retData = await startRatio();
-    if (state.payment.curIdx == 0) {
-      return;
-    }
     state.payment.exchangeRet = JSON.parse(retData.data);
     state.info.switchAddr = state.payment.exchangeRet.payinAddress;
     state.info.switchCurr =
@@ -429,14 +429,17 @@ async function switchPayMethod(idx: number) {
     if (ethAddr) {
       // provider
       let provider = new ethers.BrowserProvider(window.ethereum);
+
       // ethers
       provider
         .getBalance(ethAddr)
         .then((balance) => {
           let w_balance = ethers.formatEther(balance);
           let balance_big = new BigNumber(w_balance);
+
           // set balance
           state.payment.methods[state.payment.curIdx].bal = w_balance;
+
           if (balance_big.isGreaterThan(needpay_wei_big)) {
             state.payment.isEnough = 1;
           } else {
@@ -472,7 +475,7 @@ async function countDown() {
   state.payment.countText = TimeFormat(state.payment.countDown);
 }
 
-async function loadBalance() {
+async function loadBalance(id: number) {
   let available_ret = new BigNumber(0);
   let addr = localStorage.getItem("bitcoin_address");
 
@@ -490,7 +493,7 @@ async function loadBalance() {
   let amout_tmp = new BigNumber(balance.confirm_amount);
   let amount_sat = amout_tmp.multipliedBy(rate);
   available_ret = amount_sat.minus(totalSatoshi);
-  state.payment.methods[0].bal = available_ret
+  state.payment.methods[id].bal = available_ret
     .div(rate)
     .toPrecision(8)
     .toString();
@@ -528,22 +531,21 @@ onMounted(() => {
       icon: domain.domainImgUrl + "assets/icon_btc@2x.png",
       desc: "",
       bal: "",
+      id: 0,
     },
     {
       name: "ETH",
       icon: domain.domainImgUrl + "assets/eth@2x.png",
       desc: "About 3% of exchange fees",
       bal: "",
-    },
-    {
-      name: "MetaMask",
-      icon: import("../assets/walletbox/connect_metamask@2x.png"),
-      desc: "",
+      id: 1,
     },
     {
       name: "UniSat",
-      icon: import("../assets/walletbox/connect_unisat@2x.png"),
+      icon: "/src/assets/walletbox/connect_unisat@2x.png",
       desc: "",
+      bal: "",
+      id: 2,
     },
   ] as PaymentMethod[];
 
@@ -597,6 +599,7 @@ function updateBalance() {
         <el-col :xs="6" :sm="4" :md="4" :lg="2" :xl="2"><span class="s-name">NAME</span></el-col>
         <el-col :xs="6" :sm="4" :md="4" :lg="2" :xl="2"><span class="s-name">STATE</span></el-col>
       </el-row>
+
       <el-row justify="space-between">
         <el-col :xs="6" :sm="4" :md="4" :lg="2" :xl="3"><span class="t-name">{{ state.info.name }}</span></el-col>
         <el-col :xs="6" :sm="4" :md="4" :lg="2" :xl="2"><span class="t-name">{{ state.info.isAvailable ? 'Available'
@@ -604,19 +607,25 @@ function updateBalance() {
                 }}</span></el-col>
       </el-row>
     </div>
+
     <br>
+
     <div class="pay-content-view">
       <div class="back-view" @click="backAction">
         <img src="../assets/icon_back@2x.png" style="width: 24px;height: 24px;" alt="">
         Back
       </div>
+
       <div class="tran-fee-title"><span style="color: #4540D6;">&#9679; </span>Transaction fee</div>
+
       <br>
+
       <el-row justify="space-between">
         <el-col :xs="14" :sm="12" :md="10" :lg="10" :xl="10" class="list-t-view">Register Fee</el-col>
         <el-col :xs="10" :sm="8" :md="6" :lg="5" :xl="5" class="owner-view">{{ state.info.registerFee + ' BTC'
                 }}</el-col>
       </el-row>
+
       <el-row justify="space-between">
         <el-col :xs="14" :sm="12" :md="10" :lg="10" :xl="10">
           <div class="list-t-view">Current Balance</div>
@@ -625,7 +634,9 @@ function updateBalance() {
           <div class="owner-view">{{ state.info.balance + " BTC" }}</div>
         </el-col>
       </el-row>
+
       <div class="dash-line-view"></div>
+
       <el-row justify="space-between">
         <el-col :xs="14" :sm="12" :md="10" :lg="10" :xl="10">
           <div class="list-t-view">Final Payment</div>
@@ -635,14 +646,16 @@ function updateBalance() {
           <div class="owner-view">{{ state.info.total + " BTC" }}</div>
         </el-col>
       </el-row>
+
       <div class="solid-line-view"></div>
+
       <div class="payment-view">
         <div class="tran-fee-title"><span style="color: #4540D6;">&#9679; </span>Payment Method</div>
         <br>
         <div class="list-t-view">Select transaction currency</div>
         <div class="payway-content-view">
           <div v-for="(item, index) in state.payment.methods" :key="index" class="pay-item-view pay-item-dif" :class="state.payment.curIdx == index ? 'pay-item-view-selected' : 'pay-item-view-normal'"
-            @click="switchPayMethod(index)">
+            @click="switchPayMethod(item.id)">
             <img :src="item.icon" alt="" width="24" height="24">
             <div>
               <div class="pay-tit-view">{{ item.name }}</div>
@@ -651,16 +664,19 @@ function updateBalance() {
           </div>
         </div>
       </div>
+
       <div class="dash-line-view"></div>
+
       <div class="rate-value-view">
         <div class="thin-title-view"><span style="color: #4540D6;">&#9679; </span>You Will Pay:</div>
         <div style="padding-left: 20px;">
-          <div v-if="state.payment.curIdx != 1" class="pay-value-view">{{ state.info.total }} <span>BTC</span>
+          <div v-if="state.payment.curIdx !=1" class="pay-value-view">{{ state.info.total }} <span>BTC</span>
           </div>
           <div v-else class="pay-value-view">{{ state.payment.exchangeRet.fromAmount }}
             <span>{{ state.info.switchCurr }}</span>
           </div>
-          <div v-if="state.payment.curIdx == 1" style="display: flex;margin-top: 10px;">
+
+          <div v-if="state.payment.curIdx ==1" style="display: flex;margin-top: 10px;">
             <div class="thin-title-view">The rate will be updated in</div>
             <div style="background: #A7A9BE;padding-left: 4px;margin-left: 4px;padding-right: 4px;color: white;border-radius: 2px;line-height: 24px;">
               <img src="../assets/time@2x.png" alt="" width="15" height="15" style="vertical-align: text-top;">{{ state.payment.countText }}
@@ -668,6 +684,7 @@ function updateBalance() {
           </div>
         </div>
       </div>
+
       <div class="enough-view" v-if="state.payment.methods.length > 0">
         <div>Wallet Balance: {{ state.payment.methods[state.payment.curIdx].bal }} {{ state.info.switchCurr }}
         </div>
@@ -680,7 +697,7 @@ function updateBalance() {
           </div>
         </div>
       </div>
-      <div class="ewai" style="line-height: 24px;" v-if="state.payment.curIdx === 1">
+      <div class="ewai" style="line-height: 24px;" v-if="state.payment.curIdx ==1">
         <img src="../assets/icon_16_tips_red@2x.png" width="16" height="16" style="vertical-align: text-top" alt="">
         <span>Only transfers from the &nbsp;Ethereum mainnet&nbsp;are accepted. Transfers from other networks will not be successful.</span>
       </div>
@@ -689,36 +706,28 @@ function updateBalance() {
           Pay
         </div>
       </div>
+
       <div class="dash-line-view"></div>
-      <div class="metamask-view" v-if="state.payment.curIdx== 2||state.payment.curIdx== 3">
-        <div style="font-weight: bold;"><span style="color: #4540D6;">&#9679; </span>OR <span style="font-weight: normal;">Pay with wallet connect</span></div>
-        <br>
-        <div class="metamask-btn" @click="tiggerMetamaskAction(state.payment.curIdx)" v-if="state.payment.curIdx==2">
-          <img src="../assets/MetaMask_Fox@2x.png" alt="" width="26" height="26" style="margin-top: 8px;">
-          <div>Connect Metamask wallet</div>
-        </div>
-        <div class="metamask-btn" @click="tiggerMetamaskAction(state.payment.curIdx)" v-if="state.payment.curIdx==3">
-          <img src="../assets/MetaMask_Fox@2x.png" alt="" width="26" height="26" style="margin-top: 8px;">
-          <div>Connect UniSat wallet</div>
-        </div>
-      </div>
-      <div style="font-weight: bold;"><span style="color: #4540D6;">&#9679; </span>OR <span style="font-weight: normal;">Send the funds to this address</span></div>
-      <div class="qrcode-view">
-        <div v-if="state.info.switchAddr">
-          <vue-qrcode :value="state.info.switchAddr" :options="{ width: 200 }"></vue-qrcode>
-          <div style="color: #2E2F3E;word-wrap: break-word;">{{
+      <div v-if="state.payment.curIdx!=2">
+        <div style="font-weight: bold;"><span style="color: #4540D6;">&#9679; </span>OR <span style="font-weight: normal;">Send the funds to this address</span></div>
+        <div class="qrcode-view">
+          <div v-if="state.info.switchAddr">
+            <vue-qrcode :value="state.info.switchAddr" :options="{ width: 200 }"></vue-qrcode>
+            <div style="color: #2E2F3E;word-wrap: break-word;">{{
                         state.info.switchAddr }} <img src="../assets/icon_copy@2x.png" style="width: 32px;height: 32px;cursor: pointer;" alt="" @click="copyAction"></div>
+          </div>
         </div>
-      </div>
-      <div class="conform-outer-view">
-        <br>
-        <div class="note-view">
-          The domain name will belong to the person who has the priority to complete the transfer. If the transfer
-          amount is incorrect, please contact us by email.
+        <div class="conform-outer-view">
+          <br>
+          <div class="note-view">
+            The domain name will belong to the person who has the priority to complete the transfer. If the transfer
+            amount is incorrect, please contact us by email.
+          </div>
         </div>
       </div>
     </div>
   </div>
+
   <el-dialog v-model="state.sendInsOrBtc.isSendInsOrBtcShow" :show-close="true" :align-center="true" :width="state.sendInsOrBtc.dialogueWidth" class="send-dialogue-view">
     <template #header="{ close, titleId, titleClass }">
       <div class="my-header">

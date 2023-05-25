@@ -4,6 +4,7 @@ import BIP32Factory from "bip32";
 import * as bitcoin from "bitcoinjs-lib";
 import { Buffer } from "buffer";
 import { ElMessage } from "element-plus";
+import { fa } from "element-plus/es/locale";
 import { ethers } from "ethers";
 import { onBeforeMount, onMounted, reactive } from "vue";
 import { domain } from "../router/domain";
@@ -17,14 +18,11 @@ const subSLen = 8;
 const menuIcon = domain.domainImgUrl + "assets/icon_menu@2x.png";
 const closeIcon = domain.domainImgUrl + "assets/icon_close_nav@2x.png";
 const avatarIcon = domain.domainImgUrl + "assets/avater_def@2x.png";
-
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
-
 const props = defineProps({
   avatarAddr: String,
 });
-
 let state = reactive({
   isExpand: false,
   account: "",
@@ -34,7 +32,6 @@ let state = reactive({
   dialogVisible: false,
   walletType: "1",
 });
-
 const emit = defineEmits({
   connectParentAction(addr: string) {},
 });
@@ -58,75 +55,47 @@ function doDisconnect() {
   state.bitcoinAddr = "";
   state.shortAddr = "";
 }
-
 defineExpose({
   doDisconnect,
   exportPrivateKey,
 });
-
 function reloadPage() {
   location.reload();
 }
-
 function expandAction() {
   state.isExpand = !state.isExpand;
 }
-
 async function generateBitcoinAddrMetaMask() {
   if (typeof window.ethereum === "undefined") {
     alert("Metamask is not installed!");
     return;
   }
-
   const accounts = await window.ethereum.request({
     method: "eth_requestAccounts",
   });
   const account = accounts[0];
   state.account = account;
-
   let network = new ethers.Network("Ethereum Mainnet", 1);
-
-  // Connect to the MetaMask EIP-1193 object. This is a standard
-  // protocol that allows Ethers access to make all read-only
-  // requests through MetaMask.
   let provider = new ethers.BrowserProvider(window.ethereum);
-  // window.provider = provider
-
   let getNetwork = await provider.getNetwork();
-
   if (getNetwork.chainId != network.chainId) {
   }
-
-  // It also provides an opportunity to request access to write
-  // operations, which will be performed by the private key
-  // that MetaMask manages for the user.
   let signer = await provider.getSigner();
-
   let sig = await signer.signMessage(GivingMsg);
-
-  // let isVerify = ethers.verifyMessage(GivingMsg, sig)
-
   const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
-
   let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
-
   const taprootChild = root.derivePath(defaultPath);
-
-  // const privKey = taprootChild.privateKey?.toString('hex')
   const pubKey = taprootChild.publicKey;
-
   const { address: taprootAddress } = bitcoin.payments.p2tr({
     internalPubkey: toXOnly(pubKey),
   });
-
   if (taprootAddress) {
     state.bitcoinAddr = taprootAddress;
     state.shortAddr = shortenAddr(state.bitcoinAddr, subSLen);
-
     localStorage.setItem("eth_address", state.account);
     localStorage.setItem("bitcoin_address", taprootAddress);
     localStorage.setItem("public_key", pubKey.toString("hex"));
-
+    localStorage.setItem("walletType", "metaMask");
     loadavatar(taprootAddress);
   } else {
     ElMessage.error("generate your bitcoin address failed, please retry.");
@@ -137,62 +106,79 @@ async function generateBitcoinAddrUnisat() {
     alert("unisat is not installed!");
     return;
   }
-  console.log("window.unisat", window.unisat);
   const accounts = await window.unisat.requestAccounts();
-  console.log("accountsunista", accounts);
   const account = accounts[0];
   state.account = account;
-  state.shortAddr = shortenAddr(account, subSLen);
-  let network = new ethers.Network("Ethereum Mainnet", 1);
-  console.log("network", network);
-  let getNetwork = await window.unisat.getNetwork();
-  console.log("getNetwork", getNetwork);
-  if (getNetwork.chainId != network.chainId) {
-  }
   let sig = await window.unisat.signMessage(GivingMsg);
   const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
   let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
   const taprootChild = root.derivePath(defaultPath);
-  const privKey = taprootChild.privateKey?.toString("hex");
   const pubKey = taprootChild.publicKey;
-
   const { address: taprootAddress } = bitcoin.payments.p2tr({
     internalPubkey: toXOnly(pubKey),
   });
-
   if (taprootAddress) {
     state.bitcoinAddr = account;
+    state.shortAddr = shortenAddr(account, subSLen);
     localStorage.setItem("bitcoin_address", account);
     localStorage.setItem("public_key", pubKey.toString("hex"));
-
+    localStorage.setItem("walletType", "uniSat");
+    window.unisat.on("accountsChanged", handleAccountsChanged);
     loadavatar(taprootAddress);
   } else {
     ElMessage.error("generate your bitcoin address failed, please retry.");
   }
 }
 async function exportPrivateKey() {
-  if (typeof window.ethereum === "undefined") {
-    alert("Metamask is not installed!");
-    return;
+  let walletType = localStorage.walletType;
+  console.log("dddddddd");
+  if (walletType === "uniSat") {
+    let sig = await window.unisat.signMessage(GivingMsg);
+    const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+    let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+    const taprootChild = root.derivePath(defaultPath);
+    const privKey = taprootChild.privateKey?.toString("hex");
+    console.log(privKey);
+    return privKey;
+  } else if (walletType === "metaMask") {
+    if (typeof window.ethereum === "undefined") {
+      alert("Metamask is not installed!");
+      return;
+    }
+    let provider = new ethers.BrowserProvider(window.ethereum);
+    let signer = await provider.getSigner();
+    let sig = await signer.signMessage(GivingMsg);
+    const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+    let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+    const taprootChild = root.derivePath(defaultPath);
+    const privKey = taprootChild.privateKey?.toString("hex");
+    console.log(privKey);
+    return privKey;
   }
-  let provider = new ethers.BrowserProvider(window.ethereum);
-  let signer = await provider.getSigner();
-  let sig = await signer.signMessage(GivingMsg);
-  const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
-  let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
-  const taprootChild = root.derivePath(defaultPath);
-  const privKey = taprootChild.privateKey?.toString("hex");
-  return privKey;
 }
 
 function connectAction() {
   if (state.bitcoinAddr) {
     emit("connectParentAction", state.bitcoinAddr);
   } else {
-    state.dialogVisible = true;
+    if (window.innerWidth < 767) {
+      generateBitcoinAddrMetaMask();
+    } else {
+      state.dialogVisible = true;
+    }
   }
 }
-
+const handleAccountsChanged = (_accounts: string[]) => {
+  if (state.account === _accounts[0]) {
+    return;
+  } else {
+    state.account = _accounts[0];
+    state.bitcoinAddr = _accounts[0];
+    state.shortAddr = shortenAddr(_accounts[0], subSLen);
+    localStorage.setItem("bitcoin_address", _accounts[0]);
+    ElMessage.info("changed the wallet");
+  }
+};
 function loadavatar(addr: string) {
   service.avatarGet(addr).then((avatarRet) => {
     if (avatarRet.data.length > 0) {
@@ -210,8 +196,8 @@ onMounted(() => {
   if (addr) {
     state.bitcoinAddr = addr;
     state.shortAddr = shortenAddr(addr, subSLen);
-
     loadavatar(addr);
+    window.unisat.on("accountsChanged", handleAccountsChanged);
   }
 });
 </script>

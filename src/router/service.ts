@@ -5,7 +5,7 @@ import { Apis, ExtApi, ExtKeys } from "./domain";
 
 export interface IReqSubmitTxs {
     [key: string]: string;
-  }
+}
 
 export default {
     async queryDomain(domain: string) {
@@ -168,7 +168,7 @@ export default {
             return
         }
     },
-    
+
 
     async queryExtIns(address: string) {
         // walletInfo
