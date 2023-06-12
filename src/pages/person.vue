@@ -42,10 +42,10 @@
     </div>
     <div class="person_body">
       <div class="person_body_left">
-        <personSet @changeOption="changeOptionFun"></personSet>
+        <personSet @changeOption="changeOptionFun" :sendWalletPageType="sendWalletPageType"></personSet>
       </div>
       <div class="person_body_right">
-        <personContent :type="type"></personContent>
+        <personContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun"></personContent>
       </div>
     </div>
     <Foot></Foot>
@@ -64,7 +64,8 @@ export default {
   data() {
     return {
       searchText: null,
-      type: "Inscription"
+      type: "Inscription",
+      sendWalletPageType: 0
     }
   },
   methods: {
@@ -83,7 +84,13 @@ export default {
       this.type = value;
     },
     isInputFun() { },
-    searchFun() { }
+    searchFun() { },
+    sendBtcFun() {
+      this.sendWalletPageType = 1
+    },
+    receiveBtcFun() {
+      this.sendWalletPageType = 2
+    },
   },
   mounted() {
     let name = localStorage.optionName;

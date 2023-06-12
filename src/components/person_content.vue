@@ -6,7 +6,7 @@
 <template>
   <div class="person_content_app">
     <Inscription v-if="optionType==='Inscription'"></Inscription>
-    <Wallet v-if="optionType==='Wallet'"></Wallet>
+    <Wallet v-if="optionType==='Wallet'" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun"></Wallet>
     <Setting v-if="optionType==='Setting'"></Setting>
   </div>
 </template>
@@ -35,6 +35,14 @@ export default {
   components: {
     Inscription, Wallet, Setting
   },
+  methods: {
+    sendBtcFun() {
+      this.$emit("sendBtc")
+    },
+    receiveBtcFun() {
+      this.$emit("receiveBtc")
+    }
+  }
 }
 </script>
   

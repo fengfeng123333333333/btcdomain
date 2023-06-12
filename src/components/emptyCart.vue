@@ -223,6 +223,9 @@
   background: #ffffff;
   box-shadow: 0px -6px 14px 0px rgba(46, 47, 62, 0.1);
   animation: cart 0.2s forwards;
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
 @keyframes cart {
   from {
@@ -307,6 +310,10 @@
   margin-left: 8px;
   cursor: pointer;
 }
+.Registered {
+  display: flex;
+  align-items: center;
+}
 </style>
     <template>
   <div class="empty_app">
@@ -328,40 +335,56 @@
       <div class="home_content" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
         <div class="home_content_result">
           <div class="result_left">
-            <span>{{resultData.name}}</span>
+            <span>{{resultData.dom_name}}</span>
             <div class="result_left_bottom">
-              <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="resultData.status==='Available'">{{resultData.status}}</div>
-              <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="resultData.status==='Registered'">{{resultData.status}}</div>
-              <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="resultData.status==='Registering'">{{resultData.status}}</div>
-              <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{resultData.feegas}}</div>
+              <div v-if="resultData.dom_state===9">
+                <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+              </div>
+              <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
+                <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+                <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+              </div>
+              <div v-else>
+                <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+              </div>
+              <div class="result_left_bottom_item" v-if="resultData.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{resultData.fee.gas_fee}} BTC/yr</div>
             </div>
           </div>
-          <div class="result_right" v-if="resultData.status==='Available'&&!resultData.isSelect" @click="addResultFun">
+          <div class="result_right" v-if="resultData.dom_state===9&&!resultData.isSelect" @click="addResultFun">
             <img src="../assets/home/icon_add_white@2x.png" alt="">
             <span>Add To Cart</span>
           </div>
-          <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.status==='Available'&&resultData.isSelect" class="link_item_add">
+          <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
         </div>
         <div class="home_content_link">
           <div class="link_head">More Domains</div>
           <div class="link_box">
             <div class="link_item" v-for="(item,index) in linkList" :key="index">
               <div class="result_left">
-                <span style="font-size: 16px;">{{item.name}}</span>
+                <span style="font-size: 16px;">{{item.dom_name}}</span>
                 <div class="result_left_bottom">
-                  <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.status==='Available'">{{item.status}}</div>
-                  <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="item.status==='Registered'">{{item.status}}</div>
-                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="item.status==='Registering'">{{item.status}}</div>
-                  <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.feegas}}</div>
+                  <div v-if="item.dom_state===9">
+                    <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                  </div>
+                  <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
+                    <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                    <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
+                    <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                  </div>
+                  <div v-else>
+                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                  </div>
+                  <div class="result_left_bottom_item" v-if="item.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.fee.gas_fee}} BTC/yr</div>
                 </div>
               </div>
-              <div class="link_item_right" v-if="item.status==='Available'">
+              <div class="link_item_right" v-if="item.dom_state==9">
                 <img src="../assets/home/icon_add_black@2x.png" alt="" v-if="!item.isSelect" class="link_item_add" @click="addLinkFun(item)">
                 <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
               </div>
             </div>
           </div>
-          <div class="link_more">More…</div>
+          <!-- <div class="link_more">More…</div> -->
         </div>
       </div>
     </div>
@@ -370,7 +393,7 @@
         <div class="home_cart_num">{{cartNum}} Domains</div>
         <div class="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
-            <span>{{item.name}}</span>
+            <span>{{item.domain}}</span>
             <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
           </div>
         </div>
@@ -384,117 +407,26 @@
 </template>
           
     <script>
+import apis from '../util/apis/apis'
+const moment = require('moment');
+import { copyAction } from '../util/func/index'
 export default {
   data() {
     return {
       searchText: null,
-      searchTabList: [
-        {
-          id: 1,
-          text: "Domains",
-          isSelect: true
-        },
-        {
-          id: 2,
-          text: "Address",
-          isSelect: false
-        },
-      ],
-      selectId: 1,
       searchStutas: false,
       contentShow: false,
       resultData: {
-        name: "momomobile.btc",
-        status: "Available",
-        feegas: "0.001132 BTC/yr",
-        isSelect: false
+        dom_name: null,
+        fee: {},
+        dom_state: null,
+        isSelect: false,
+        owner_address: null,
+        register_date: null,
+        showAddress: null,
+        register_date_show: null
       },
-      linkList: [
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "momomobile.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng1.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng2.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng3.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng4.btc",
-          status: "Registered",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng5.btc",
-          status: "Registering",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-      ],
+      linkList: [],
       cartList: [],
       cartNum: 0
     }
@@ -508,33 +440,20 @@ export default {
     }
   },
   methods: {
-    outClick() {
-      this.contentShow = false;
-    },
-    changeSearchTypeFun(item) {
-      if (item.isSelect) {
-        return
-      }
-      this.searchTabList.forEach(element => {
-        element.isSelect = false
-      })
-      item.isSelect = true;
-      this.selectId = item.id;
-      this.searchText = null;
+    copyFun(item) {
+      copyAction(item.owner_address)
     },
     clearSearchFun() {
       this.searchStutas = false;
       this.searchText = null;
+      this.contentShow = false;
     },
     searchFun() {
       if (!this.searchText) {
         return
       }
-      this.contentShow = true;
-      if (this.selectId === 1) {
-      } else {
-
-      }
+      this.queryDomainFun()
+      this.queryMoreDomainFun()
     },
     isInputFun(e) {
       if (e.target.value) {
@@ -554,6 +473,7 @@ export default {
         return
       }
       item.isSelect = true
+      item.domain = item.dom_name;
       this.cartList.push(item)
     },
     addResultFun() {
@@ -566,24 +486,87 @@ export default {
     delectcartFun(item, index) {
       this.cartList.splice(index, 1)
       this.linkList.forEach(element => {
-        if (element.name === item.name) {
+        if (element.domain === item.domain) {
           element.isSelect = false
         }
       })
-      if (item.name === this.resultData.name) {
+      if (item.domain === this.resultData.domain) {
         this.resultData.isSelect = false
       }
     },
     cartPageFun() {
-      this.$emit("addDomain", this.cartList)
-    }
+      let arr = []
+      this.cartList.forEach(element => {
+        let temp = {};
+        temp.domain = element.dom_name;
+        temp.year = 1;
+        arr.push(temp)
+      })
+      console.log(arr)
+      localStorage.cartList = JSON.stringify(arr);
+      this.$emit("addDomain", arr)
+    },
+    queryDomainFun() {
+      this.contentShow = true;
+      let param = {};
+      param.domain = this.searchText + ".btc"
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          res.data.data.isSelect = false;
+          let data = res.data.data;
+          data.domain = data.dom_name
+          if (data.dom_state != 9) {
+            data.showAddress = this.showAddressFun(data.owner_address)
+            data.register_date_show = moment(data.register_date).format("YYYY-MM-DD HH:mm:ss")
+          }
+          this.resultData = data;
+        }
+      }).catch(err => {
+      });
+    },
+    queryMoreDomainFun() {
+      let param = {};
+      param.domain = this.searchText + ".btc"
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryMoreDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          let data = res.data.data;
+          data.forEach(element => {
+            element.isSelect = false
+            if (element.dom_state != 9) {
+              element.showAddress = this.showAddressFun(element.owner_address)
+              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+            }
+          })
+          this.linkList = res.data.data;
+        }
+      }).catch(err => {
+      });
+    },
+    showAddressFun(address) {
+      if (address) {
+        let addressBefor = address.slice(0, 8);
+        let addressBehand = address.slice(address.length - 8)
+        let newAddress = addressBefor + "..." + addressBehand
+        return newAddress
+      } else {
+        return address
+      }
+    },
   },
-  mounted() {
-    document.addEventListener("click", this.outClick);
-  },
-  destroyed() {
-    document.removeEventListener("click", this.outClick)
-  }
 }
     </script>
           

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve  --bail-on-webpack-errors",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -30,6 +30,7 @@
     "ecpair": "github:lyswifter/ecpair",
     "ethers": "^6.4.0",
     "generative-sdk": "github:lyswifter/generative-sdk",
+    "moment": "^2.29.4",
     "patch-package": "^6.5.1",
     "qrcode": "^1.5.1",
     "view-ui-plus": "^1.3.13",

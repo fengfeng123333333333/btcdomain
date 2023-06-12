@@ -128,8 +128,8 @@
       </div>
       <div class="enter_address">Enter Receiving Address</div>
       <div class="enter_address_box displayCom">
-        <input type="text" class="enter_input">
-        <div class="connect_buttom">Confirm</div>
+        <input type="text" class="enter_input" v-model="receiveAddress">
+        <div class="connect_buttom" @click="confirmFun">Confirm</div>
       </div>
     </div>
   </div>
@@ -141,7 +141,8 @@ import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import ecc from "@bitcoinerlab/secp256k1";
 import BIP32Factory from "bip32";
-
+import { validate } from 'bitcoin-address-validation';
+import { Message } from 'view-ui-plus'
 export default {
   data() {
     return {
@@ -171,6 +172,7 @@ export default {
       defaultPath: "m/86'/0'/0'/0/0",
       walletAddress: null,
       showAddress: null,
+      receiveAddress: null,
       GivingMsg: "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
     }
   },
@@ -226,9 +228,10 @@ export default {
         internalPubkey: this.toXOnly(pubKey),
       });
       if (taprootAddress) {
-        localStorage.bitcoinAddr = taprootAddress;
+        localStorage.bitcoin_address = taprootAddress;
         this.showAddress = this.showAddressFun(taprootAddress);
         localStorage.setItem("walletType", "metaMask");
+        localStorage.setItem("public_key", pubKey);
         this.$emit("loginEnd", this.showAddress)
       } else {
         Message.error("generate your bitcoin address failed, please retry.");
@@ -243,10 +246,10 @@ export default {
       let publiKey = await window.unisat.getPublicKey();
       const accounts = await window.unisat.requestAccounts();
       this.walletAddress = accounts[0]
-      localStorage.bitcoinAddr = this.walletAddress;
       this.showAddress = this.showAddressFun(this.walletAddress);
-      localStorage.setItem("bitcoinAddr", this.walletAddress);
+      localStorage.setItem("bitcoin_address", this.walletAddress);
       localStorage.setItem("walletType", "uniSat");
+      localStorage.setItem("public_key", publiKey);
       this.$emit("loginEnd", this.showAddress)
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
     },
@@ -255,12 +258,35 @@ export default {
         return;
       } else {
         this.walletAddress = _accounts[0];
-        localStorage.bitcoinAddr = _accounts[0];
+        localStorage.bitcoin_address = _accounts[0];
         this.showAddress = this.showAddressFun(_accounts[0]);
         this.$emit("loginEnd", this.showAddress)
         Message.info("changed the wallet");
       }
     },
+    confirmFun() {
+      if (!this.receiveAddress) {
+        Message.error("Receive address must not be empty")
+        return
+      }
+      if (!validate(this.receiveAddress)) {
+        Message.error("Receive bitcoin address is not valid")
+        return
+      }
+
+      if (this.receiveAddress.indexOf('bc1p') != -1) {
+        if (this.receiveAddress.length == 62) {
+          localStorage.bitcoin_address = this.receiveAddress;
+          this.showAddress = this.showAddressFun(this.receiveAddress);
+          localStorage.setItem("bitcoin_address", this.receiveAddress);
+          localStorage.setItem("walletType", "custom");
+          this.$emit("loginEnd", this.showAddress)
+        } else {
+          Message.error("Check the length of your Ordinals address");
+          return
+        }
+      }
+    }
   },
   mounted() {
     bitcoin.initEccLib(ecc);

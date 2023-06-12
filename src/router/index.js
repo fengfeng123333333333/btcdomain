@@ -1,11 +1,11 @@
-import { createWebHistory, createRouter } from 'vue-router'
+import { createRouter,createWebHashHistory } from 'vue-router'
 const home = () => import('@/pages/home.vue')
 const cart = () => import('@/pages/cart.vue')
 const order = () => import('@/pages/order.vue')
-const person =()=>import('@/pages/person.vue')
-const history = createWebHistory()
+const person = () => import('@/pages/person.vue')
+const history=createWebHashHistory()
 const router = createRouter({
-    history, // 路由模式
+    history,
     routes: [
         {
             path: '/',

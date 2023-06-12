@@ -414,7 +414,7 @@
     height: 0px;
   }
   to {
-    height: 100px;
+    height: 130px;
   }
 }
 .cart_fee_left {
@@ -438,12 +438,29 @@
   font-weight: 400;
   color: #2e2f3e;
 }
-.cart_fee_right_ze {
+.cart_fee_right_ze_none {
   font-size: 12px;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
+  /* margin-top: 5px; */
+}
+.cart_fee_right_ze {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
   text-decoration: line-through;
+  margin-top: 5px;
+}
+.cart_fee_right_ze_ti {
+  text-decoration: none;
+}
+.cart_fee_right_ze_nor {
+  font-size: 12px;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #2e2f3e;
 }
 .cart_right {
   width: 460px;
@@ -553,7 +570,7 @@
   margin-top: 8px;
 }
 .cart_fee_gas {
-  height: 130px;
+  height: 140px;
   padding: 20px 0;
 }
 .slow_class {
@@ -565,6 +582,9 @@
 }
 .cart_fee_gas_right {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 .cart_fee_gas_right_com {
   display: flex;
@@ -661,6 +681,10 @@
   color: #4540d6;
   cursor: pointer;
 }
+.Registered {
+  display: flex;
+  align-items: center;
+}
 </style>
     <template>
   <div class="cart_app">
@@ -680,40 +704,56 @@
         <div class="home_content" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
           <div class="home_content_result">
             <div class="result_left">
-              <span>{{resultData.name}}</span>
+              <span>{{resultData.dom_name}}</span>
               <div class="result_left_bottom">
-                <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="resultData.status==='Available'">{{resultData.status}}</div>
-                <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="resultData.status==='Registered'">{{resultData.status}}</div>
-                <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="resultData.status==='Registering'">{{resultData.status}}</div>
-                <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{resultData.feegas}}</div>
+                <div v-if="resultData.dom_state===9">
+                  <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                </div>
+                <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
+                  <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+                </div>
+                <div v-else>
+                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                </div>
+                <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.gas_fee}} BTC/yr</div>
               </div>
             </div>
-            <div class="result_right" v-if="resultData.status==='Available'&&!resultData.isSelect" @click="addResultFun">
+            <div class="result_right" v-if="resultData.dom_state===9&&!resultData.isSelect" @click="addResultFun">
               <img src="../assets/home/icon_add_white@2x.png" alt="">
               <span>Add To Cart</span>
             </div>
-            <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.status==='Available'&&resultData.isSelect" class="link_item_add">
+            <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
           </div>
           <div class="home_content_link">
             <div class="link_head">More Domains</div>
             <div class="link_box">
               <div class="link_item" v-for="(item,index) in linkList" :key="index">
                 <div class="result_left">
-                  <span style="font-size: 16px;">{{item.name}}</span>
+                  <span style="font-size: 16px;">{{item.dom_name}}</span>
                   <div class="result_left_bottom">
-                    <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.status==='Available'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="item.status==='Registered'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="item.status==='Registering'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.feegas}}</div>
+                    <div v-if="item.dom_state===9">
+                      <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                    </div>
+                    <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
+                      <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{resultData.showAddress}}</div>
+                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                    </div>
+                    <div v-else>
+                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                    </div>
+                    <div class="result_left_bottom_item" v-if="item.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.fee.gas_fee}} BTC/yr</div>
                   </div>
                 </div>
-                <div class="link_item_right" v-if="item.status==='Available'">
+                <div class="link_item_right" v-if="item.dom_state==9">
                   <img src="../assets/home/icon_add_black@2x.png" alt="" v-if="!item.isSelect" class="link_item_add" @click="addLinkFun(item)">
                   <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
                 </div>
               </div>
             </div>
-            <div class="link_more">More…</div>
+            <!-- <div class="link_more">More…</div> -->
           </div>
         </div>
       </div>
@@ -745,8 +785,7 @@
                 </div>
                 <div class="cart_list_item_empti">
                   <div class="cart_list_item_status" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.dom_state===9">Available</div>
-                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="item.dom_state===5">Registered</div>
-                  <div class="cart_list_item_status" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="item.dom_state===1">Registering</div>
+                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1)" v-else>Registered</div>
                 </div>
                 <div class="cart_list_item_content">
                   <div class="cart_list_item_value">
@@ -754,21 +793,29 @@
                     <img src="../assets/cart/24px_arrow_down@2x.png" alt="" @click="checkFeeFun(item)">
                   </div>
                   <div class="cart_list_item_time">
-                    <span class="input_number_year">Year</span>
-                    <InputNumber @on-change="changeYearFun" :min="1" v-model="item.expire_year" class="InputNumberClass" style="width: 100%;" />
+                    <span class="input_number_year" v-if="item.expire_year>1">Years</span>
+                    <span class="input_number_year" v-else>Year</span>
+                    <InputNumber v-if="item.dom_state===9" :max="5" @on-change="changeYearFun" :min="1" v-model="item.expire_year" class="InputNumberClass" style="width: 100%;" />
+                    <InputNumber v-else disabled :max="5" :min="1" v-model="item.expire_year" class="InputNumberClass" style="width: 100%;" />
                   </div>
                 </div>
                 <div class="cart_fee" v-if="item.isPort" :class="{cart_fee_anmil:item.isPort}">
                   <div class="cart_fee_left">
                     <span>Gas Fee</span>
                     <div class="cart_fee_left_dec">The gas fee fluctuates and is updated every 10 seconds</div>
-                    <span>Service Fee</span>
+                    <div>Service Fee</div>
+                    <div class="cart_fee_right_ze_none">Service Fee Basic Discount</div>
+                    <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">Service Fee Promotion Discount</div>
+                    <div>Payable Service Fee</div>
                   </div>
                   <div class="cart_fee_right">
                     <span>{{item.fee.gas_fee}}</span>
+                    <div class="cart_fee_left_dec" style="color:#ffffff">option</div>
                     <div>
-                      <span></span>
-                      <div class="cart_fee_right_ze">{{item.fee.service_fee}}</div>
+                      <div class="cart_fee_right_ze">&nbsp;&nbsp;&nbsp;{{item.fee.origin_service_fee}} BTC</div>
+                      <div class="cart_fee_right_ze_none">- {{item.fee.promo_service_fee}} BTC</div>
+                      <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">- {{item.promcode_fee}} BTC</div>
+                      <div class="cart_fee_right_ze_nor">&nbsp;&nbsp;&nbsp;{{item.fee.service_fee}} BTC</div>
                     </div>
                   </div>
                 </div>
@@ -783,7 +830,7 @@
             </div>
             <div class="cart_right_receivce display_com">
               <span>Receive Address</span>
-              <div class="cart_right_receivce_value">
+              <div class="cart_right_receivce_value" @click="copyActionFun">
                 <span>{{showAddress}}</span>
                 <img src="../assets/cart/16px_icon_copy@2x.png" alt="">
               </div>
@@ -801,7 +848,10 @@
             </div>
             <div class="gas_input">
               <span class="input_number_year">sats/vB</span>
-              <InputNumber :min="1" v-model="gasSelectData.value" class="InputNumberClass" style="width: 100%;" />
+              <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
+              <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
+              <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow">This fee is below the slow, which may lead to a long wait time for inscription.</div>
+              <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
             </div>
             <div class="slow_class" v-if="gasSelectData.name==='Slow'">This fee is below the average, which may lead to a long wait time for inscription.</div>
             <div class="cart_right_gas" style="margin-top:10px">
@@ -809,8 +859,8 @@
               <span>Promo Code</span>
             </div>
             <div class="promoDiv">
-              <input v-model="codeValue" placeholder="Enter Promo Code" class="codeInput" />
-              <div class="promoDivButton">Confirm</div>
+              <input v-model="promo_code" placeholder="Enter Promo Code" class="codeInput" />
+              <div class="promoDivButton" @click="confirmCodeFun">Confirm</div>
             </div>
             <div class="cart_right_line"></div>
             <div class="cart_fee cart_fee_gas">
@@ -819,19 +869,19 @@
                 <div style="margin-top:8px">
                   <span>Total Service Fee</span>
                   <div class="service_code">Service Fee Basic Discount</div>
-                  <div class="service_code">Service Fee Promotion Discount</div>
+                  <div class="service_code" style="margin-top:10px" v-if="gasTotalData.total_promcode_fee>0">Service Fee Promotion Discount</div>
                 </div>
-                <div style="margin-top:8px">Payable Service Fee</div>
+                <div>Payable Service Fee</div>
               </div>
               <div>
                 <span>{{gasTotalData.total_gas_fee}} BTC</span>
                 <div class="cart_fee_gas_right">
                   <div class="cart_fee_gas_right_com">
-                    <span cart_fee_right_ze>{{gasTotalData.total_service_fee}} BTC</span>
-                    <div class="service_code">{{gasTotalData.total_origin_service_fee}} BTC</div>
-                    <div class="service_code">{{gasTotalData.total_promo_service_fee}} BTC</div>
+                    <span class="cart_fee_right_ze">{{gasTotalData.total_origin_service_fee}} BTC</span>
+                    <div class="service_code">- {{gasTotalData.total_promo_service_fee}} BTC</div>
+                    <div class="service_code" v-if="gasTotalData.total_promcode_fee>0">- {{gasTotalData.total_promcode_fee}} BTC</div>
                   </div>
-                  <div>{{gasTotalData.total_additional_fee}} BTC</div>
+                  <div>{{gasTotalData.total_service_fee}} BTC</div>
                 </div>
               </div>
             </div>
@@ -840,7 +890,7 @@
               <span>Total</span>
               <div class="cart_totle_value_right">
                 <span>{{gasTotalData.total_fee}} BTC</span>
-                <span class="cart_totle_value_right_number">{{gasTotalData.total_fee}} USDT</span>
+                <span class="cart_totle_value_right_number"> ≈ {{gasTotalData.usd_value}} USDT</span>
               </div>
             </div>
             <div class="cart_order_button" @click="topayPageFun">Ready To Pay</div>
@@ -865,6 +915,11 @@ import EmptyCart from '../components/emptyCart'
 import { InputNumber, Message, Spin } from 'view-ui-plus'
 import { validate } from 'bitcoin-address-validation';
 import apis from '../util/apis/apis'
+import { copyAction } from '../util/func/index'
+import BigNumber from "bignumber.js";
+const Decimal = require('decimal.js');
+const moment = require('moment');
+
 export default {
   components: {
     Head, Foot, InputNumber, EmptyCart, Spin, Login
@@ -879,109 +934,31 @@ export default {
   },
   data() {
     return {
-      codeValue: null,
       walletTypeBoolean: false,
       searchText: null,
       searchStutas: false,
       contentShow: false,
       resultData: {
-        name: "momomobile.btc",
-        status: "Available",
-        feegas: "0.001132 BTC/yr",
-        isSelect: false
+        dom_name: null,
+        fee: {},
+        dom_state: null,
+        isSelect: false,
+        owner_address: null,
+        register_date: null,
+        showAddress: null,
+        register_date_show: null
       },
-      linkList: [
-        {
-          name: "1.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false,
-        },
-        {
-          name: "2.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "3.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "4.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "5.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "6.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "7.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "8.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng1.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng2.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng3.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng4.btc",
-          status: "Registered",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "feng5.btc",
-          status: "Registering",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-      ],
+      linkList: [],
       cartList: [],
       cartNum: 0,
       gasList: [],
       gasSelectData: {
-        value: null,
-        name: ""
+        value: 0,
+        name: null,
+        customValue: null,
+        fast: null,
+        avg: null,
+        slow: null
       },
       gasTotalData: {
         total_gas_fee: null,
@@ -990,17 +967,32 @@ export default {
         total_promo_service_fee: null,
         total_fee: null,
         total_additional_fee: null,
+        usd_value: null,
+        service_fee: null,
+        total_promcode_fee: null
       },
       spanBoolean: false,
       showAddress: null,
-      receiveAddress: null
+      receiveAddress: null,
+      promo_code: ""
     }
   },
   methods: {
-    changeYearFun() {
+    copyFun(item) {
+      copyAction(item.owner_address)
+    },
+    copyActionFun() {
+      copyAction(this.receiveAddress)
+    },
+    changeYearFun(value) {
+      console.log(value)
+      if (!value) {
+        return
+      }
       this.goToCartFun()
     },
-    recommendedFeeFun(fastestFee, halfHourFee, economyFee) {
+    recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
+      console.log("type", type)
       let arr = [];
       let temp1 = {};
       let temp2 = {};
@@ -1008,14 +1000,17 @@ export default {
       let temp4 = {};
       temp1.name = "Fast";
       temp1.value = fastestFee;
-      temp1.isSelect = true;
+      temp1.fast = fastestFee;
+      temp1.isSelect = false;
 
       temp2.name = "Avg";
       temp2.value = halfHourFee;
+      temp2.avg = halfHourFee;
       temp2.isSelect = false;
 
       temp3.name = "Slow";
-      temp3.value = economyFee;
+      temp3.value = hourFee;
+      temp3.slow = hourFee;
       temp3.isSelect = false;
 
       temp4.name = "Custom";
@@ -1025,6 +1020,17 @@ export default {
       arr.push(temp2);
       arr.push(temp3);
       arr.push(temp4);
+      if (type) {
+        arr.forEach(element => {
+          if (element.name === type) {
+            element.isSelect = true
+          } else {
+            element.isSelect = false
+          }
+        })
+      } else {
+        arr[0].isSelect = true
+      }
       return arr
     },
     goToCartFun() {
@@ -1047,9 +1053,13 @@ export default {
       })
       localStorage.cartList = JSON.stringify(arr)
       param.domains = arr;
-      param.out_wallet = this.receiveAddress,
-        param.rate_fee = 0,
-        param.promo_code = ""
+      param.out_wallet = this.receiveAddress;
+      if (this.gasSelectData.name === 'Custom') {
+        param.rate_fee = this.gasSelectData.customValue;
+      } else {
+        param.rate_fee = this.gasSelectData.value;
+      }
+      param.promo_code = this.promo_code
       this.$axios({
         method: "post",
         data: param,
@@ -1061,17 +1071,43 @@ export default {
         if (res.status == "200") {
           if (res.data.code === 0) {
             this.cartList = res.data.data.domains;
-            this.gasList = this.recommendedFeeFun(res.data.data.recommended_fee.fastestFee, res.data.data.recommended_fee.halfHourFee, res.data.data.recommended_fee.economyFee)
-            this.gasSelectData = this.gasList[0];
-            this.gasTotalData.total_gas_fee = res.data.data.total_gas_fee;
-            this.gasTotalData.total_service_fee = res.data.data.total_service_fee;
-            this.gasTotalData.total_additional_fee = res.data.data.total_additional_fee;
-            this.gasTotalData.total_promo_service_fee = res.data.data.total_promo_service_fee;
-            this.gasTotalData.total_origin_service_fee = res.data.data.total_origin_service_fee;
-            this.gasTotalData.total_fee = res.data.data.total_fee;
-            this.spanBoolean = false
+            this.cartList.forEach(element => {
+              let origin_service_fee = new Decimal(element.fee.origin_service_fee);
+              let promo_service_fee = new Decimal(element.fee.promo_service_fee);
+              let service_fee = new Decimal(element.fee.service_fee);
+              let promcode_fee = origin_service_fee.minus(promo_service_fee).minus(service_fee);
+              element.promcode_fee = Number(promcode_fee.toString());
+            })
+            let data = res.data.data
+            this.gasList = this.recommendedFeeFun(data.recommended_fee.fastestFee, data.recommended_fee.halfHourFee, data.recommended_fee.hourFee, this.gasSelectData.name)
+            if (!this.gasSelectData.name) {
+              this.gasSelectData.name = this.gasList[0].name;
+              this.gasSelectData.fast = data.recommended_fee.fastestFee;
+              this.gasSelectData.avg = data.recommended_fee.halfHourFee
+              this.gasSelectData.slow = data.recommended_fee.hourFee
+              this.gasSelectData.value = this.gasList[0].value
+            }
+            console.log("this.gasSelectData", this.gasSelectData)
+            this.gasTotalData.total_gas_fee = data.total_gas_fee;
+            this.gasTotalData.total_service_fee = data.total_service_fee;
+            this.gasTotalData.total_additional_fee = data.total_additional_fee;
+            this.gasTotalData.total_promo_service_fee = data.total_promo_service_fee;
+            this.gasTotalData.total_origin_service_fee = data.total_origin_service_fee;
+            this.gasTotalData.total_fee = data.total_fee;
+            let total_origin_service_fee = new Decimal(data.total_origin_service_fee);
+            let total_promo_service_fee = new Decimal(data.total_promo_service_fee);
+            let total_service_fee = new Decimal(data.total_service_fee);
+            let total_promcode_fee = total_origin_service_fee.minus(total_promo_service_fee).minus(total_service_fee);
+            this.gasTotalData.total_promcode_fee = Number(total_promcode_fee.toString());
+            this.usdFun();
+            this.spanBoolean = false;
+            this.contentShow = false;
+            localStorage.promo_code = this.promo_code;
           } else {
             this.spanBoolean = false
+            if (res.data.code === 500) {
+              return
+            }
             Message.error(res.data.message)
           }
         }
@@ -1087,16 +1123,9 @@ export default {
         Message.error("Receive bitcoin address is not valid")
         return
       }
-
-      if (this.receiveAddress.indexOf('bc1p') != -1) {
+      if (this.receiveAddress.indexOf('bc1p') != -1 || this.receiveAddress.indexOf('tb1') != -1) {
         if (this.receiveAddress.length == 62) {
-          this.$router.push({
-            name: "order",
-            query: {
-              receiveAddress: this.receiveAddress,
-              value: this.gasSelectData.value
-            }
-          })
+          this.createPayOrderFun()
         } else {
           Message.error("Check the length of your Ordinals address");
           return
@@ -1104,7 +1133,19 @@ export default {
       }
     },
     addDomainFun(value) {
-      this.cartList = value;
+      console.log("value", value)
+      let cartListlocal = value;
+      console.log("cartListlocalcartListlocal", cartListlocal)
+      localStorage.cartList = JSON.stringify(value);
+      if (cartListlocal) {
+        this.cartNum = cartListlocal.length
+      }
+      this.cartList = cartListlocal;
+      if (this.cartNum > 0) {
+        this.receiveAddress = localStorage.bitcoin_address;
+        this.goToCartFun();
+        this.showAddress = this.showAddressFun(this.receiveAddress)
+      }
       window.scrollTo(0, 0)
       document.body.scrollTop = 0
       document.documentElement.scrollTop = 0
@@ -1114,7 +1155,31 @@ export default {
         element.isSelect = false
       })
       item.isSelect = true;
-      this.gasSelectData = item;
+      if (item.name === 'Custom') {
+        this.gasSelectData.customValue = this.gasSelectData.value
+        this.gasSelectData.name = "Custom"
+        return
+      }
+      this.gasSelectData.value = item.value;
+      this.gasSelectData.name = item.name;
+      this.goToCartFun()
+    },
+    changeGasInputFun(value) {
+      if (!value) {
+        return
+      }
+      console.log(this.gasSelectData)
+      if (this.gasSelectData.slow > value) {
+        return
+      }
+      if (this.gasSelectData.avg > value) {
+        return
+      }
+      this.gasSelectData.customValue = value
+      this.goToCartFun()
+    },
+    confirmCodeFun() {
+      this.goToCartFun()
     },
     checkFeeFun(item) {
       item.isPort = !item.isPort
@@ -1142,10 +1207,8 @@ export default {
         return
       }
       this.contentShow = true;
-      if (this.selectId === 1) {
-      } else {
-
-      }
+      this.queryDomainFun()
+      this.queryMoreDomainFun()
     },
     isInputFun(e) {
       if (e.target.value) {
@@ -1156,7 +1219,6 @@ export default {
     },
     onfucusFun() {
       if (this.searchStutas) {
-        console.log("dfdfd")
         // this.contentShow = true;
       }
     },
@@ -1165,28 +1227,33 @@ export default {
         return
       }
       item.isSelect = true
+      item.year = 1;
       this.cartList.push(item);
       localStorage.cartList = JSON.stringify(this.cartList);
+      this.goToCartFun();
       this.handleScrollBottom()
     },
     addResultFun() {
       if (this.resultData.isSelect) {
         return
       }
-      this.resultData.isSelect = true
+      this.resultData.isSelect = true;
+      this.resultData.year = 1;
       this.cartList.push(this.resultData);
-      localStorage.cartList = JSON.stringify(this.cartList);
+      localStorage.cartList = JSON.stringify(this.resultData);
+      this.goToCartFun();
       this.handleScrollBottom()
     },
     delectcartFun(item, index) {
       this.cartList.splice(index, 1)
       localStorage.cartList = JSON.stringify(this.cartList);
+      this.goToCartFun();
       this.linkList.forEach(element => {
-        if (element.name === item.name) {
+        if (element.domain === item.domain) {
           element.isSelect = false
         }
       })
-      if (item.name === this.resultData.name) {
+      if (item.domain === this.resultData.domain) {
         this.resultData.isSelect = false
       }
     },
@@ -1214,9 +1281,131 @@ export default {
     },
     loginEndFun(value) {
       this.showAddress = value;
-      this.receiveAddress = localStorage.bitcoinAddr;
+      this.receiveAddress = localStorage.bitcoin_address;
       this.walletTypeBoolean = false
       this.goToCartFun()
+    },
+    queryMoreDomainFun() {
+      let param = {};
+      param.domain = this.searchText + ".btc"
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryMoreDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          let data = res.data.data;
+          data.forEach(element => {
+            element.isSelect = false
+            if (element.dom_state != 9) {
+              element.showAddress = this.showAddressFun(element.owner_address)
+              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+            }
+            this.cartList.forEach(ele => {
+              if (ele.dom_name === element.dom_name) {
+                element.isSelect = true
+              } else {
+                element.isSelect = false
+              }
+            })
+          })
+          this.linkList = res.data.data;
+        }
+      }).catch(err => {
+      });
+    },
+    queryDomainFun() {
+      this.contentShow = true;
+      let param = {};
+      param.domain = this.searchText + ".btc"
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          res.data.data.isSelect = false;
+          let data = res.data.data;
+          data.domain = data.dom_name;
+          if (data.dom_state != 9) {
+            data.showAddress = this.showAddressFun(data.owner_address)
+            data.register_date_show = moment(data.register_date).format("YYYY-MM-DD HH:mm:ss")
+          }
+          this.cartList.forEach(element => {
+            if (element.dom_name === data.domain) {
+              data.isSelect = true
+            }
+          })
+          this.resultData = data;
+        }
+      }).catch(err => {
+      });
+    },
+    usdFun() {
+      this.$axios({
+        method: "get",
+        url: apis.usdApi,
+        headers: {
+          'X-CoinAPI-Key': apis.coinapiKey
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          let ratio = res.data;
+          let ratioNum = new BigNumber(ratio.rate);
+          let btcNum = new BigNumber(this.gasTotalData.total_fee);
+          let usdtNum = ratioNum.multipliedBy(btcNum);
+          this.gasTotalData.usd_value = new BigNumber(usdtNum.toPrecision(8).toString()).toFixed(2);
+        }
+      }).catch(err => {
+      });
+    },
+    createPayOrderFun() {
+      this.spanBoolean = true
+      let value = null;
+      if (this.gasSelectData.name === 'Custom') {
+        value = this.gasSelectData.customValue
+      } else {
+        value = this.gasSelectData.value
+      }
+      let cartListlocal = localStorage.cartList;
+      let param = {};
+      param.domains = JSON.parse(cartListlocal);
+      param.out_wallet = this.receiveAddress;
+      param.rate_fee = Number(value);
+      param.source = "btc_domain";
+      param.promo_code = this.promo_code;
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.createPayOrderApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.$router.push({
+              name: "order",
+              query: {
+                orderCode: res.data.data.order_code
+              }
+            })
+            localStorage.orderCode = res.data.data.order_code;
+            this.spanBoolean = false
+          } else {
+            this.spanBoolean = false
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+        this.spanBoolean = false
+      });
     },
   },
   beforeMount() {
@@ -1229,12 +1418,14 @@ export default {
   },
   mounted() {
     let cartListlocal = localStorage.cartList;
+    if (localStorage.promo_code) {
+      this.promo_code = localStorage.promo_code;
+    }
     if (cartListlocal) {
       this.cartNum = JSON.parse(cartListlocal).length
     }
-    console.log(this.cartNum)
     if (this.cartNum > 0) {
-      this.receiveAddress = localStorage.bitcoinAddr;
+      this.receiveAddress = localStorage.bitcoin_address;
       this.goToCartFun();
       this.showAddress = this.showAddressFun(this.receiveAddress)
     }

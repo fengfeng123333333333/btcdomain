@@ -49,6 +49,7 @@
 .avatar_set_img {
   width: 120px;
   height: 120px;
+  border-radius: 50%;
 }
 .avatar_set_option {
   height: 44px;
@@ -336,6 +337,16 @@
   border-radius: 8px;
   border: 2px solid #4540d6;
 }
+.domain_name {
+  font-size: 18px;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #2e2f3e;
+}
+.avaterImg {
+  width: 120px;
+  height: 120px;
+}
 </style>
 <template>
   <div class="setting_app">
@@ -347,7 +358,8 @@
             <div class="avatar_title">Avatar</div>
             <div class="avatar_dec">Set your profile picture as the img-type inscription you own.</div>
             <div class="avatar_set">
-              <img src="../assets/person/og@2x.png" alt="" class="avatar_set_img">
+              <img :src="personData.domain_img" alt="" class="avatar_set_img" v-if="personData.content_url&&personData.content_url.length<3">
+              <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
               <div class="avatar_set_option" @click="openmaskFun(1)">
                 <img src="../assets/person/icon_edit_p@2x.png" alt="">
                 <span>Set Avatar</span>
@@ -358,14 +370,15 @@
             <div class="avatar_title">Name</div>
             <div class="avatar_dec">Set your .btc domain name that you own as your profile name.</div>
             <div class="avatar_set">
-              <img src="../assets/person/og@2x.png" alt="" class="avatar_set_img">
-              <div class="avatar_set_option">
+              <span class="domain_name" v-if="personData">{{personData.domain}}</span>
+              <span class="domain_name" v-else></span>
+              <div class="avatar_set_option" @click="openmaskFun(2)">
                 <img src="../assets/person/icon_edit_p@2x.png" alt="">
                 <span>Set Primary Domain Name</span>
               </div>
             </div>
           </div>
-          <div class="setting_save">Save</div>
+          <!-- <div class="setting_save">Save</div> -->
         </TabPane>
         <TabPane label="Account" name="Account">
           <div class="account_box">
@@ -393,22 +406,22 @@
             <input @keyup.enter="searchFun" v-model="avatar" type="text" class="set_input" placeholder="Search by domain name">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
           </div>
-          <div class="selectdiv" :class="{hasdomain:selectAvatarData}">
-            <img src="../assets/order/icon_ok_p@2x.png" alt="" v-if="selectAvatarData">
-            <span v-if="selectAvatarData">Choose {{selectAvatarData.name}}</span>
+          <div class="selectdiv" :class="{hasdomain:selectData}">
+            <img src="../assets/order/icon_ok_p@2x.png" alt="" v-if="selectData">
+            <span v-if="selectData">Choose {{selectData.name}}</span>
           </div>
           <div class="set_avatar_table">
-            <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in avatarList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
-              <img src="../assets/person/bg1.png" alt="">
+            <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
+              <img :src="item.detail.content" alt="">
               <div class="set_avatar_item_dec">
-                <span>Bitcoin Frog #4</span>
-                <span class="set_prime_item_left_dec_inf"> INS #354366</span>
+                <span>{{item.domain}}</span>
+                <span class="set_prime_item_left_dec_inf"> INS #{{item.number}}</span>
               </div>
             </div>
           </div>
-          <div class="pageBox">
+          <!-- <div class="pageBox">
             <Page :total="40" size="small" @on-change="changePageFun" />
-          </div>
+          </div> -->
           <div class="inscript_button" @click='confirmFun(1)'>Confirm</div>
         </div>
       </div>
@@ -432,18 +445,18 @@
           <div class="set_prime_table">
             <div class="set_prime_item" @click='chooseDomainFun(item)' v-for="(item,index) in domainList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
               <div class="set_prime_item_left">
-                <img src="../assets/person/bg@2x.png" alt="">
+                <img :src="item.domain_img" alt="">
                 <div class="set_prime_item_left_dec">
-                  <span>bitcoinfrog.btc</span>
-                  <span class="set_prime_item_left_dec_inf">INS #354366</span>
+                  <span>{{item.domain}}</span>
+                  <span class="set_prime_item_left_dec_inf">INS #{{item.number}}</span>
                 </div>
               </div>
               <img src="../assets/person/icon_ok_p@2x.png" v-if="item.isSelect" alt="" class="set_prime_item_right">
             </div>
           </div>
-          <div class="pageBox">
+          <!-- <div class="pageBox">
             <Page :total="40" size="small" @on-change="changePageFun" />
-          </div>
+          </div> -->
           <div class="inscript_button" @click='confirmFun(2)'>Confirm</div>
         </div>
       </div>
@@ -456,45 +469,35 @@
         </div>
         <div class="private_Key">Private Key</div>
         <div class="copyBox">
-          <span class="copyBoxContent">{{monywallet}}</span>
+          <span class="copyBoxContent">{{privKey}}</span>
           <img src="../assets/cart/16px_icon_copy@2x.png" alt="">
         </div>
         <div class="private_Key_title">* Anyone who has the private key can take control your account. Please manage it properly.</div>
       </div>
     </div>
+    <Spin size="large" fix :show="spanBoolean"></Spin>
   </div>
 </template>
 <script>
-import { Tabs, TabPane, Page } from 'view-ui-plus'
+import { Tabs, TabPane, Page, Spin, Message } from 'view-ui-plus'
+import apis from '../util/apis/apis'
+const defaultPath = "m/86'/0'/0'/0/0";
+import { ethers } from "ethers";
+const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
 export default {
   components: {
-    Tabs, TabPane, Page
+    Tabs, TabPane, Page, Spin
   },
   data() {
     return {
+      spanBoolean: false,
       monywallet: null,
       export_private_boolean: false,
       set_prime_boolean: false,
       set_avatar_boolean: false,
       domainName: null,
       selectData: null,
-      domainList: [
-        {
-          domain: "bitcoinfrog1.btc",
-          dec: "INS #354366",
-          isSelect: false
-        },
-        {
-          domain: "bitcoinfrog2.btc",
-          dec: "INS #354366",
-          isSelect: false
-        },
-        {
-          domain: "bitcoinfrog3.btc",
-          dec: "INS #354366",
-          isSelect: false
-        },
-      ],
+      domainList: [],
       avatarList: [
         {
           name: "Bitcoin Frog #4",
@@ -517,7 +520,11 @@ export default {
         }
       ],
       avatar: null,
-      selectAvatarData: null
+      personData: {
+        content_url: ""
+      },
+      public_key: null,
+      privKey: null
     }
   },
   methods: {
@@ -539,7 +546,7 @@ export default {
         element.isSelect = false
       })
       item.isSelect = true;
-      this.selectAvatarData = item;
+      this.selectData = item;
     },
     choseMaskFun(index) {
       if (index === 1) {
@@ -552,11 +559,39 @@ export default {
     },
     openmaskFun(index) {
       if (index === 1) {
+        this.addressFun("Image")
         this.set_avatar_boolean = true
       } else if (index === 2) {
-        this.set_prime_boolean = true
+        this.selectData = null;
+        this.addressFun("Domains")
       } else if (index === 3) {
+        this.privKey = this.exportPrivateKey()
+      }
+    },
+    async exportPrivateKey() {
+      let walletType = localStorage.walletType;
+      if (walletType === "uniSat") {
+        let sig = await window.unisat.signMessage(GivingMsg);
+        const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+        let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+        const taprootChild = root.derivePath(defaultPath);
+        const privKey = taprootChild.privateKey?.toString("hex");
         this.export_private_boolean = true
+        return privKey;
+      } else if (walletType === "metaMask") {
+        if (typeof window.ethereum === "undefined") {
+          alert("Metamask is not installed!");
+          return;
+        }
+        let provider = new ethers.BrowserProvider(window.ethereum);
+        let signer = await provider.getSigner();
+        let sig = await signer.signMessage(GivingMsg);
+        const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+        let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+        const taprootChild = root.derivePath(defaultPath);
+        const privKey = taprootChild.privateKey?.toString("hex");
+        this.export_private_boolean = true
+        return privKey;
       }
     },
     outLoginFun() {
@@ -569,16 +604,136 @@ export default {
     changePageFun(e) {
       console.log(e)
     },
-    confirmFun(index) {
-      if (index === 1) {
-        this.set_avatar_boolean = false
-      } else {
-        this.set_prime_boolean = false;
+    async confirmFun(index) {
+      let signRet = "";
+      let walletType = localStorage.walletType;
+      if (walletType === 'metaMask') {
+        let provider = new ethers.BrowserProvider(window.ethereum);
+        let signer = await provider.getSigner();
+        let sig = await signer.signMessage(GivingMsg);
+        let seed = ethers.toUtf8Bytes(
+          ethers.keccak256(ethers.toUtf8Bytes(sig))
+        );
+        let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+        let taprootChild = root.derivePath(defaultPath);
+        let buf = Buffer.from(this.monywallet);
+        let hashBuf = bitcoin.crypto.sha256(buf);
+        let signMsg = taprootChild.sign(hashBuf);
+        signRet = signMsg.toString('hex')
+      } else if (walletType === 'uniSat') {
+        signRet = await window.unisat.signMessage(GivingMsg);
       }
+      if (index === 1) {
+        this.setDomainFun(signRet, "Image")
+      } else {
+        this.setDomainFun(signRet, "Domains")
+      }
+    },
+    setDomainFun(signature, type) {
+      if (!this.selectData) {
+        Message.success("Please select a domain")
+      }
+      let param = {};
+      if (type === 'Domains') {
+        param.inscribe_id = "";
+        param.domain = this.selectData.domain;
+      } else {
+        param.inscribe_id = this.selectData.id;
+        param.domain = "";
+      }
+      param.address = this.monywallet;
+      param.signature = signature;
+      param.public_key = this.public_key;
+      param.sign_type = localStorage.walletType.toLowerCase()
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.setDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            if (type === 'Domains') {
+              this.set_prime_boolean = false;
+            } else {
+              this.set_avatar_boolean = false;
+            }
+            Message.success("success")
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    addressPersonFun() {
+      this.spanBoolean = true
+      let param = {};
+      param.address = this.monywallet
+      this.$axios({
+        method: "post",
+        url: apis.getDomainApi,
+        data: param,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.personData = res.data.data[0];
+            this.spanBoolean = false
+          } else {
+            Message.error(res.data.message)
+            this.spanBoolean = false
+          }
+        }
+      }).catch(err => {
+        this.spanBoolean = false
+      });
+    },
+    addressFun(type) {
+      this.domainList = []
+      this.spanBoolean = true
+      let param = {};
+      param.inscribe_type = type;
+      param.address = this.monywallet
+      param.sign = ""
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.inscriptListApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (type === 'Domains') {
+            res.data.data.result.forEach(element => {
+              element.isSelect = false
+            })
+            this.domainList = res.data.data.result;
+            this.set_prime_boolean = true;
+          } else {
+            res.data.data.result.forEach(element => {
+              element.isSelect = false
+            })
+            this.domainList = res.data.data.result;
+            this.set_avatar_boolean = true;
+          }
+          this.spanBoolean = false
+        }
+      }).catch(err => {
+        // Message.error(err.response.data.error.reason)
+        this.spanBoolean = false
+      });
     },
   },
   mounted() {
-    this.monywallet = localStorage.bitcoinAddr
+    this.monywallet = localStorage.bitcoin_address;
+    this.public_key = localStorage.public_key;
+    this.addressPersonFun()
   }
 }
 </script>

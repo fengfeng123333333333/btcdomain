@@ -69,7 +69,6 @@
   flex-wrap: nowrap;
 }
 .seamless_item {
-  width: 228px;
   height: 34px;
   background: rgba(99, 106, 224, 0.5);
   border-radius: 17px;
@@ -82,6 +81,7 @@
   font-weight: 500;
   color: #ffffff;
   margin-right: 10px;
+  padding: 0 10px;
 }
 .seamless_item:hover {
   background: #4540d6;
@@ -130,6 +130,47 @@
   width: 100%;
   height: 80px;
   position: relative;
+}
+.search_box_history {
+  width: 100%;
+  height: 0;
+  background: #ffffff;
+  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
+  border-radius: 16px;
+  position: absolute;
+  left: 0;
+  top: 82px;
+  padding: 0 10px;
+  animation: search_box_history 0.5s forwards;
+  overflow: hidden;
+}
+@keyframes search_box_history {
+  from {
+    height: 0px;
+  }
+  to {
+    height: 96px;
+  }
+}
+.search_box_history_head {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.search_box_history_head_item {
+  display: flex;
+  align-items: center;
+}
+.search_box_history_head_item img {
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
 }
 .searchInput {
   width: 100%;
@@ -302,6 +343,9 @@
   background: #ffffff;
   box-shadow: 0px -6px 14px 0px rgba(46, 47, 62, 0.1);
   animation: cart 0.2s forwards;
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
 @keyframes cart {
   from {
@@ -407,8 +451,21 @@
   margin-top: 4px;
   width: 900px;
 }
+.inscription_tab_box_kong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 600px;
+}
 .inscription_tab_list {
   width: 100%;
+  animation: searchbox 0.5s forwards;
+  overflow: hidden;
+  overflow-y: auto;
+  height: 0;
+}
+.inscription_tab_list::-webkit-scrollbar {
+  display: none;
 }
 .inscription_tab_item {
   width: 100%;
@@ -485,12 +542,18 @@
 .inscription_tab_list_card {
   width: 100%;
   display: flex;
-  align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
+  height: 750px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.inscription_tab_list_card::-webkit-scrollbar {
+  display: none;
 }
 .inscription_tab_item_card {
   width: 280px;
+  height: 370px;
   background: #ffffff;
   box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
   border-radius: 8px;
@@ -540,11 +603,26 @@
   height: 16px;
   margin-right: 4px;
 }
+.Registered {
+  display: flex;
+  align-items: center;
+}
+.result_left_bottom_item_copy {
+  cursor: pointer;
+}
+.historyItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.history_item {
+  cursor: pointer;
+}
 </style>
 <template>
-  <div class="home_app" :class="{test:selectId===2}">
+  <div class="home_app" :class="{test:selectId===2}" @click="histroyBoolean=false">
 
-    <Head></Head>
+    <Head :loginShow="loginShow" :goTcartpage="goTcartpage"></Head>
     <div class="home_body">
       <div :class="{home_head_animal:contentShow||selectId===2}">
         <div class="home_head">
@@ -559,10 +637,9 @@
           <div class="seamless">
             <div v-for="(item,index) in list" :key="index" class="seamless_item">
               <div class="seamless_item_status">
-                <img src="" alt="">
-                <span> {{ item.city }}</span>
+                <span>🎉Registered: </span>
               </div>
-              <span> {{ item.city }}</span>
+              <span> {{ item.dom_name }}</span>
             </div>
           </div>
         </vue-seamless-scroll>
@@ -574,10 +651,30 @@
           </div>
         </div>
         <div class="search_box" @click.stop>
-          <input type="text" @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder-class="placeholderClass" placeholder="Your name / product / brand / company / industry…"
+          <input type="text" onkeypress="return /^[0-9a-zA-Z]*$/.test(event.key)" v-if="selectId===1" @focus.stop='onfucusDomainFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun"
+            placeholder="Your name / product / brand / company / industry…" class="searchInput">
+          <input type="text" onkeypress="return /^[0-9a-zA-Z]*$/.test(event.key)" v-else @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Enter a BTC address."
             class="searchInput" :class='{searchInputSelect:selectId===2}'>
           <img src="../assets/home/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
           <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
+          <div class="search_box_history" @click.stop="histroyBoolean=!histroyBoolean" v-if="histroyBoolean">
+            <div class="search_box_history_head">
+              <div class="search_box_history_head_item">
+                <img src="../assets/home/icon_timehistory@2x.png" alt="">
+                <span>Histroy</span>
+              </div>
+              <div class="search_box_history_head_item" style="cursor: pointer;" @click="clearHistoryFun">
+                <img src="../assets/home/icon_clear@2x.png" alt="">
+                <span>Clear</span>
+              </div>
+            </div>
+            <div class="historyItem">
+              <div class="cart_item history_item" v-for="(item,index) in historyList" :key="index" @click="historyseachFun(item)">
+                <span>{{item.domain}}</span>
+                <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyFun(index)">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div v-if="selectId===1">
@@ -586,10 +683,18 @@
             <div class="result_left">
               <span>{{resultData.dom_name}}</span>
               <div class="result_left_bottom">
-                <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="resultData.dom_state===9">Available</div>
-                <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="resultData.dom_state===5">Registered</div>
-                <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="resultData.dom_state===1">Registering</div>
-                <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{resultData.fee.gas_fee}} BTC/yr</div>
+                <div v-if="resultData.dom_state===9">
+                  <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                </div>
+                <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
+                  <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+                </div>
+                <div v-else>
+                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                </div>
+                <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.total_fee}} BTC/yr</div>
               </div>
             </div>
             <div class="result_right" v-if="resultData.dom_state===9&&!resultData.isSelect" @click="addResultFun">
@@ -603,72 +708,94 @@
             <div class="link_box">
               <div class="link_item" v-for="(item,index) in linkList" :key="index">
                 <div class="result_left">
-                  <span style="font-size: 16px;">{{item.name}}</span>
+                  <span style="font-size: 16px;">{{item.dom_name}}</span>
                   <div class="result_left_bottom">
-                    <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.status==='Available'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)" v-if="item.status==='Registered'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-if="item.status==='Registering'">{{item.status}}</div>
-                    <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.feegas}}</div>
+                    <div v-if="item.dom_state===9">
+                      <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                    </div>
+                    <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
+                      <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
+                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                    </div>
+                    <div v-else>
+                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                    </div>
+                    <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="item.dom_state===9">{{item.fee.total_fee}} BTC/yr</div>
                   </div>
                 </div>
-                <div class="link_item_right" v-if="item.status==='Available'">
+                <div class="link_item_right" v-if="item.dom_state==9">
                   <img src="../assets/home/icon_add_black@2x.png" alt="" v-if="!item.isSelect" class="link_item_add" @click="addLinkFun(item)">
                   <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
                 </div>
               </div>
+              <!-- <Spin size="large" fix :show="spanMoreBoolean"></Spin> -->
             </div>
-            <div class="link_more">More…</div>
+            <!-- <div class="link_more">More…</div> -->
           </div>
         </div>
         <div class="home_kongbai" v-show="!contentShow"></div>
       </div>
       <div v-if="selectId===2">
         <div class="inscription_tab">
-          <Tabs :value="type">
-            <TabPane :label="item.name+'('+item.num+')'" :name="item.type" v-for="(item,index) in tabList" :key="index">
-              <div class="inscription_tab_box">
-                <div class="inscription_tab_list" v-if="listShowType===2">
-                  <div class="inscription_tab_item" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
-                    <div class="tab_item_left">
-                      <img src="../assets/person/bg@2x.png" alt="">
-                      <div class="tab_item_left_dec">
-                        <span>{{itemInscript.address}}.btc</span>
-                        <span class="tab_item_left_dec_type">INS -</span>
+          <div v-if="addressSearchShow">
+            <Tabs @on-click="changeAddressTypefun" :value="type">
+              <TabPane :label="item.name" :name="item.type" v-for="(item,index) in tabList" :key="index">
+                <div class="inscription_tab_box" v-if="inscrptList.length>0">
+                  <div class="inscription_tab_list" v-if="listShowType===2">
+                    <div class="inscription_tab_item" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
+                      <div class="tab_item_left">
+                        <div v-if="type==='Domains'">
+                          <img :src="itemInscript.domain_img" alt="" v-if='itemInscript.domain_img.length>3'>
+                          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" v-else>
+                        </div>
+                        <div v-else>
+                          <img :src="itemInscript.detail.content" alt="" v-if='itemInscript.detail.content.length>3'>
+                          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" v-else>
+                        </div>
+                        <div class="tab_item_left_dec">
+                          <span v-if="type==='Domains'">{{itemInscript.domain}}</span>
+                          <span class="tab_item_left_dec_type">INS -{{itemInscript.number}}</span>
+                        </div>
+                      </div>
+                      <div class="tab_item_right">
+                        <div class="tab_item_right_status" v-if='itemInscript.state=="9"' style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                        <div class="tab_item_right_status" v-else style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                        <!-- <div class="tab_item_right_option">
+                          <img src="../assets/person/icon_16px_send@2x.png" alt="">
+                          <span>Send</span>
+                        </div> -->
                       </div>
                     </div>
-                    <div class="tab_item_right">
-                      <div class="tab_item_right_status">Registering…</div>
-                      <div class="tab_item_right_option">
+                  </div>
+                  <div class="inscription_tab_list_card" v-if="listShowType===1">
+                    <div class="inscription_tab_item_card" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
+                      <img src="../assets/person/bg@2x.png" alt="">
+                      <div class="tab_item_card">
+                        <span>{{itemInscript.showAddress}}</span>
+                        <span class="tab_item_card_dec">INS #{{itemInscript.number}}</span>
+                      </div>
+                      <!-- <div class="inscription_tab_item_card_option">
                         <img src="../assets/person/icon_16px_send@2x.png" alt="">
                         <span>Send</span>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
-                </div>
-                <div class="inscription_tab_list_card" v-if="listShowType===1">
-                  <div class="inscription_tab_item_card">
-                    <img src="../assets/person/bg@2x.png" alt="">
-                    <div class="tab_item_card">
-                      <span>Bitcoin Frog #3</span>
-                      <span class="tab_item_card_dec">INS #354366</span>
-                    </div>
-                    <div class="inscription_tab_item_card_option">
-                      <img src="../assets/person/icon_16px_send@2x.png" alt="">
-                      <span>Send</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="pageBox">
+                  <!-- <div class="pageBox">
                   <Page :total="40" size="small" @on-change="changePageFun" />
+                </div> -->
                 </div>
-              </div>
-            </TabPane>
-          </Tabs>
-          <div class="inscription_showtype">
-            <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
-            <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+                <div class="inscription_tab_box_kong" v-else>暂无数据</div>
+              </TabPane>
+            </Tabs>
+            <div class="inscription_showtype">
+              <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
+              <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+            </div>
           </div>
+          <Spin size="large" fix :show="spanBoolean"></Spin>
         </div>
+        <div class="home_kongbai" v-show="!contentShow"></div>
       </div>
     </div>
     <div class="home_foot_cart" v-show="cartNum>0">
@@ -676,11 +803,11 @@
         <div class="home_cart_num">{{cartNum}} Domains</div>
         <div class="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
-            <span>{{item.name}}</span>
+            <span>{{item.domain}}</span>
             <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
           </div>
         </div>
-        <div class="home_cart_button" @click="topCartPageFun">
+        <div class="home_cart_button" @click.stop="topCartPageFun">
           <img src="../assets/home/icon_cart.png" alt="">
           <span>Continue To Cart</span>
         </div>
@@ -693,14 +820,17 @@
 <script>
 import Head from '../components/head'
 import Foot from '../components/foot'
-import { Tabs, TabPane, Page, Message } from 'view-ui-plus'
+import { Tabs, TabPane, Page, Message, Spin } from 'view-ui-plus'
 import apis from '../util/apis/apis'
+const moment = require('moment');
+import { copyAction } from '../util/func/index'
+import { validate } from 'bitcoin-address-validation';
 // import * as bitcoin from "bitcoinjs-lib";
 // import { Buffer } from "buffer";
 // var bitcoinMessage = require('bitcoinjs-message')
 export default {
   components: {
-    Head, Foot, Tabs, TabPane, Page
+    Head, Foot, Tabs, TabPane, Page, Spin
   },
   watch: {
     cartList: {
@@ -712,22 +842,17 @@ export default {
   },
   data() {
     return {
+      goTcartpage: false,
+      spanMoreBoolean: false,
+      loginShow: false,
+      spanBoolean: false,
       classOption: {
-        step: 1,
+        step: 0.5,
         limitMoveNum: 6,
         direction: 2
       },
-      list: [
-        { city: "北京" },
-        { city: "上海" },
-        { city: "广州" },
-        { city: "深圳" },
-        { city: "成都" },
-        { city: "成都" },
-        { city: "成都" },
-        { city: "成都" },
-      ],
-      searchText: null,
+      list: [],
+      searchText: "",
       searchTabList: [
         {
           id: 1,
@@ -747,38 +872,17 @@ export default {
         dom_name: null,
         fee: {},
         dom_state: null,
-        isSelect: false
+        isSelect: false,
+        owner_address: null,
+        register_date: null,
+        showAddress: null,
+        register_date_show: null
       },
-      linkList: [
-        {
-          name: "1.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "2.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "3.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-        {
-          name: "4.btc",
-          status: "Available",
-          feegas: "0.001132 BTC/yr",
-          isSelect: false
-        },
-      ],
+      linkList: [],
       cartList: [],
       cartNum: 0,
       type: "Domains",
-      listShowType: 1,
+      listShowType: 2,
       tabList: [
         {
           name: "Domains",
@@ -803,36 +907,79 @@ export default {
       ],
       cartListlocal: [],
       inscrptList: [],
-      receiveAddress: null
+      receiveAddress: null,
+      addressSearchShow: false,
+      historyList: [],
+      histroyBoolean: false
     }
   },
   methods: {
+    copyFun(obj) {
+      copyAction(obj.owner_address)
+    },
+    showAddressFun(address) {
+      if (address) {
+        let addressBefor = address.slice(0, 8);
+        let addressBehand = address.slice(address.length - 8)
+        let newAddress = addressBefor + "..." + addressBehand
+        return newAddress
+      } else {
+        return address
+      }
+    },
+    changeAddressTypefun(value) {
+      this.type = value
+      if (this.searchText) {
+        this.addressFun()
+      }
+    },
     addressFun() {
-      let param = {};
-      param.inscribe_type = this.type;
-      param.address = this.searchText
-      param.sign = ""
-      this.$axios({
-        method: "post",
-        data: param,
-        url: apis.addressApi,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.code === 0) {
-            this.inscrptList = res.data.data;
-          } else {
-            Message.error(res.data.message)
-          }
+      if (!this.searchText) {
+        Message.error("address must not be empty")
+        return
+      }
+      if (!validate(this.searchText)) {
+        Message.error("bitcoin address is not valid")
+        return
+      }
+      if (this.searchText.indexOf('bc1p') != -1 || this.searchText.indexOf('tb1') != -1) {
+        if (this.searchText.length == 62) {
+          this.addressSearchShow = true;
+          this.inscrptList = []
+          this.spanBoolean = true
+          let param = {};
+          param.inscribe_type = this.type;
+          param.address = this.searchText
+          param.sign = ""
+          this.$axios({
+            method: "post",
+            data: param,
+            url: apis.inscriptListApi,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }).then(res => {
+            if (res.status == "200") {
+              if (res.data.code === 0) {
+                this.inscrptList = res.data.data.result;
+                this.spanBoolean = false
+              } else {
+                this.spanBoolean = false
+                Message.error(res.data.message)
+              }
+            }
+          }).catch(err => {
+            this.spanBoolean = false
+          });
+        } else {
+          Message.error("Check the length of your Ordinals address");
+          return
         }
-      }).catch(err => {
-      });
+      }
     },
     querySuccessDomainFun() {
       let param = {};
-      param.size = 5
+      param.size = 20
       this.$axios({
         method: "post",
         data: param,
@@ -843,8 +990,7 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
-            // res.data.data.isSelect = false;
-            // this.resultData = res.data.data;
+            this.list = res.data.data;
           } else {
             Message.error(res.data.message)
           }
@@ -853,7 +999,6 @@ export default {
       });
     },
     queryDomainFun() {
-      this.contentShow = true;
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -867,9 +1012,25 @@ export default {
         if (res.status == "200") {
           if (res.data.code === 0) {
             res.data.data.isSelect = false;
-            this.resultData = res.data.data;
+            let data = res.data.data;
+            data.domain = data.dom_name;
+            if (data.dom_state != 9) {
+              data.showAddress = this.showAddressFun(data.owner_address)
+              data.register_date_show = moment(data.register_date).format("YYYY-MM-DD")
+            }
+            this.cartList.forEach(element => {
+              if (element.domain === data.domain) {
+                data.isSelect = true
+              }
+            })
+            this.resultData = data;
+            this.contentShow = true;
+            let temp = {};
+            temp.domain = this.searchText
+            this.historyList.push(temp);
+            localStorage.historyList = JSON.stringify(this.historyList);
+            this.histroyBoolean = false
           } else {
-            this.contentShow = false;
             Message.error(res.data.message)
           }
         }
@@ -888,18 +1049,24 @@ export default {
         },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.code === 0) {
-            // res.data.data.isSelect = false;
-            // this.resultData = res.data.data;
-          } else {
-            Message.error(res.data.message)
-          }
+          let data = res.data.data;
+          data.forEach(element => {
+            this.cartList.forEach(ele => {
+              if (ele.domain === ele.domain) {
+                element.isSelect = true
+              } else {
+                element.isSelect = false
+              }
+            })
+            if (element.dom_state != 9) {
+              element.showAddress = this.showAddressFun(element.owner_address)
+              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+            }
+          })
+          this.linkList = res.data.data;
         }
       }).catch(err => {
       });
-    },
-    outClick() {
-      this.contentShow = false;
     },
     changeSearchTypeFun(item) {
       if (item.isSelect) {
@@ -911,10 +1078,15 @@ export default {
       item.isSelect = true;
       this.selectId = item.id;
       this.searchText = null;
+      if (this.selectId === 1) {
+        this.addressSearchShow = false
+      }
     },
     clearSearchFun() {
       this.searchStutas = false;
       this.searchText = null;
+      this.contentShow = false;
+      this.addressSearchShow = false
     },
     searchFun() {
       if (!this.searchText) {
@@ -934,6 +1106,20 @@ export default {
         this.searchStutas = false;
       }
     },
+    onfucusDomainFun() {
+      let historyList = localStorage.historyList;
+      if (historyList) {
+        let arr = JSON.parse(historyList);
+        let set = new Set(arr.map((item) => JSON.stringify(item)));
+        this.historyList = [...set].map((item) => JSON.parse(item));
+        localStorage.historyList = JSON.stringify(this.historyList)
+      } else {
+        return
+      }
+      if (historyList.length > 0) {
+        this.histroyBoolean = true;
+      }
+    },
     onfucusFun() {
       if (this.searchStutas) {
         // this.contentShow = true;
@@ -944,6 +1130,7 @@ export default {
         return
       }
       item.isSelect = true
+      item.domain = item.dom_name;
       this.cartList.push(item)
     },
     addResultFun() {
@@ -956,13 +1143,30 @@ export default {
     delectcartFun(item, index) {
       this.cartList.splice(index, 1)
       this.linkList.forEach(element => {
-        if (element.name === item.name) {
+        if (element.domain === item.domain) {
           element.isSelect = false
         }
       })
-      if (item.name === this.resultData.name) {
+      if (item.domain === this.resultData.domain) {
         this.resultData.isSelect = false
       }
+    },
+    delectHistroyFun(index) {
+      this.historyList.splice(index, 1);
+      if (this.historyList.length === 0) {
+        localStorage.removeItem("historyList")
+        this.histroyBoolean = false
+      } else {
+        localStorage.historyList = JSON.stringify(this.historyList);
+      }
+    },
+    clearHistoryFun() {
+      localStorage.removeItem("historyList");
+      this.histroyBoolean = false
+    },
+    historyseachFun(item) {
+      this.searchText = item.domain;
+      this.searchFun()
     },
     topCartPageFun() {
       let arr = []
@@ -974,9 +1178,15 @@ export default {
       })
       let localCartList = arr.concat(this.cartListlocal)
       localStorage.cartList = JSON.stringify(localCartList);
-      this.$router.push({
-        name: "cart"
-      })
+      let bitcoin_address = localStorage.bitcoin_address;
+      if (!bitcoin_address) {
+        this.loginShow = true;
+        this.goTcartpage = true;
+      } else {
+        this.$router.push({
+          name: "cart"
+        })
+      }
     },
     changePageFun(e) {
       console.log(e)
@@ -986,23 +1196,13 @@ export default {
     }
   },
   mounted() {
-    // window.Buffer = Buffer;
-    // console.log("bitcoin.ECPair")
-    // var keyPair = bitcoin.ECPair.fromWIF('L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1')
-    // var privateKey = keyPair.privateKey
-    // var message = 'This is an example of a signed message.'
-
-    // var signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed)
-    // console.log(signature.toString('base64'))
     let cartListlocal = localStorage.cartList;
     if (cartListlocal) {
       this.cartListlocal = JSON.parse(cartListlocal)
     }
     this.querySuccessDomainFun()
-    document.addEventListener("click", this.outClick);
   },
   destroyed() {
-    document.removeEventListener("click", this.outClick)
   }
 }
 </script>

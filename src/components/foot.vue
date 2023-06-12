@@ -29,6 +29,7 @@
   width: 40px;
   height: 40px;
   margin-right: 10px;
+  cursor: pointer;
 }
 .foot_right {
   display: flex;
@@ -51,13 +52,13 @@
       <div class="foot_left">
         <img src="../assets/foot/logo_footer@2x.png" alt="" class="foot_logo">
         <div class="foot_left_box">
-          <img src="../assets/foot/gitbook@2x.png" alt="">
-          <img src="../assets/foot/linktree@2x.png" alt="">
-          <img src="../assets/foot/tiwwidr.png" alt="">
-          <img src="../assets/foot/medium@2x.png" alt="">
-          <img src="../assets/foot/github@2x.png" alt="">
-          <img src="../assets/foot/discord@2x.png" alt="">
-          <img src="../assets/foot/remark.png" alt="" style="margin-right:0">
+          <img src="../assets/foot/gitbook@2x.png" alt="" @click="toOrtherFun(1)">
+          <img src="../assets/foot/linktree@2x.png" alt="" @click="toOrtherFun(2)">
+          <img src="../assets/foot/tiwwidr.png" alt="" @click="toOrtherFun(6)">
+          <img src="../assets/foot/medium@2x.png" alt="" @click="toOrtherFun(5)">
+          <img src="../assets/foot/github@2x.png" alt="" @click="toOrtherFun(3)">
+          <img src="../assets/foot/discord@2x.png" alt="" @click="toOrtherFun(4)">
+          <img src="../assets/foot/remark.png" alt="" style="margin-right:0" @click="toOrtherFun(7)">
         </div>
       </div>
       <div class="foot_right">
@@ -73,6 +74,25 @@
           
 <script>
 export default {
+  methods: {
+    toOrtherFun(index) {
+      if (index === 1) {
+        window.open("https://docs.btcdomains.io", '_blank');
+      } else if (index === 2) {
+        window.open("https://linktr.ee/btcdomain", '_blank');
+      } else if (index === 3) {
+        window.open("https://github.com/btcdomain", '_blank');
+      } else if (index === 4) {
+        window.open("https://www.discord.gg/btcdomain", '_blank');
+      } else if (index === 5) {
+        window.open("http://medium.com/@btcdomain", '_blank');
+      } else if (index === 6) {
+        window.open("http://twitter.com/btcdomain_btc", '_blank');
+      } else if (index === 7) {
+        window.open("https://t.me/btcdomain_btc", '_blank');
+      }
+    }
+  }
 }
 </script>
           

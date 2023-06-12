@@ -30,6 +30,7 @@
 .wallet_address img {
   width: 16px;
   height: 16px;
+  cursor: pointer;
 }
 .wallet_balance {
   width: 100%;
@@ -101,6 +102,12 @@
 }
 .wallet_table {
   width: 100%;
+  height: 300px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.wallet_table::-webkit-scrollbar {
+  display: none;
 }
 .wallet_table_item {
   width: 100%;
@@ -129,22 +136,22 @@
     <div class="wallet_head">Wallet</div>
     <div class="wallet_box">
       <div class="wallet_address">
-        <span>bc1pefc6x6wxm7ayuuaemscze7x0ldxsn8rjyuecz4vtzavyrxlkkvyshds3es</span>
-        <img src="../assets/person/icon_16px_copy@2x.png" alt="">
+        <span>{{wallet}}</span>
+        <img src="../assets/person/icon_16px_copy@2x.png" alt="" @click="copyActionFun">
       </div>
       <div class="wallet_balance">
         <div class="wallet_balance_left">
           <span>Balance</span>
           <div class="wallet_balance_left_value">
-            <span>0.00093928 BTC</span>
-            <Tooltip content="Excluding Description Value" placement="right-start">
+            <span>{{balance}} BTC</span>
+            <Tooltip content="Excluding Inscription Value" placement="right-start">
               <img src="../assets/person/icon_16_q@2x.png" alt="">
             </Tooltip>
           </div>
         </div>
         <div class="wallet_balance_right">
-          <div class="wallet_balance_right_item">Send</div>
-          <div class="wallet_balance_right_item" style="margin-left:10px">Receive</div>
+          <div class="wallet_balance_right_item" @click="sendBtcFun">Send</div>
+          <div class="wallet_balance_right_item" style="margin-left:10px" @click="receiveBtcFun">Receive</div>
         </div>
       </div>
       <div class="wallet_content">
@@ -155,35 +162,95 @@
           <div class="wallet_table_com wallet_table_head_com">TxHash</div>
         </div>
         <div class="wallet_table">
-          <div class="wallet_table_item">
-            <div class="wallet_table_com wallet_table_item_com">2023-03-29 16:03</div>
-            <div class="wallet_table_com wallet_table_item_com">bc1pefc6…yshds3es</div>
-            <div class="wallet_table_com wallet_table_item_com">0.00093834</div>
-            <div class="wallet_table_com wallet_table_item_com">00000000…06d9ea88</div>
-          </div>
-          <div class="wallet_table_item">
-            <div class="wallet_table_com wallet_table_item_com">2023-03-29 16:03</div>
-            <div class="wallet_table_com wallet_table_item_com">bc1pefc6…yshds3es</div>
-            <div class="wallet_table_com wallet_table_item_com">0.00093834</div>
-            <div class="wallet_table_com wallet_table_item_com">00000000…06d9ea88</div>
+          <div class="wallet_table_item" v-for="(item,index) in historyList" :key="index">
+            <div class="wallet_table_com wallet_table_item_com">{{item.date}}</div>
+            <div class="wallet_table_com wallet_table_item_com">{{item.addressShow}}</div>
+            <div class="wallet_table_com wallet_table_item_com">{{item.amount}} {{item.symbol}}</div>
+            <div class="wallet_table_com wallet_table_item_com">{{item.tixdShow}}</div>
           </div>
         </div>
       </div>
-      <div class="pageBox">
+      <!-- <div class="pageBox">
         <Page :total="40" size="small" @on-change="changePageFun" />
-      </div>
+      </div> -->
     </div>
+    <Spin size="large" fix :show="spanBoolean"></Spin>
   </div>
 </template>
   
 <script>
-import { Tooltip, Page } from 'view-ui-plus'
+import { Tooltip, Page, Spin } from 'view-ui-plus'
+import apis from '../util/apis/apis'
+import { copyAction } from '../util/func/index'
 export default {
   components: {
-    Tooltip, Page
+    Tooltip, Page, Spin
+  },
+  data() {
+    return {
+      spanBoolean: false,
+      historyList: [],
+      balance: null,
+      wallet: null
+    }
   },
   methods: {
-    changePageFun() { }
+    copyActionFun() {
+      copyAction(this.wallet)
+    },
+    changePageFun() { },
+    showAddressFun(address) {
+      if (address) {
+        let addressBefor = address.slice(0, 8);
+        let addressBehand = address.slice(address.length - 8)
+        let newAddress = addressBefor + "..." + addressBehand
+        return newAddress
+      } else {
+        return address
+      }
+    },
+    recentHistoryFun() {
+      let wallet = localStorage.bitcoin_address
+      this.spanBoolean = true
+      this.$axios({
+        method: "get",
+        url: apis.recentHistoryApi + "?address=" + wallet,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Client": "UniSat Wallet",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.message === "OK") {
+            console.log("dddddd")
+            let data = res.data.result;
+            console.log(data)
+            data.forEach(element => {
+              element.addressShow = this.showAddressFun(element.address)
+              element.tixdShow = this.showAddressFun(element.txid)
+            });
+            this.historyList = data;
+            this.spanBoolean = false
+          } else {
+            this.spanBoolean = false
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+        this.spanBoolean = false
+      });
+    },
+    sendBtcFun() {
+      this.$emit("sendBtc")
+    },
+    receiveBtcFun() {
+      this.$emit("receiveBtc")
+    }
+  },
+  mounted() {
+    this.balance = localStorage.balance;
+    this.wallet = localStorage.bitcoin_address;
+    this.recentHistoryFun()
   }
 }
 </script>

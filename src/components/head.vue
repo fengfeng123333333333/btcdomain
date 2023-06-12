@@ -160,7 +160,7 @@
       <a class="head_nav_item" href="https://linktr.ee/btcdomain" target="_blank">Exchange</a>
     </div>
     <div class="head_right">
-      <div class="head_right_content" @click="collectFun" v-if="!showAddress">connect Wallet</div>
+      <div class="head_right_content" @click="collectFun" v-if="!showAddress">Connect Wallet</div>
       <div class="head_right_content_has" v-else @click="toPersonPageFun">
         <div class="head_right_content_has_left">
           <img src="../assets/head/avater_def@2x.png" alt="" class="avater_def">
@@ -170,10 +170,10 @@
         <div class="out_login_box" v-if="downBoolean">
           <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater">
           <div class="out_login_address">
-            <span>bc1puz…344ne0</span>
-            <img src="../assets/head/icon_16px_copy@2x.png" alt="">
+            <span>{{showAddress}}</span>
+            <img src="../assets/head/icon_16px_copy@2x.png" alt="" @click="copyActionFun">
           </div>
-          <div class="out_login_disconnent" @click="outLoginFun">
+          <div class="out_login_disconnent" @click.stop="outLoginFun">
             <img src="../assets/head/icon_disconnect@2x.png" alt="">
             <span>Disconnect Wallet</span>
           </div>
@@ -187,10 +187,12 @@
       
 <script>
 import Login from './login.vue'
+import { copyAction } from '../util/func/index'
 export default {
   components: {
     Login
   },
+  props: ["showData", "loginShow", "goTcartpage"],
   watch: {
     showData: {
       immediate: true,
@@ -198,16 +200,36 @@ export default {
         this.showAddress = this.showAddressFun(val);
       }
     },
+    goTcartpage: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          this.goTcartpageChild = val
+        }
+      }
+    },
+    loginShow: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          this.walletTypeBoolean = true;
+        }
+      }
+    },
   },
-  props: ["showData"],
   data() {
     return {
       walletTypeBoolean: false,
       showAddress: null,
-      downBoolean: false
+      downBoolean: false,
+      goTcartpageChild: this.goTcartpage,
+      typePage: false
     }
   },
   methods: {
+    copyActionFun() {
+      copyAction(localStorage.bitcoin_address)
+    },
     outLoginFun() {
       localStorage.clear();
       this.downBoolean = false;
@@ -224,9 +246,15 @@ export default {
       })
     },
     toCartPageFun() {
-      this.$router.push({
-        name: "cart"
-      })
+      let address = localStorage.bitcoin_address;
+      if (address) {
+        this.$router.push({
+          name: "cart"
+        })
+      } else {
+        this.typePage = true
+        this.walletTypeBoolean = true
+      }
     },
     collectFun() {
       this.walletTypeBoolean = true
@@ -236,7 +264,17 @@ export default {
     },
     loginEndFun(value) {
       this.showAddress = value;
-      this.walletTypeBoolean = false
+      this.walletTypeBoolean = false;
+      if (this.goTcartpageChild) {
+        this.$router.push({
+          name: "cart"
+        })
+      }
+      if (this.typePage) {
+        this.$router.push({
+          name: "cart"
+        })
+      }
     },
     showAddressFun(address) {
       if (address) {
@@ -255,8 +293,8 @@ export default {
     }
   },
   mounted() {
-    if (localStorage.bitcoinAddr) {
-      this.showAddress = this.showAddressFun(localStorage.bitcoinAddr)
+    if (localStorage.bitcoin_address) {
+      this.showAddress = this.showAddressFun(localStorage.bitcoin_address)
     }
   }
 }
