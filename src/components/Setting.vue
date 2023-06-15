@@ -222,6 +222,7 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #4540d6;
+  justify-content: space-between;
 }
 .hasdomain {
   background: rgba(69, 64, 214, 0.1);
@@ -409,15 +410,15 @@
         <div class="private_Key">Choose an img-type inscription to set as your profile picture.</div>
         <div class="set_prime_boy">
           <div class="set_prime_search">
-            <input @keyup.enter="searchFun" v-model="avatar" type="text" class="set_input" placeholder="Search by domain name">
+            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search by domain name">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
             <img src="../assets/order/icon_ok_p@2x.png" alt="" v-if="selectData">
-            <span v-if="selectData">Choose {{selectData.name}}</span>
+            <span v-if="selectData">Choose {{selectData.num}}</span>
           </div>
           <div class="set_avatar_table">
-            <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
+            <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
               <img :src="item.detail.content" alt="">
               <div class="set_avatar_item_dec">
                 <span>{{item.domain}}</span>
@@ -441,7 +442,7 @@
         <div class="private_Key">You can choose one of your domain names as your main domain name</div>
         <div class="set_prime_boy">
           <div class="set_prime_search">
-            <input @keyup.enter="searchFun" v-model="domainName" type="text" class="set_input" placeholder="Search by domain name">
+            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search by domain name">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
@@ -449,7 +450,7 @@
             <span v-if="selectData">Choose {{selectData.domain}}</span>
           </div>
           <div class="set_prime_table">
-            <div class="set_prime_item" @click='chooseDomainFun(item)' v-for="(item,index) in domainList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
+            <div class="set_prime_item" @click='chooseDomainFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
               <div class="set_prime_item_left">
                 <img :src="item.domain_img" alt="">
                 <div class="set_prime_item_left_dec">
@@ -505,36 +506,16 @@ export default {
   },
   data() {
     return {
+      searchText: null,
       unisatPriver: false,
       spanBoolean: false,
       monywallet: null,
       export_private_boolean: false,
       set_prime_boolean: false,
       set_avatar_boolean: false,
-      domainName: null,
       selectData: null,
       domainList: [],
-      avatarList: [
-        {
-          name: "Bitcoin Frog #4",
-          isSelect: false
-        }, {
-          name: "Bitcoin Frog #4",
-          isSelect: false
-        },
-        {
-          name: "Bitcoin Frog #4",
-          isSelect: false
-        },
-        {
-          name: "Bitcoin Frog #4",
-          isSelect: false
-        },
-        {
-          name: "Bitcoin Frog #4",
-          isSelect: false
-        }
-      ],
+      domainShowList: [],
       avatar: null,
       personData: {
         content_url: "",
@@ -550,7 +531,7 @@ export default {
       if (item.isSelect) {
         return
       }
-      this.domainList.forEach(element => {
+      this.domainShowList.forEach(element => {
         element.isSelect = false
       })
       item.isSelect = true;
@@ -560,13 +541,14 @@ export default {
       if (item.isSelect) {
         return
       }
-      this.avatarList.forEach(element => {
+      this.domainShowList.forEach(element => {
         element.isSelect = false
       })
       item.isSelect = true;
       this.selectData = item;
     },
     choseMaskFun(index) {
+      this.searchText = null;
       if (index === 1) {
         this.set_avatar_boolean = false
       } else if (index === 2) {
@@ -576,6 +558,7 @@ export default {
       }
     },
     openmaskFun(index) {
+      this.searchText = null;
       if (index === 1) {
         if (this.unisatPriver) {
           return
@@ -628,7 +611,20 @@ export default {
         name: "home"
       })
     },
-    searchFun() { },
+    searchFun() {
+      let arr = [];
+      this.domainList.forEach(element => {
+        if (element.domain.includes(this.searchText) || element.num.toString().includes(this.searchText)) {
+          arr.push(element)
+        }
+      })
+      this.domainShowList = arr;
+    },
+    isInputFun(e) {
+      if (!e.target.value) {
+        this.domainShowList = this.domainList;
+      }
+    },
     changePageFun(e) {
     },
     async confirmFun(index) {
@@ -638,7 +634,6 @@ export default {
         let provider = new ethers.BrowserProvider(window.ethereum);
         let signer = await provider.getSigner();
         let sig = await signer.signMessage(GivingMsg);
-        console.log("sigsigsig", sig)
         let seed = ethers.toUtf8Bytes(
           ethers.keccak256(ethers.toUtf8Bytes(sig))
         );
@@ -726,7 +721,8 @@ export default {
       });
     },
     addressFun(type) {
-      this.domainList = []
+      this.domainList = [];
+      this.domainShowList = []
       this.spanBoolean = true
       let param = {};
       param.inscribe_type = type;
@@ -746,12 +742,14 @@ export default {
               element.isSelect = false
             })
             this.domainList = res.data.data.result;
+            this.domainShowList = res.data.data.result;
             this.set_prime_boolean = true;
           } else {
             res.data.data.result.forEach(element => {
               element.isSelect = false
             })
             this.domainList = res.data.data.result;
+            this.domainShowList = res.data.data.result;
             this.set_avatar_boolean = true;
           }
           this.spanBoolean = false
@@ -764,7 +762,7 @@ export default {
   },
   mounted() {
     let walletType = localStorage.walletType
-    if (walletType === "uniSat") {
+    if (walletType != "metaMask") {
       this.unisatPriver = true
     } else {
       this.unisatPriver = false

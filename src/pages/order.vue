@@ -422,6 +422,7 @@
   }
 }
 .btc_have_paid {
+  margin-top: 20px;
   width: 100%;
   height: 44px;
   background: rgba(69, 64, 214, 0.2);
@@ -434,7 +435,6 @@
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #ffffff;
-  margin-top: 20px;
 }
 .payment_status {
   width: 500px;
@@ -959,11 +959,8 @@
               <span class="copyBoxContent">{{monywallet}}</span>
               <img src="../assets/cart/16px_icon_copy@2x.png" alt="" @click="copyActionFun(2)">
             </div>
-            <div class="btc_have_paid" v-if="paydingBoolean">
-              <Icon type="ios-loading" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
-              <span>I Have Paid</span>
-            </div>
-            <div class="cart_order_button" @click='iHasPaiFun(1)' v-else-if="!paydingBoolean">
+            <div class="cart_order_button" @click='codePaidFun()'>
+              <Icon type="ios-loading" v-if="codePaidBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
               <span> I Have Paid</span>
             </div>
           </div>
@@ -971,8 +968,13 @@
             <Icon type="ios-loading" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' v-if="mixPayLoading" />
             <img src="../assets/order/paywithmixpay@2x.png" alt="" class="paywithmixpay">
           </div>
-          <div class="cart_order_button" :class="{cart_order_button_stop:!stop_pay}" v-else @click="otherPayFun">
-            <span> Continue Pay</span>
+          <div v-else>
+            <div class="cart_order_button" :class="{cart_order_button_stop:!stop_pay&&paySelData.name==='BTC'}" v-if="isPay===1" @click="otherPayFun">
+              <span> Continue Pay</span>
+            </div>
+            <div class="cart_order_button" v-else @click="otherHavePayFun">
+              <span> I Have Paid</span>
+            </div>
           </div>
         </div>
       </div>
@@ -991,7 +993,10 @@
             <span>Payment issues? contact us:</span>
             <span class="payment_status_box_line">contact@btcdomains.io</span>
           </div>
-          <div class="payment_status_button" @click='iHasPaiFun(2)'>I Have Paid</div>
+          <div class="payment_status_button" @click='iHasPaiFun(3)'>
+            <Icon type="ios-loading" v-if='mixpayHavePaidBoolean' size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
+            <span>I Have Paid</span>
+          </div>
           <div class="payment_status_again" v-if="paySelData.name==='MixPay'" @click='mixPayOpwnFun'>Try Again</div>
         </div>
       </div>
@@ -1044,7 +1049,8 @@
           </div>
           <div class="inscript_step">
             <img src="../assets/order/icon_processing@2x.png" v-if="full_state===1" class="inscript_step_img demo" alt="">
-            <img src="../assets/order/icon_processing_ok@2x.png" v-if='full_state>1' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state>1&&full_state!=9' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state===0' class="inscript_step_img" alt="">
             <div class="inscript_step_info">
               <div>
                 <span>Fund Transfer Pending</span>
@@ -1055,8 +1061,9 @@
           </div>
           <div class="inscript_step">
             <img src="../assets/order/icon_processing_waiting@2x.png" v-if="full_state===1" class="inscript_step_img" alt="">
-            <img src="../assets/order/icon_processing@2x.png" v-if="full_state===2" class="inscript_step_img demo" alt="">
-            <img src="../assets/order/icon_processing_ok@2x.png" v-if='full_state===3' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing@2x.png" v-else-if="full_state===2" class="inscript_step_img demo" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state>2&&full_state!=9' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state===0' class="inscript_step_img" alt="">
             <div class="inscript_step_info">
               <span>Inscribing</span>
               <div class="inscript_step_info_bing">
@@ -1075,9 +1082,11 @@
             </div>
           </div>
           <div class="inscript_step">
-            <img src="../assets/order/icon_processing_waiting@2x.png" v-if="full_state<3" class="inscript_step_img" alt="">
-            <img src="../assets/order/icon_processing@2x.png" v-if="full_state===3" class="inscript_step_img demo" alt="">
-            <img src="../assets/order/icon_processing_ok@2x.png" v-if='full_state===4' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_waiting@2x.png" v-if="full_state===1" class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_waiting@2x.png" v-else-if="full_state===2" class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing@2x.png" v-else-if="full_state===3" class="inscript_step_img demo" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state>3&&full_state!=9' class="inscript_step_img" alt="">
+            <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state===0' class="inscript_step_img" alt="">
             <div class="inscript_step_info">
               <span>Inscription Transfer Panding</span>
               <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
@@ -1153,6 +1162,9 @@ export default {
   },
   data() {
     return {
+      isPay: 1,
+      codePaidBoolean: false,
+      mixpayHavePaidBoolean: false,
       balance: null,
       send_btc_boolean: false,
       loadingBoolean: false,
@@ -1264,19 +1276,8 @@ export default {
           return
         }
       }
-      if (this.sendBtcaddress.indexOf('bc1p') != -1 || this.sendBtcaddress.indexOf('tb1') != -1) {
-        if (this.sendBtcaddress.length == 62) {
-          this.sendRealAddress = this.sendBtcaddress;
-          if (localStorage.walletType === 'uniSat') {
-            this.unisatAction()
-          } else {
-            this.submitBtcTxAction()
-          }
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
-        }
-      }
+      this.sendRealAddress = this.sendBtcaddress
+      this.submitBtcTxAction()
     },
     async submitBtcTxAction() {
       let addr = localStorage.getItem("bitcoin_address");
@@ -1348,6 +1349,10 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
+          this.isPay = 2
+          this.send_btc_boolean = false;
+          this.payStatusBoolean = true;
+          console.log(this.isPay)
           const { txID, txHex } = await sendBTCTransaction(sBtcResq);
           console.log("txHex", txHex)
           // submit
@@ -1375,6 +1380,8 @@ export default {
           if (res.data.message === 'OK') {
             this.send_btc_boolean = false;
             this.payStatusBoolean = true;
+            localStorage.isPay = "btcpay";
+            this.isPay = 2
             Message.success("tx: " + res.data.result + " has been publiced");
           } else {
             Message.info(res.data.message);
@@ -1590,7 +1597,7 @@ export default {
       if (index === 1) {
         this.payStatusBoolean = false
       } else if (index === 2) {
-        this.payResultBoolean = false
+        this.payResultBoolean = false;
       } else if (index === 3) {
         this.payIssueBoolean = false
       } else if (index === 4) {
@@ -1650,9 +1657,11 @@ export default {
             this.networkRate = res.data.data.fastest_fee
             localStorage.orderCode = res.data.data.order_code;
             this.cartDetail = res.data.data.domains
-            this.usdFun(res.data.data.total_fee, 1);
-            this.usdFun(this.feeData.total_dec, 2);
-            this.inscriptionsFun();
+            let total_fee_usd = new Decimal(res.data.data.total_fee_usd);
+            let total_additional_fee_usd = new Decimal(res.data.data.total_additional_fee_usd);
+            this.usd_mixpay_value = total_additional_fee_usd.plus(total_fee_usd);
+            this.usd_value = res.data.data.total_fee_usd;
+            this.balanceFun();
             this.spanBoolean = false
           } else {
             this.spanBoolean = false
@@ -1664,6 +1673,80 @@ export default {
       });
     },
     statusInfoFun(type) {
+      // if (type === 4) {
+      //   this.paydingBoolean = true;
+      // } else if (type === 2) {
+      //   this.mixpayHavePaidBoolean = true
+      // }
+      let param = {};
+      param.order_code = this.order_code;
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.orderInfoApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status === 200) {
+          // this.paydingBoolean = false;
+          // this.mixpayHavePaidBoolean = false;
+          this.codePaidBoolean = false;
+          if (res.data.code === 0) {
+            this.full_state = res.data.data.full_state;
+            if (this.full_state === 9) {
+              if (type === 1) {
+                this.payResultBoolean = true;
+              } else if (type === 2) {
+                this.payStatusBoolean = true;
+              } else if (type === 3) {
+                Message.info("No payment detected. Please ensure that you have completed the payment, or try again later.")
+              }
+            } else {
+              this.inscritpBoolean = true;
+              localStorage.removeItem('cartList');
+              localStorage.removeItem('orderCode');
+            }
+            // if (this.full_state === 9) {
+            //   if (type === 4) {
+            //     this.payResultBoolean = true
+            //   } else if (type === 2) {
+            //     Message.info("No payment detected. Please ensure that you have completed the payment, or try again later.")
+            //   }
+            //   else if (type === 3) {
+            //     // this.payStatusBoolean = true
+            //   }
+            // } else if (this.full_state === 4) {
+            //   localStorage.removeItem('cartList');
+            //   localStorage.removeItem('orderCode');
+            //   this.timerPenson = setInterval(() => {
+            //     this.pensonIndex--
+            //     if (this.pensonIndex === 0) {
+            //       clearInterval(this.timerPenson);
+            //       this.toPersonFun()
+            //     }
+            //   }, 1000);
+            // } else {
+            //   this.inscritpBoolean = true;
+            // }
+            // if (this.full_state === 0) {
+            //   localStorage.removeItem('cartList');
+            //   localStorage.removeItem('orderCode');
+            // }
+          } else {
+            this.codePaidBoolean = false
+            // this.paydingBoolean = false;
+            // this.mixpayHavePaidBoolean = false;
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+        this.codePaidBoolean = false
+        // this.paydingBoolean = false;
+        // this.mixpayHavePaidBoolean = false;
+      });
+    },
+    lunXun() {
       let param = {};
       param.order_code = this.order_code;
       this.$axios({
@@ -1677,32 +1760,6 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 0) {
             this.full_state = res.data.data.full_state;
-            if (this.full_state === 9) {
-              if (type === 1) {
-              } else if (type === 2) {
-                Message.info("No payment detected. Please ensure that you have completed the payment, or try again later.")
-              }
-              else if (type === 3) {
-                // this.payStatusBoolean = true
-              }
-            } else if (this.full_state === 4) {
-              // this.toPersonFun()
-              this.timerPenson = setInterval(() => {
-                this.pensonIndex--
-                if (this.pensonIndex === 0) {
-                  clearInterval(this.timerPenson);
-                  this.toPersonFun()
-                }
-              }, 1000);
-              localStorage.removeItem('cartList');
-              localStorage.removeItem('orderCode');
-            } else {
-              this.inscritpBoolean = true;
-            }
-            if (this.full_state === 0) {
-              localStorage.removeItem('cartList');
-              localStorage.removeItem('orderCode');
-            }
           } else {
             Message.error(res.data.message)
           }
@@ -1720,8 +1777,14 @@ export default {
       })
       item.isSelect = true;
       this.paySelData = item;
-      clearInterval(this.timer);
-      clearInterval(this.timerMixPay);
+      if (item.name != 'BTC') {
+        clearInterval(this.timer);
+        clearInterval(this.timerMixPay);
+      } else {
+        this.timer = setInterval(() => {
+          this.statusInfoFun(1)
+        }, 10000);
+      }
     },
     changebtcFun(item) {
       if (item.isSelect) {
@@ -1781,8 +1844,8 @@ export default {
     otherPayFun() {
       clearInterval(this.timerMixPay)
       clearInterval(this.timer);
-      // if (!this.stop_pay) {
-      //   Message.info("balance in not enough")
+      // if (!this.stop_pay && this.paySelData.name === "BTC") {
+      //   Message.error("balance in not enough")
       //   return
       // }
       if (this.paySelData.name === 'UniSat') {
@@ -1795,78 +1858,29 @@ export default {
         this.tiggerXverseAction()
       }
     },
+    otherHavePayFun() {
+      this.statusInfoFun(2)
+    },
     iHasPaiFun(type) {
-      clearInterval(this.timerMixPay)
-      clearInterval(this.timer);
-      if (type === 1) {
-        this.payResultBoolean = true
-      }
-      console.log("typetypetypetype", type)
+      // clearInterval(this.timerMixPay)
+      // clearInterval(this.timer);
       this.statusInfoFun(type)
     },
-    paidStatusFun() {
-      let param = {};
-      param.order_code = this.orderCode;
-      this.$axios({
-        method: "post",
-        data: param,
-        url: apis.confirmApi,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.code === 0) {
-          } else {
-            // Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
+    codePaidFun() {
+      this.codePaidBoolean = true;
+      this.statusInfoFun(1)
     },
-    inscriptionsFun() {
-      this.spanBoolean = true
-      this.$axios({
-        method: "get",
-        url: apis.inscriptionsApi + "?address=" + this.receiveAddress,
-        headers: {
-          "Content-Type": "application/json",
-          "X-Client": "UniSat Wallet",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let totalSatoshi = new BigNumber(0);
-            res.data.result.forEach((element) => {
-              if (element.detail) {
-                let tmp = new BigNumber(element.detail.output_value);
-                totalSatoshi = totalSatoshi.plus(tmp);
-              }
-            });
-            this.balanceFun(totalSatoshi)
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
-    balanceFun(totalSatoshi) {
+    balanceFun() {
       this.$axios({
         method: "get",
         url: apis.balanceApi + "/" + this.receiveAddress,
         headers: {
           "Content-Type": "application/json",
-          "X-Client": "UniSat Wallet",
         },
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
             let balance = res.data.data
-            let amout_tmp = new BigNumber(balance.confirm_amount);
-            let amount_sat = amout_tmp.multipliedBy(100000000);
-            let available_sat = amount_sat.minus(totalSatoshi);
-            balance.amount = available_sat.div(100000000).toPrecision(8).toString();
             this.balance = balance.amount;
             if (this.paySelData.name === 'MixPay') {
               if (balance.amount < this.feeData.total_dec) {
@@ -1880,25 +1894,6 @@ export default {
             localStorage.balance = balance.amount;
           } else {
             Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
-    usdFun(number, type) {
-      this.$axios({
-        method: "get",
-        url: apis.usdApi,
-        headers: {
-          // 'X-CoinAPI-Key': apis.coinapiKey
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (type === 1) {
-            console.log(res.data.data * number)
-            this.usd_value = (res.data.data * number).toFixed(2);
-          } else {
-            this.usd_mixpay_value = (res.data.data * number).toFixed(2);
           }
         }
       }).catch(err => {
@@ -1921,13 +1916,13 @@ export default {
         console.log(this.paySelData)
       })
       this.timerMixPay = setInterval(() => {
-        this.statusInfoFun(3)
+        this.lunXun()
       }, 10000);
     } else {
       this.paySelData = this.payMethors[0]
-      this.timer = setInterval(() => {
-        this.statusInfoFun(1)
-      }, 10000);
+      // this.timer = setInterval(() => {
+      //   this.lunXun()
+      // }, 10000);
     }
     if (walletType === "metaMask") {
       let temp = {

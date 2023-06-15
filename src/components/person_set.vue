@@ -387,8 +387,8 @@
       </div>
       <div class="set_value">{{personBalanceData.amount}} BTC</div>
       <div class="set_option">
-        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatBoolean}" @click='openMaskFun(1)'>Send</div>
-        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatBoolean}" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
+        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatPriver}" @click='openMaskFun(1)'>Send</div>
+        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom'}" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
       </div>
       <img class="set_head_share" @click="saveFun" src="../assets/person/icon_24px_share@2x.png" alt="">
     </div>
@@ -433,7 +433,7 @@
             <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
-          <div class="inscript_button" @click="confirmFun" v-if="!unisatBoolean">
+          <div class="inscript_button" @click="confirmFun" v-if="!unisatPriver">
             <Icon type="ios-loading" v-if="loadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
             <span>Confirm</span>
           </div>
@@ -466,7 +466,10 @@
           <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length>3">
           <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
           <div class="iconsBox">
-            <img :src="item.url" v-for="(item,index) in icons" :key="index" alt="">
+            <div v-for="(item,index) in icons" :key="index">
+              <img :src="item.disurl" v-if="!item.isHeight" alt="">
+              <img :src="item.selurl" v-else alt="">
+            </div>
           </div>
         </div>
         <div class="save_button" @click="savePicFun">
@@ -491,7 +494,7 @@ export default {
   components: {
     InputNumber, VueQrcode, Spin, Icon
   },
-  props: ["sendWalletPageType"],
+  props: ["sendWalletPageType", "saveImgObj"],
   watch: {
     sendWalletPageType: {
       immediate: true,
@@ -507,10 +510,27 @@ export default {
         }
       }
     },
+    saveImgObj: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          val.forEach(element => {
+            if (element.name === 'Domains') {
+              this.icons[2].isHeight = element.isHeight
+            } else if (element.name === 'Image') {
+              this.icons[3].isHeight = element.isHeight
+            } else if (element.name === 'Other') {
+              this.icons[4].isHeight = element.isHeight
+            }
+          })
+        }
+        console.log("iconsicons", this.icons)
+      }
+    },
   },
   data() {
     return {
-      unisatBoolean: false,
+      unisatPriver: false,
       loadingBoolean: false,
       pageType: this.sendWalletPageType,
       jiexiAddress: null,
@@ -538,19 +558,34 @@ export default {
       ],
       icons: [
         {
-          url: "https://app.btcdomains.io/images/assets/bcard/btc_dis@2x.png"
+          disurl: "https://app.btcdomains.io/images/assets/bcard/btc_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/btc_sel@2x.png",
+          isHeight: false,
+          id: 0
         },
         {
-          url: "https://app.btcdomains.io/images/assets/bcard/avatar_dis@2x.png"
+          disurl: "https://app.btcdomains.io/images/assets/bcard/avatar_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/avatar_sel@2x.png",
+          isHeight: false,
+          id: 1
         },
         {
-          url: "https://app.btcdomains.io/images/assets/bcard/img_dis@2x.png"
+          disurl: "https://app.btcdomains.io/images/assets/bcard/img_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/img_sel@2x.png",
+          isHeight: false,
+          id: 2
         },
         {
-          url: "https://app.btcdomains.io/images/assets/bcard/music_dis@2x.png"
+          disurl: "https://app.btcdomains.io/images/assets/bcard/music_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/music_sel@2x.png",
+          isHeight: false,
+          id: 3
         },
         {
-          url: "https://app.btcdomains.io/images/assets/bcard/txt_dis@2x.png"
+          disurl: "https://app.btcdomains.io/images/assets/bcard/txt_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/txt_sel@2x.png",
+          isHeight: false,
+          id: 4
         },
       ],
       gasSelectData: {},
@@ -775,10 +810,10 @@ export default {
       if (this.loginType === 'custom') {
         return
       }
-      if (this.unisatBoolean) {
-        return
-      }
       if (index === 1) {
+        if (this.unisatPriver) {
+          return
+        }
         this.goToCartFun()
       } else {
         this.receive_btc_boolean = true;
@@ -809,6 +844,9 @@ export default {
           if (res.data.code === 0) {
             if (res.data.data.length > 0) {
               this.personData = res.data.data[0];
+              if (this.personData.content_url && this.personData.domain.length > 0) {
+                this.icons[1].isHeight = true
+              }
             }
           } else {
             Message.error(res.data.message)
@@ -817,50 +855,22 @@ export default {
       }).catch(err => {
       });
     },
-    inscriptionsFun() {
-      this.$axios({
-        method: "get",
-        url: apis.inscriptionsApi + "?address=" + this.monywallet,
-        headers: {
-          "Content-Type": "application/json",
-          "X-Client": "UniSat Wallet",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let totalSatoshi = new BigNumber(0);
-            res.data.result.forEach((element) => {
-              if (element.detail) {
-                let tmp = new BigNumber(element.detail.output_value);
-                totalSatoshi = totalSatoshi.plus(tmp);
-              }
-            });
-            this.balanceFun(totalSatoshi)
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
-    balanceFun(totalSatoshi) {
+    balanceFun() {
       this.$axios({
         method: "get",
         url: apis.balanceApi + "/" + this.monywallet,
         headers: {
           "Content-Type": "application/json",
-          "X-Client": "UniSat Wallet",
         },
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
             let balance = res.data.data
-            let amout_tmp = new BigNumber(balance.confirm_amount);
-            let amount_sat = amout_tmp.multipliedBy(100000000);
-            let available_sat = amount_sat.minus(totalSatoshi);
-            balance.amount = available_sat.div(100000000).toPrecision(8).toString();
             this.personBalanceData = balance;
-            this.sendAmount = this.personBalanceData.amount
+            this.sendAmount = this.personBalanceData.amount;
+            if (this.sendAmount && parseFloat(this.sendAmount) > 0) {
+              this.icons[0].isHeight = true
+            }
             localStorage.balance = balance.amount;
           } else {
             Message.error(res.data.message)
@@ -1046,14 +1056,14 @@ export default {
     }
   },
   mounted() {
-    if (localStorage.walletType === 'uniSat') {
-      this.unisatBoolean = true
+    if (localStorage.walletType != 'metaMask') {
+      this.unisatPriver = true
     }
     this.monywallet = localStorage.bitcoin_address;
     this.loginType = localStorage.walletType
     this.showAddress = this.showAddressFun(this.monywallet);
     this.addressPersonFun();
-    this.inscriptionsFun()
+    this.balanceFun()
     let name = localStorage.optionName;
     if (name) {
       this.optionsList.forEach(element => {

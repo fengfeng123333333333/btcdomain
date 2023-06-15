@@ -5,7 +5,7 @@
 </style>
 <template>
   <div class="person_content_app">
-    <Inscription v-if="optionType==='Inscription'"></Inscription>
+    <Inscription v-if="optionType==='Inscription'" @imgNum="imgNumFun"></Inscription>
     <Wallet v-if="optionType==='Wallet'" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun"></Wallet>
     <Setting v-if="optionType==='Setting'"></Setting>
   </div>
@@ -29,13 +29,19 @@ export default {
   },
   data() {
     return {
-      optionType: this.type
+      optionType: this.type,
     }
   },
   components: {
     Inscription, Wallet, Setting
   },
   methods: {
+    imgNumFun(value) {
+      console.log("valuevaluevaluevaluevalue", value)
+      let arr = [];
+      arr.push(value)
+      this.$emit("imgNum", arr)
+    },
     sendBtcFun() {
       this.$emit("sendBtc")
     },

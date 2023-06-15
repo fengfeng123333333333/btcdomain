@@ -42,10 +42,10 @@
     </div>
     <div class="person_body">
       <div class="person_body_left">
-        <personSet @changeOption="changeOptionFun" :sendWalletPageType="sendWalletPageType"></personSet>
+        <personSet :saveImgObj="saveImgObj" @changeOption="changeOptionFun" :sendWalletPageType="sendWalletPageType"></personSet>
       </div>
       <div class="person_body_right">
-        <personContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun"></personContent>
+        <personContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun" @imgNum="imgNumFun"></personContent>
       </div>
     </div>
     <Foot></Foot>
@@ -65,10 +65,14 @@ export default {
     return {
       searchText: null,
       type: "Inscription",
-      sendWalletPageType: 0
+      sendWalletPageType: 0,
+      saveImgObj: null
     }
   },
   methods: {
+    imgNumFun(value) {
+      this.saveImgObj = value
+    },
     toCartPageFun() {
       this.$router.push({
         name: "cart"

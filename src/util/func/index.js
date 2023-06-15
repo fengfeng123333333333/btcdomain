@@ -93,27 +93,33 @@ export function formatInscriptions(inscriptions) {
   }
   return _inscriptions;
 }
-export function sendBTCTransaction(payload) {
+export function sendBTCTransaction(payload,type) {
   const sendAmount = new BigNumber(payload.amount || '0');
   const utxos = formatUTXOs(payload.utxos);
   const inscriptions = formatInscriptions(payload.inscriptions);
-    console.log("privateKey", typeof (payload.privateKey), payload.privateKey)
-    console.log("utxos", typeof (utxos), utxos)
-    console.log("inscriptions", typeof (inscriptions), inscriptions)
-    console.log("receiver", typeof (payload.receiver), payload.receiver)
-    console.log("amount", typeof (payload.amount), payload.amount)
-  console.log("feeRate", typeof (payload.feeRate), payload.feeRate)
-  console.log("payload", payload)
-  return GENERATIVE_SDK.createTx(
-    payload.privateKey,
-    utxos,
-    inscriptions,
-    '',
-    payload.receiver,
-    sendAmount,
-    payload.feeRate,
-    true
-  );
+  if (type === "sendBtc") {
+    return GENERATIVE_SDK.createTx(
+      payload.privateKey,
+      utxos,
+      inscriptions,
+      '',
+      payload.receiver,
+      sendAmount,
+      payload.feeRate,
+      true
+    );
+  } else {
+    return GENERATIVE_SDK.createTx(
+      payload.privateKey,
+      utxos,
+      inscriptions,
+      payload.inscriptionID,
+      payload.receiver,
+      sendAmount,
+      payload.feeRate,
+      true
+    );
+  }
 }
 export async function signAsync(message) {
   let sig = "";

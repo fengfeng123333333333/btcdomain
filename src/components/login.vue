@@ -315,26 +315,15 @@ export default {
         Message.error("Receive address must not be empty")
         return
       }
-      // if (!validate(this.receiveAddress)) {
-      //   Message.error("Receive bitcoin address is not valid")
-      //   return
-      // }
-      if (this.sendBtcaddress.indexOf('bc1p') == -1 || this.sendBtcaddress.indexOf('tb1') == -1) {
-        Message.error("Receive bitcoin address is not valid")
+      if (!validate(this.receiveAddress)) {
+        Message.warning("to address is not valid");
+        return;
       }
-
-      if (this.receiveAddress.indexOf('bc1p') != -1) {
-        if (this.receiveAddress.length == 62) {
-          localStorage.bitcoin_address = this.receiveAddress;
-          this.showAddress = this.showAddressFun(this.receiveAddress);
-          localStorage.setItem("bitcoin_address", this.receiveAddress);
-          localStorage.setItem("walletType", "custom");
-          this.$emit("loginEnd", this.showAddress)
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
-        }
-      }
+      localStorage.bitcoin_address = this.receiveAddress;
+      this.showAddress = this.showAddressFun(this.receiveAddress);
+      localStorage.setItem("bitcoin_address", this.receiveAddress);
+      localStorage.setItem("walletType", "custom");
+      this.$emit("loginEnd", "custom")
     }
   },
   mounted() {

@@ -785,7 +785,7 @@
                 </div>
                 <div class="cart_list_item_empti">
                   <div class="cart_list_item_status" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.dom_state===9">Available</div>
-                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1))" v-if="item.dom_state===0||item.dom_state===5">Registered</div>
+                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1)" v-else-if="item.dom_state===0||item.dom_state===5">Registered</div>
                   <div class="cart_list_item_status" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-else>Registering...</div>
                 </div>
                 <div class="cart_list_item_content">

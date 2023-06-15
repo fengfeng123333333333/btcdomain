@@ -77,4 +77,7 @@ body::-webkit-scrollbar {
   opacity: 0.5;
   cursor: not-allowed !important;
 }
+.ivu-spin-fix {
+  z-index: 1000 !important;
+}
 </style>

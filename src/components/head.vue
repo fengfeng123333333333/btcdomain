@@ -197,7 +197,9 @@ export default {
     showData: {
       immediate: true,
       handler(val) {
-        this.showAddress = this.showAddressFun(val);
+        if (localStorage.bitcoin_address && localStorage.walletType != 'custom') {
+          this.showAddress = this.showAddressFun(val);
+        }
       }
     },
     goTcartpage: {
@@ -269,7 +271,9 @@ export default {
       this.walletTypeBoolean = false
     },
     loginEndFun(value) {
-      this.showAddress = value;
+      if (value != 'custom') {
+        this.showAddress = value;
+      }
       this.walletTypeBoolean = false;
       if (this.goTcartpageChild) {
         this.$router.push({
@@ -299,7 +303,7 @@ export default {
     }
   },
   mounted() {
-    if (localStorage.bitcoin_address) {
+    if (localStorage.bitcoin_address && localStorage.walletType != 'custom') {
       this.showAddress = this.showAddressFun(localStorage.bitcoin_address)
     }
   }

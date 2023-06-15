@@ -217,12 +217,11 @@ export default {
         url: apis.recentHistoryApi + "/" + wallet,
         headers: {
           "Content-Type": "application/json",
-          "X-Client": "UniSat Wallet",
         },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let data = res.data.result;
+          if (res.data.code === 0) {
+            let data = res.data.data.result;
             data.forEach(element => {
               element.addressShow = this.showAddressFun(element.address)
               element.tixdShow = this.showAddressFun(element.txid)
