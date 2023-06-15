@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.22.4",
-    "@bitcoinerlab/secp256k1": "^1.0.2",
+    "@bitcoinerlab/secp256k1": "github:fengfeng123333333333/secp256k1",
     "@chenfengyuan/vue-qrcode": "^2.0.0",
     "@ethereumjs/util": "^8.0.6",
     "@metamask/obs-store": "^8.1.0",
@@ -30,6 +30,7 @@
     "ecpair": "github:lyswifter/ecpair",
     "ethers": "^6.4.0",
     "generative-sdk": "github:lyswifter/generative-sdk",
+    "html2canvas": "^1.4.1",
     "moment": "^2.29.4",
     "patch-package": "^6.5.1",
     "qrcode": "^1.5.1",
@@ -39,7 +40,8 @@
     "vue-gtag": "^2.0.1",
     "vue-request": "^2.0.0-rc.4",
     "vue-router": "^4.0.13",
-    "vue-seamless-scroll": "^1.1.23"
+    "vue-seamless-scroll": "^1.1.23",
+    "sats-connect": "0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.1",

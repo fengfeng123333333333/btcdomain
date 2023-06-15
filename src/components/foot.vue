@@ -79,7 +79,7 @@ export default {
       if (index === 1) {
         window.open("https://docs.btcdomains.io", '_blank');
       } else if (index === 2) {
-        window.open("https://linktr.ee/btcdomain", '_blank');
+        window.open("https://linktr.ee/btcdomain_btc", '_blank');
       } else if (index === 3) {
         window.open("https://github.com/btcdomain", '_blank');
       } else if (index === 4) {

@@ -343,10 +343,10 @@
               <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
                 <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                 <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
-                <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+                <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
               </div>
               <div v-else>
-                <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
               </div>
               <div class="result_left_bottom_item" v-if="resultData.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{resultData.fee.gas_fee}} BTC/yr</div>
             </div>
@@ -370,10 +370,10 @@
                   <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
                     <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                     <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
-                    <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                    <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
                   </div>
                   <div v-else>
-                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
                   </div>
                   <div class="result_left_bottom_item" v-if="item.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.fee.gas_fee}} BTC/yr</div>
                 </div>
@@ -422,9 +422,9 @@ export default {
         dom_state: null,
         isSelect: false,
         owner_address: null,
-        register_date: null,
+        expire_date: null,
         showAddress: null,
-        register_date_show: null
+        expire_date_show: null
       },
       linkList: [],
       cartList: [],
@@ -524,7 +524,7 @@ export default {
           data.domain = data.dom_name
           if (data.dom_state != 9) {
             data.showAddress = this.showAddressFun(data.owner_address)
-            data.register_date_show = moment(data.register_date).format("YYYY-MM-DD HH:mm:ss")
+            data.expire_date_show = moment(data.expire_date).format("YYYY-MM-DD HH:mm:ss")
           }
           this.resultData = data;
         }
@@ -548,7 +548,7 @@ export default {
             element.isSelect = false
             if (element.dom_state != 9) {
               element.showAddress = this.showAddressFun(element.owner_address)
-              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+              element.expire_date_show = moment(element.expire_date).format("YYYY-MM-DD HH:mm:ss")
             }
           })
           this.linkList = res.data.data;

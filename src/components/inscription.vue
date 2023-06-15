@@ -265,7 +265,7 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
-  margin-top: 32px;
+  margin-top: 2px;
 }
 .set_input:focus {
   border: 2px solid #4540d6;
@@ -298,7 +298,7 @@
   justify-content: space-between;
 }
 .gas_tab_item {
-  width: 98px;
+  width: 190px;
   height: 60px;
   background: #ffffff;
   border-radius: 4px;
@@ -356,6 +356,31 @@
 .tab_item_right_option_ing {
   opacity: 0.5;
   cursor: not-allowed;
+}
+.send_btc {
+  width: 840px;
+  /* height: 481px; */
+  padding-bottom: 20px;
+  background: #ffffff;
+  border-radius: 4px;
+  /* border: 1px solid #2e2f3e; */
+  margin-top: 1.4rem;
+}
+.send_btc_title {
+  font-size: 14px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.send_btc_title_balance {
+  font-size: 14px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
 }
 </style>
 <template>
@@ -439,13 +464,20 @@
       </div>
     </div>
     <div class="mask" v-if="send_inscript_boolean">
-      <div class="send_inscript">
+      <div class="send_btc">
         <div class="displayCom  maskheadcom">
-          <span>Inscribe State</span>
-          <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun">
+          <span>Send inscription</span>
+          <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun()">
         </div>
         <div class="send_inscript_box">
-          <input @keyup.enter="searchFun" disabled v-model="btcaddress" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
+          <div class="send_btc_title">To</div>
+          <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
+          <div>{{jiexiAddress}}</div>
+          <!-- <div class="send_btc_title">
+            <span>Amount</span>
+            <span class="send_btc_title_balance">Balance：{{balance}} BTC</span>
+          </div> -->
+          <!-- <input v-model="sendAmount" type="text" class="set_input" placeholder="Amount"> -->
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
@@ -459,7 +491,10 @@
           </div>
           <div class="gas_input">
             <span class="input_number_year">sats/vB</span>
-            <InputNumber :min="1" v-model="gasSelectData.value" class="InputNumberClass" style="width: 100%;" />
+            <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
+            <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
+            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
+            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun">Confirm</div>
         </div>
@@ -471,8 +506,18 @@
   
 <script>
 import { Tabs, TabPane, Page, InputNumber, Message, Spin } from 'view-ui-plus'
-import apis from '../util/apis/apis'
+import { ethers } from "ethers";
+import { Buffer } from "buffer";
+import BIP32Factory from "bip32";
+import * as bitcoin from "bitcoinjs-lib";
+const ecc = require('@bitcoinerlab/secp256k1');
+import apis from '../util/apis/apis';
+import { validate } from "bitcoin-address-validation";
+import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransaction } from '../util/func/index'
+bitcoin.initEccLib(ecc);
+const bip32 = BIP32Factory(ecc);
 const moment = require('moment');
+const defaultPath = "m/86'/0'/0'/0/0";
 const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
 export default {
   components: {
@@ -480,7 +525,13 @@ export default {
   },
   data() {
     return {
-      address: null,
+      balance: null,
+      sendBtcaddress: null,
+      amount: null,
+      gasList: [],
+      sendAmount: null,
+      jiexiAddress: null,
+      monywallet: null,
       type: "Domains",
       listShowType: 2,
       searchText: null,
@@ -505,10 +556,81 @@ export default {
       gasSelectData: {},
       inscrptList: [],
       spanBoolean: false,
-      public_key: null
+      public_key: null,
+      selectItem: {}
     }
   },
   methods: {
+    goToCartFun() {
+      this.spanBoolean = true;
+      this.$axios({
+        method: "get",
+        url: apis.getRateFeeApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            let data = res.data.data;
+            this.gasList = this.recommendedFeeFun(data.fastestFee, data.halfHourFee, data.hourFee, this.gasSelectData.name)
+            if (!this.gasSelectData.name) {
+              this.gasSelectData.name = this.gasList[0].name;
+              this.gasSelectData.fast = data.fastestFee;
+              this.gasSelectData.avg = data.halfHourFee
+              this.gasSelectData.slow = data.hourFee
+              this.gasSelectData.value = this.gasList[0].value
+            }
+            this.spanBoolean = false;
+            this.send_inscript_boolean = true;
+          } else {
+            Message.error(res.data.message)
+            this.spanBoolean = false;
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    jiexiFun(value) {
+      if (this.sendBtcaddress.endsWith(".btc")) {
+        this.domainChangeFun()
+      }
+    },
+    domainChangeFun() {
+      let param = {};
+      param.domain = this.sendBtcaddress
+      this.$axios({
+        method: "post",
+        url: apis.domainChangeApi,
+        data: param,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.jiexiAddress = res.data.data.owner_address;
+            this.sendRealAddress = res.data.data.owner_address;
+            return
+          } else {
+            Message.error("the address is  error")
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    changeGasInputFun(value) {
+      if (!value) {
+        return
+      }
+      if (this.gasSelectData.slow > value) {
+        return
+      }
+      if (this.gasSelectData.avg > value) {
+        return
+      }
+      this.gasSelectData.customValue = value
+    },
     changeAddressTypefun(value) {
       this.type = value
       if (value === "Image") {
@@ -518,67 +640,113 @@ export default {
       }
       this.addressFun()
     },
-    async sendFun(item) {
+    sendFun(item) {
+      this.selectItem = item
       if (item.state != '9' && item.state != '0' && item.state != '5' && item.state != '') {
         return
       }
-      let signRet = "";
-      let walletType = localStorage.walletType;
-      if (walletType === 'metaMask') {
-        let provider = new ethers.BrowserProvider(window.ethereum);
-        let signer = await provider.getSigner();
-        let sig = await signer.signMessage(GivingMsg);
-        let seed = ethers.toUtf8Bytes(
-          ethers.keccak256(ethers.toUtf8Bytes(sig))
-        );
-        let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
-        let taprootChild = root.derivePath(defaultPath);
-        let buf = Buffer.from(message);
-        let hashBuf = bitcoin.crypto.sha256(buf);
-        let signMsg = taprootChild.sign(hashBuf);
-        signRet = signMsg.toString('hex')
-      } else if (walletType === 'uniSat') {
-        signRet = await window.unisat.signMessage(GivingMsg);
-      }
-      this.setDomainFun(signRet, this.type, item)
+      this.goToCartFun()
     },
-    setDomainFun(signature, type, item) {
-      // this.spanBoolean = true
-      let param = {};
-      if (type === 'Domains') {
-        param.inscribe_id = "";
-        param.domain = item.domain;
-      } else {
-        param.inscribe_id = item.id;
-        param.domain = "";
+    setDomainFun(item) {
+      this.submitInsTxAction(item)
+    },
+    async submitInsTxAction(item) {
+      // to address
+      let tempAddr = "";
+      if (!this.sendBtcaddress) {
+        Message.warning("to address must not be empty");
+        return;
       }
-      param.address = this.address;
-      param.signature = signature;
-      param.public_key = this.public_key;
-      param.sign_type = localStorage.walletType.toLowerCase()
+
+      if (this.sendBtcaddress.endsWith(".btc")) {
+        if (!this.sendRealAddress) {
+          Message.warning("to address must not be empty");
+          return;
+        }
+        if (!validate(this.sendRealAddress)) {
+          Message.warning("to address is not valid");
+          return;
+        }
+        tempAddr = this.sendRealAddress;
+      } else {
+        if (!validate(this.sendBtcaddress)) {
+          Message.warning("to address is not valid");
+          return;
+        }
+        tempAddr = this.sendRealAddress;
+      }
+
+      if (!tempAddr) {
+        Message.warning("to address must not be empty");
+        return;
+      }
+
+      let feeRate = this.gasSelectData.value;
+
+      const privKey = await generateBitcoinAddr(localStorage.walletType);
+      if (!privKey) {
+        Message.warning("private key must not be empty");
+        return;
+      }
+      let addr = localStorage.getItem("bitcoin_address");
+
+      this.queryExtIns(addr, privKey, this.sendRealAddress, feeRate, item.detail.id)
+    },
+    async queryExtIns(address, privKey, tempAddr, feeRate, inscriptionID) {
       this.$axios({
-        method: "post",
-        data: param,
-        url: apis.setDomainApi,
+        method: "get",
+        url: apis.walletInfoApi + "?address=" + address,
         headers: {
           "Content-Type": "application/json",
         },
+      }).then(async res => {
+        if (res.status == "200") {
+          let retOut = res.data;
+          let waltOut = retOut.data;
+          let gutxos = formatUTXOs(waltOut.txrefs);
+          let insOutPut = formatInscriptions(waltOut.inscriptions_by_outputs);
+          let sBtcResq = {
+            privateKey: privKey,
+            utxos: gutxos,
+            inscriptions: insOutPut,
+            inscriptionID: inscriptionID,
+            receiver: tempAddr,
+            feeRate: feeRate,
+          };
+          console.log("sBtcResq", sBtcResq)
+          const { txID, txHex } = await sendBTCTransaction(sBtcResq);
+          console.log("txHex", txHex)
+          // submit
+          this.pushTx(txHex);
+        }
+      }).catch(err => {
+        this.loadingBoolean = false;
+        console.log(err)
+      });
+    },
+    pushTx(rawtx) {
+      let param = {};
+      param.rawtx = rawtx
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.pushTxApi,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Client": "UniSat Wallet",
+        },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.code === 0) {
-            if (type === 'Domains') {
-              this.set_prime_boolean = false;
-            } else {
-              this.set_avatar_boolean = false;
-            }
-            Message.success("success")
-            this.spanBoolean = false
+          this.loadingBoolean = false;
+          if (res.data.message === 'OK') {
+            this.send_btc_boolean = false
+            Message.success("tx: " + res.data.result + " has been publiced");
           } else {
-            Message.error(res.data.message)
-            this.spanBoolean = false
+            Message.info(res.data.message);
           }
         }
       }).catch(err => {
+        console.log(err)
       });
     },
     choseMaskFun() {
@@ -589,7 +757,13 @@ export default {
         element.isSelect = false
       })
       item.isSelect = true;
-      this.gasSelectData = item;
+      if (item.name === 'Custom') {
+        this.gasSelectData.customValue = this.gasSelectData.value
+        this.gasSelectData.name = "Custom"
+        return
+      }
+      this.gasSelectData.value = item.value;
+      this.gasSelectData.name = item.name;
     },
     isInputFun() { },
     searchFun() {
@@ -601,36 +775,7 @@ export default {
     changeShowFun(type) {
       this.listShowType = type
     },
-    goToCartFun() {
-      let param = {};
-      let arr = []
-      let temp = {};
-      temp.domain = this.btcaddress
-      temp.year = 1
-      param.domains = arr;
-      param.out_wallet = localStorage.bitcoin_address,
-        param.rate_fee = 0,
-        param.promo_code = ""
-      this.$axios({
-        method: "post",
-        data: param,
-        url: apis.goToCartApi,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.code === 0) {
-            this.gasList = this.recommendedFeeFun(res.data.data.recommended_fee.fastestFee, res.data.data.recommended_fee.halfHourFee, res.data.data.recommended_fee.hourFee)
-            this.gasSelectData = this.gasList[0];
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
-    recommendedFeeFun(fastestFee, halfHourFee, hourFee) {
+    recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
       let arr = [];
       let temp1 = {};
       let temp2 = {};
@@ -638,14 +783,17 @@ export default {
       let temp4 = {};
       temp1.name = "Fast";
       temp1.value = fastestFee;
-      temp1.isSelect = true;
+      temp1.fast = fastestFee;
+      temp1.isSelect = false;
 
       temp2.name = "Avg";
       temp2.value = halfHourFee;
+      temp2.avg = halfHourFee;
       temp2.isSelect = false;
 
       temp3.name = "Slow";
       temp3.value = hourFee;
+      temp3.slow = hourFee;
       temp3.isSelect = false;
 
       temp4.name = "Custom";
@@ -655,10 +803,24 @@ export default {
       arr.push(temp2);
       arr.push(temp3);
       arr.push(temp4);
+      if (type) {
+        arr.forEach(element => {
+          if (element.name === type) {
+            element.isSelect = true
+          } else {
+            element.isSelect = false
+          }
+        })
+      } else {
+        arr[0].isSelect = true
+      }
       return arr
     },
-    confirmFun() {
-      this.send_inscript_boolean = false
+    async confirmFun() {
+      if (this.selectItem.state != '9' && this.selectItem.state != '0' && this.selectItem.state != '5' && this.selectItem.state != '') {
+        return
+      }
+      this.setDomainFun(this.selectItem)
     },
     showAddressFun(address) {
       if (address) {
@@ -678,7 +840,7 @@ export default {
       if (this.searchText) {
         param.address = this.searchText
       } else {
-        param.address = this.address
+        param.address = this.monywallet
       }
       param.sign = ""
       this.$axios({
@@ -709,8 +871,9 @@ export default {
     },
   },
   mounted() {
-    this.address = localStorage.bitcoin_address;
+    this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
+    this.balance = localStorage.balance;
     this.addressFun()
   },
 }

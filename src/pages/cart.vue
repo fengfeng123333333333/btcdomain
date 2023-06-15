@@ -712,10 +712,10 @@
                 <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
                   <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                   <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
-                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
                 </div>
                 <div v-else>
-                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
                 </div>
                 <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.gas_fee}} BTC/yr</div>
               </div>
@@ -739,10 +739,10 @@
                     <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
                       <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                       <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{resultData.showAddress}}</div>
-                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
                     </div>
                     <div v-else>
-                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
                     </div>
                     <div class="result_left_bottom_item" v-if="item.dom_state===9" style="color:#2E2F3E;background:rgba(83,85,112,0.1)">{{item.fee.gas_fee}} BTC/yr</div>
                   </div>
@@ -785,7 +785,8 @@
                 </div>
                 <div class="cart_list_item_empti">
                   <div class="cart_list_item_status" style="color:#4540D6;background:rgba(69,64,214,0.1)" v-if="item.dom_state===9">Available</div>
-                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1)" v-else>Registered</div>
+                  <div class="cart_list_item_status" style="color:#75749F;background:rgba(58,56,123,0.1))" v-if="item.dom_state===0||item.dom_state===5">Registered</div>
+                  <div class="cart_list_item_status" style="color:#EEA119;background:rgba(238,161,25,0.1)" v-else>Registering...</div>
                 </div>
                 <div class="cart_list_item_content">
                   <div class="cart_list_item_value">
@@ -850,8 +851,8 @@
               <span class="input_number_year">sats/vB</span>
               <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
               <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
-              <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow">This fee is below the slow, which may lead to a long wait time for inscription.</div>
-              <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
+              <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
+              <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
             </div>
             <div class="slow_class" v-if="gasSelectData.name==='Slow'">This fee is below the average, which may lead to a long wait time for inscription.</div>
             <div class="cart_right_gas" style="margin-top:10px">
@@ -944,9 +945,9 @@ export default {
         dom_state: null,
         isSelect: false,
         owner_address: null,
-        register_date: null,
+        expire_date: null,
         showAddress: null,
-        register_date_show: null
+        expire_date_show: null
       },
       linkList: [],
       cartList: [],
@@ -992,7 +993,6 @@ export default {
       this.goToCartFun()
     },
     recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
-      console.log("type", type)
       let arr = [];
       let temp1 = {};
       let temp2 = {};
@@ -1087,7 +1087,6 @@ export default {
               this.gasSelectData.slow = data.recommended_fee.hourFee
               this.gasSelectData.value = this.gasList[0].value
             }
-            console.log("this.gasSelectData", this.gasSelectData)
             this.gasTotalData.total_gas_fee = data.total_gas_fee;
             this.gasTotalData.total_service_fee = data.total_service_fee;
             this.gasTotalData.total_additional_fee = data.total_additional_fee;
@@ -1099,7 +1098,7 @@ export default {
             let total_service_fee = new Decimal(data.total_service_fee);
             let total_promcode_fee = total_origin_service_fee.minus(total_promo_service_fee).minus(total_service_fee);
             this.gasTotalData.total_promcode_fee = Number(total_promcode_fee.toString());
-            this.usdFun();
+            this.gasTotalData.usd_value = data.total_fee_usd;
             this.spanBoolean = false;
             this.contentShow = false;
             localStorage.promo_code = this.promo_code;
@@ -1302,7 +1301,7 @@ export default {
             element.isSelect = false
             if (element.dom_state != 9) {
               element.showAddress = this.showAddressFun(element.owner_address)
-              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+              element.expire_date_show = moment(element.expire_date).format("YYYY-MM-DD HH:mm:ss")
             }
             this.cartList.forEach(ele => {
               if (ele.dom_name === element.dom_name) {
@@ -1335,7 +1334,7 @@ export default {
           data.domain = data.dom_name;
           if (data.dom_state != 9) {
             data.showAddress = this.showAddressFun(data.owner_address)
-            data.register_date_show = moment(data.register_date).format("YYYY-MM-DD HH:mm:ss")
+            data.expire_date_show = moment(data.expire_date).format("YYYY-MM-DD HH:mm:ss")
           }
           this.cartList.forEach(element => {
             if (element.dom_name === data.domain) {
@@ -1343,24 +1342,6 @@ export default {
             }
           })
           this.resultData = data;
-        }
-      }).catch(err => {
-      });
-    },
-    usdFun() {
-      this.$axios({
-        method: "get",
-        url: apis.usdApi,
-        headers: {
-          'X-CoinAPI-Key': apis.coinapiKey
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          let ratio = res.data;
-          let ratioNum = new BigNumber(ratio.rate);
-          let btcNum = new BigNumber(this.gasTotalData.total_fee);
-          let usdtNum = ratioNum.multipliedBy(btcNum);
-          this.gasTotalData.usd_value = new BigNumber(usdtNum.toPrecision(8).toString()).toFixed(2);
         }
       }).catch(err => {
       });

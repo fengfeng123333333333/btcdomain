@@ -149,10 +149,10 @@
             </Tooltip>
           </div>
         </div>
-        <div class="wallet_balance_right">
+        <!-- <div class="wallet_balance_right">
           <div class="wallet_balance_right_item" @click="sendBtcFun">Send</div>
           <div class="wallet_balance_right_item" style="margin-left:10px" @click="receiveBtcFun">Receive</div>
-        </div>
+        </div> -->
       </div>
       <div class="wallet_content">
         <div class="wallet_table_head">
@@ -214,7 +214,7 @@ export default {
       this.spanBoolean = true
       this.$axios({
         method: "get",
-        url: apis.recentHistoryApi + "?address=" + wallet,
+        url: apis.recentHistoryApi + "/" + wallet,
         headers: {
           "Content-Type": "application/json",
           "X-Client": "UniSat Wallet",
@@ -222,9 +222,7 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.message === "OK") {
-            console.log("dddddd")
             let data = res.data.result;
-            console.log(data)
             data.forEach(element => {
               element.addressShow = this.showAddressFun(element.address)
               element.tixdShow = this.showAddressFun(element.txid)

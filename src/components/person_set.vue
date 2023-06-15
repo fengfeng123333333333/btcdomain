@@ -13,6 +13,7 @@
   flex-direction: column;
   align-items: center;
   padding-top: 20px;
+  position: relative;
 }
 .set_avater {
   width: 120px;
@@ -307,13 +308,75 @@
   color: rgba(46, 47, 62, 0.2);
   cursor: not-allowed;
 }
+.set_head_share {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+.share_box {
+  width: 380px;
+  background: #ffffff;
+  margin-top: 100px;
+  padding: 0 20px;
+  padding-bottom: 20px;
+}
+.share_img {
+  width: 100%;
+  height: 223px;
+  background: url("../assets/person/card_bg@2x.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 20px;
+  position: relative;
+}
+.share_img img {
+  width: 80px;
+  height: 80px;
+  border: 50%;
+}
+.save_button {
+  margin-top: 20px;
+  width: 100%;
+  height: 50px;
+  background: #2e2f3e;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.save_button img {
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+}
+.iconsBox {
+  position: absolute;
+  top: 76px;
+  left: 126px;
+  width: 105px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.iconsBox img {
+  width: 18px;
+  height: 18px;
+}
 </style>
   
 <template>
   <div class="person_set_app">
     <div class="set_head">
       <div class="set_avater">
-        <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length<3">
+        <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length>3">
         <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
         <img src="../assets/person/og@2x.png" alt="" class="ogImg">
       </div>
@@ -324,9 +387,10 @@
       </div>
       <div class="set_value">{{personBalanceData.amount}} BTC</div>
       <div class="set_option">
-        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom'}" @click='openMaskFun(1)'>Send</div>
-        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom'}" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
+        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatBoolean}" @click='openMaskFun(1)'>Send</div>
+        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatBoolean}" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
       </div>
+      <img class="set_head_share" @click="saveFun" src="../assets/person/icon_24px_share@2x.png" alt="">
     </div>
     <div class="set_options">
       <div class="set_options_item" v-for="(item,index) in optionsList" :key="index" @click="changeOptionFun(item)">
@@ -344,7 +408,8 @@
         </div>
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
-          <input v-model="sendBtcaddress" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
+          <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
+          <div>{{jiexiAddress}}</div>
           <div class="send_btc_title">
             <span>Amount</span>
             <span class="send_btc_title_balance">Balance：{{personBalanceData.amount}} BTC</span>
@@ -363,9 +428,16 @@
           </div>
           <div class="gas_input">
             <span class="input_number_year">sats/vB</span>
-            <InputNumber :min="1" v-model="gasSelectData.value" class="InputNumberClass" style="width: 100%;" />
+            <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
+            <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
+            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
+            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
-          <div class="inscript_button" @click="confirmFun">Confirm</div>
+          <div class="inscript_button" @click="confirmFun" v-if="!unisatBoolean">
+            <Icon type="ios-loading" v-if="loadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
+            <span>Confirm</span>
+          </div>
+          <div class="inscript_button unisatGray" v-else>Confirm</div>
         </div>
       </div>
     </div>
@@ -384,21 +456,40 @@
         </div>
       </div>
     </div>
-    <!-- <Spin size="large" fix :show="spanBoolean"></Spin> -->
+    <div class="mask" v-if="save_pic_boolean">
+      <div class="share_box">
+        <div class="displayCom  maskheadcom" style="padding:0">
+          <span>Share Picture</span>
+          <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(3)">
+        </div>
+        <div class="share_img">
+          <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length>3">
+          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
+          <div class="iconsBox">
+            <img :src="item.url" v-for="(item,index) in icons" :key="index" alt="">
+          </div>
+        </div>
+        <div class="save_button" @click="savePicFun">
+          <img src="../assets/person/icon_save@2x.png" alt="">
+          <span> Save Picture</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-  
+
 <script>
-import { InputNumber, Message, Spin } from 'view-ui-plus'
+import { InputNumber, Message, Spin, Icon } from 'view-ui-plus'
 import VueQrcode from '@chenfengyuan/vue-qrcode';
 import apis from '../util/apis/apis'
 import { copyAction } from '../util/func/index'
-import BigNumber from "bignumber.js";
 import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransaction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
+import html2canvas from 'html2canvas'
+import BigNumber from "bignumber.js";
 export default {
   components: {
-    InputNumber, VueQrcode, Spin
+    InputNumber, VueQrcode, Spin, Icon
   },
   props: ["sendWalletPageType"],
   watch: {
@@ -419,7 +510,10 @@ export default {
   },
   data() {
     return {
+      unisatBoolean: false,
+      loadingBoolean: false,
       pageType: this.sendWalletPageType,
+      jiexiAddress: null,
       optionsList: [
         {
           selUrl: require("../assets/person/icon_24px_inscription_sel@2x.png"),
@@ -442,26 +536,110 @@ export default {
           isSelect: false
         },
       ],
+      icons: [
+        {
+          url: "https://app.btcdomains.io/images/assets/bcard/btc_dis@2x.png"
+        },
+        {
+          url: "https://app.btcdomains.io/images/assets/bcard/avatar_dis@2x.png"
+        },
+        {
+          url: "https://app.btcdomains.io/images/assets/bcard/img_dis@2x.png"
+        },
+        {
+          url: "https://app.btcdomains.io/images/assets/bcard/music_dis@2x.png"
+        },
+        {
+          url: "https://app.btcdomains.io/images/assets/bcard/txt_dis@2x.png"
+        },
+      ],
       gasSelectData: {},
       send_btc_boolean: false,
       receive_btc_boolean: false,
+      save_pic_boolean: false,
       sendBtcaddress: null,
       amount: null,
       gasList: [],
       monywallet: null,
       personData: {
-        content_url: ""
+        content_url: "",
+        domain: ""
       },
       personBalanceData: {},
       showAddress: null,
-      spanBoolean: false,
       sendAmount: null,
       loginType: null,
       sendRealAddress: null
     }
   },
   methods: {
-    domainChangeFun() {
+    changeGasInputFun(value) {
+      if (!value) {
+        return
+      }
+      if (this.gasSelectData.slow > value) {
+        return
+      }
+      if (this.gasSelectData.avg > value) {
+        return
+      }
+      this.gasSelectData.customValue = value
+    },
+    saveFun() {
+      this.save_pic_boolean = true
+    },
+    dataURLtoBlob(dataurl) {
+      var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], {
+        type: mime
+      });
+    },
+    savePicFun() {
+      let canvas = document.querySelector('.share_img');
+      let that = this;
+      html2canvas(canvas, {
+        scale: 2,
+        logging: true,
+        useCORS: true
+      }).then(function (canvas) {
+        let imgData = canvas.toDataURL("image/png");
+        let prefixBase64 = that.dataURLtoBlob(imgData);
+        let data = prefixBase64;
+        if (!data) {
+          return;
+        }
+        let blob = new Blob([data], {
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8"
+        });
+        let url = window.URL.createObjectURL(blob);
+        let fileName = "card.png";
+        if ("download" in document.createElement("a")) {
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+          that.save_pic_boolean = false
+        } else {
+          navigator.msSaveBlob(blob, fileName);
+        }
+      });
+    },
+    jiexiFun(value) {
+      if (this.sendBtcaddress.endsWith(".btc")) {
+        this.domainChangeFun(1)
+      }
+    },
+    domainChangeFun(type) {
       let param = {};
       param.domain = this.sendBtcaddress
       this.$axios({
@@ -474,6 +652,10 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
+            if (type === 1) {
+              this.jiexiAddress = res.data.data.owner_address;
+              return
+            }
             this.sendRealAddress = res.data.data.owner_address;
             if (!validate(this.sendRealAddress)) {
               Message.warning("to address is not valid");
@@ -482,7 +664,6 @@ export default {
             if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
               if (this.sendRealAddress.length == 62) {
                 if (localStorage.walletType === 'uniSat') {
-                  console.log("unisat")
                   this.unisatAction()
                 } else {
                   this.submitBtcTxAction()
@@ -492,6 +673,8 @@ export default {
                 return
               }
             }
+          } else {
+            Message.error("the address is  error")
           }
         }
       }).catch(err => {
@@ -502,9 +685,12 @@ export default {
     },
     choseMaskFun(index) {
       if (index === 1) {
+        this.loadingBoolean = false
         this.send_btc_boolean = false;
-      } else {
+      } else if (index === 2) {
         this.receive_btc_boolean = false;
+      } else {
+        this.save_pic_boolean = false;
       }
     },
     changeOptionFun(item) {
@@ -526,10 +712,18 @@ export default {
         element.isSelect = false
       })
       item.isSelect = true;
-      this.gasSelectData = item;
+      if (item.name === 'Custom') {
+        this.gasSelectData.customValue = this.gasSelectData.value
+        this.gasSelectData.name = "Custom"
+        return
+      }
+      this.gasSelectData.value = item.value;
+      this.gasSelectData.name = item.name;
     },
-    searchFun() { },
     confirmFun() {
+      if (this.loadingBoolean) {
+        return
+      }
       if (!this.sendBtcaddress) {
         Message.error("Receive address must not be empty")
         return
@@ -546,8 +740,8 @@ export default {
       }
       if (this.sendBtcaddress.indexOf('bc1p') != -1 || this.sendBtcaddress.indexOf('tb1') != -1) {
         if (this.sendBtcaddress.length == 62) {
+          this.sendRealAddress = this.sendBtcaddress;
           if (localStorage.walletType === 'uniSat') {
-            this.sendRealAddress = this.sendBtcaddress;
             this.unisatAction()
           } else {
             this.submitBtcTxAction()
@@ -559,19 +753,29 @@ export default {
       }
     },
     async unisatAction() {
+      this.loadingBoolean = true;
       const num = new BigNumber(this.sendAmount);
       const weivalue = num.multipliedBy(100000000).toNumber();
+      let feeRate = "";
+      if (this.gasSelectData.name === "Custom") {
+        feeRate = this.gasSelectData.customValue
+      } else {
+        feeRate = this.gasSelectData.value
+      }
       const txid = await window.unisat.sendBitcoin(
         this.sendRealAddress,
         weivalue,
         {
-          feeRate: this.gasSelectData.value,
+          feeRate: feeRate,
         }
       );
       Message.info("submit transaction: " + txid);
     },
     openMaskFun(index) {
       if (this.loginType === 'custom') {
+        return
+      }
+      if (this.unisatBoolean) {
         return
       }
       if (index === 1) {
@@ -614,7 +818,6 @@ export default {
       });
     },
     inscriptionsFun() {
-      this.spanBoolean = true
       this.$axios({
         method: "get",
         url: apis.inscriptionsApi + "?address=" + this.monywallet,
@@ -643,22 +846,22 @@ export default {
     balanceFun(totalSatoshi) {
       this.$axios({
         method: "get",
-        url: apis.balanceApi + "?address=" + this.monywallet,
+        url: apis.balanceApi + "/" + this.monywallet,
         headers: {
           "Content-Type": "application/json",
           "X-Client": "UniSat Wallet",
         },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let balance = res.data.result
+          if (res.data.code === 0) {
+            let balance = res.data.data
             let amout_tmp = new BigNumber(balance.confirm_amount);
             let amount_sat = amout_tmp.multipliedBy(100000000);
             let available_sat = amount_sat.minus(totalSatoshi);
             balance.amount = available_sat.div(100000000).toPrecision(8).toString();
             this.personBalanceData = balance;
+            this.sendAmount = this.personBalanceData.amount
             localStorage.balance = balance.amount;
-            this.usdFun()
           } else {
             Message.error(res.data.message)
           }
@@ -666,62 +869,34 @@ export default {
       }).catch(err => {
       });
     },
-    usdFun() {
+    goToCartFun() {
       this.$axios({
         method: "get",
-        url: apis.usdApi,
-        headers: {
-          'X-CoinAPI-Key': apis.coinapiKey
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          let ratio = res.data;
-          let ratioNum = new BigNumber(ratio.rate);
-          let btcNum = new BigNumber(this.personBalanceData.amount);
-          let usdtNum = ratioNum.multipliedBy(btcNum);
-          this.personBalanceData.usd_value = usdtNum.toPrecision(8).toString();
-          this.sendAmount = this.personBalanceData.amount
-        }
-      }).catch(err => {
-      });
-    },
-    goToCartFun() {
-      this.spanBoolean = true;
-      let param = {};
-      let arr = []
-      let temp = {};
-      temp.year = 1;
-      temp.domain = "22223.btc";
-      arr.push(temp)
-      param.domains = arr;
-      param.out_wallet = this.monywallet;
-      param.rate_fee = 0;
-      param.promo_code = "";
-      this.$axios({
-        method: "post",
-        data: param,
-        url: apis.goToCartApi,
+        url: apis.getRateFeeApi,
         headers: {
           "Content-Type": "application/json",
         },
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
-            this.gasList = this.recommendedFeeFun(res.data.data.recommended_fee.fastestFee, res.data.data.recommended_fee.halfHourFee, res.data.data.recommended_fee.hourFee)
+            let data = res.data.data;
+            this.gasList = this.recommendedFeeFun(data.fastestFee, data.halfHourFee, data.hourFee, this.gasSelectData.name)
             if (!this.gasSelectData.name) {
-              this.gasSelectData = this.gasList[0];
+              this.gasSelectData.name = this.gasList[0].name;
+              this.gasSelectData.fast = data.fastestFee;
+              this.gasSelectData.avg = data.halfHourFee
+              this.gasSelectData.slow = data.hourFee
+              this.gasSelectData.value = this.gasList[0].value
             }
-            this.spanBoolean = false;
             this.send_btc_boolean = true;
           } else {
             Message.error(res.data.message)
-            this.spanBoolean = false;
           }
         }
       }).catch(err => {
       });
     },
-    recommendedFeeFun(fastestFee, halfHourFee, hourFee) {
+    recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
       let arr = [];
       let temp1 = {};
       let temp2 = {};
@@ -729,14 +904,17 @@ export default {
       let temp4 = {};
       temp1.name = "Fast";
       temp1.value = fastestFee;
-      temp1.isSelect = true;
+      temp1.fast = fastestFee;
+      temp1.isSelect = false;
 
       temp2.name = "Avg";
       temp2.value = halfHourFee;
+      temp2.avg = halfHourFee;
       temp2.isSelect = false;
 
       temp3.name = "Slow";
       temp3.value = hourFee;
+      temp3.slow = hourFee;
       temp3.isSelect = false;
 
       temp4.name = "Custom";
@@ -746,6 +924,17 @@ export default {
       arr.push(temp2);
       arr.push(temp3);
       arr.push(temp4);
+      if (type) {
+        arr.forEach(element => {
+          if (element.name === type) {
+            element.isSelect = true
+          } else {
+            element.isSelect = false
+          }
+        })
+      } else {
+        arr[0].isSelect = true
+      }
       return arr
     },
     async submitBtcTxAction() {
@@ -764,26 +953,36 @@ export default {
         Message.warning("amount must not be empty");
         return;
       }
-      let one = new BigNumber(this.sendAmount);
+      // state.sendInsOrBtc.amount = new BigNumber(state.info.total).toNumber();
+      let amount = new BigNumber(this.sendAmount).toNumber();
+      let one = new BigNumber(amount);
       let targetSat = one.multipliedBy(100000000);
       if (targetSat.lt(new BigNumber(1000))) {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
       // availBal
-      let avail = new BigNumber(this.personBalanceData.amount);
-      if (one.gte(avail)) {
-        Message.warning(
-          "max value you must transfer is " + this.personBalanceData.amount + "btc"
-        );
-        return;
-      }
+      // let avail = new BigNumber(this.personBalanceData.amount);
+      // if (one.gte(avail)) {
+      //   Message.warning(
+      //     "max value you must transfer is " + this.personBalanceData.amount + "btc"
+      //   );
+      //   return;
+      // }
       // feeRate
-      let feeRate = this.gasSelectData.value;
+      this.spanBoolean = true
+      let feeRate = "";
+      if (this.gasSelectData.name === "Custom") {
+        feeRate = this.gasSelectData.customValue
+      } else {
+        feeRate = this.gasSelectData.value
+      }
       const walletType = localStorage.walletType;
+      this.loadingBoolean = true;
       const privKey = await generateBitcoinAddr(walletType);
       if (!privKey) {
         Message.warning("private key must not be empty");
+        this.loadingBoolean = false;
         return;
       }
       // assembly
@@ -800,47 +999,56 @@ export default {
         if (res.status == "200") {
           let retOut = res.data;
           let waltOut = retOut.data;
-          console.log("11111111", waltOut)
           let gutxos = formatUTXOs(waltOut.txrefs);
-          console.log("2222222222", gutxos)
           let insOutPut = formatInscriptions(waltOut.inscriptions_by_outputs);
-          console.log("3333333333", insOutPut)
           let sBtcResq = {
             privateKey: privKey,
             utxos: gutxos,
             inscriptions: insOutPut,
-            receiver: tempAddr,
+            receiver: this.sendRealAddress,
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          console.log("sBtcResqsBtcResqsBtcResq", sBtcResq)
-          const { txID, txHex } = sendBTCTransaction(sBtcResq);
-          console.log("txHextxHextxHex", txHex)
+          const { txID, txHex } = await sendBTCTransaction(sBtcResq);
+          console.log("txHex", txHex)
           // submit
           this.pushTx(txHex);
         }
       }).catch(err => {
+        this.loadingBoolean = false;
+        console.log(err)
       });
     },
     pushTx(rawtx) {
-      console.log("rawtxrawtxrawtxrawtx")
+      let param = {};
+      param.rawtx = rawtx
       this.$axios({
         method: "post",
-        data: rawtx,
-        url: "https://unisat.io/api/v1/wallet/config",
+        data: param,
+        url: apis.pushTxApi,
         headers: {
           "Content-Type": "application/json",
           "X-Client": "UniSat Wallet",
         },
       }).then(res => {
         if (res.status == "200") {
-          Message.info("tx: " + subRet + " has been publiced");
+          this.loadingBoolean = false;
+          if (res.data.message === 'OK') {
+            this.send_btc_boolean = false
+            Message.success("tx: " + res.data.result + " has been publiced");
+          } else {
+            Message.info(res.data.message);
+          }
         }
       }).catch(err => {
+        console.log(err)
       });
     }
   },
   mounted() {
+    if (localStorage.walletType === 'uniSat') {
+      this.unisatBoolean = true
+    }
     this.monywallet = localStorage.bitcoin_address;
     this.loginType = localStorage.walletType
     this.showAddress = this.showAddressFun(this.monywallet);

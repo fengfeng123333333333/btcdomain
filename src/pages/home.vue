@@ -622,7 +622,7 @@
 <template>
   <div class="home_app" :class="{test:selectId===2}" @click="histroyBoolean=false">
 
-    <Head :loginShow="loginShow" :goTcartpage="goTcartpage"></Head>
+    <Head :loginShow="loginShow" :goTcartpage="goTcartpage" @loginShow="loginShowFun"></Head>
     <div class="home_body">
       <div :class="{home_head_animal:contentShow||selectId===2}">
         <div class="home_head">
@@ -689,10 +689,10 @@
                 <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
                   <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                   <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
-                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.register_date_show}}</div>
+                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
                 </div>
                 <div v-else>
-                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering...</div>
                 </div>
                 <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.total_fee}} BTC/yr</div>
               </div>
@@ -716,10 +716,10 @@
                     <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
                       <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                       <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
-                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.register_date_show}}</div>
+                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
                     </div>
                     <div v-else>
-                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Available</div>
+                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
                     </div>
                     <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="item.dom_state===9">{{item.fee.total_fee}} BTC/yr</div>
                   </div>
@@ -823,11 +823,8 @@ import Foot from '../components/foot'
 import { Tabs, TabPane, Page, Message, Spin } from 'view-ui-plus'
 import apis from '../util/apis/apis'
 const moment = require('moment');
-import { copyAction } from '../util/func/index'
+import { copyAction, changeStatusFun } from '../util/func/index'
 import { validate } from 'bitcoin-address-validation';
-// import * as bitcoin from "bitcoinjs-lib";
-// import { Buffer } from "buffer";
-// var bitcoinMessage = require('bitcoinjs-message')
 export default {
   components: {
     Head, Foot, Tabs, TabPane, Page, Spin
@@ -874,9 +871,9 @@ export default {
         dom_state: null,
         isSelect: false,
         owner_address: null,
-        register_date: null,
+        expire_date: null,
         showAddress: null,
-        register_date_show: null
+        expire_date_show: null
       },
       linkList: [],
       cartList: [],
@@ -1013,10 +1010,10 @@ export default {
           if (res.data.code === 0) {
             res.data.data.isSelect = false;
             let data = res.data.data;
-            data.domain = data.dom_name;
+            data = changeStatusFun(data);
             if (data.dom_state != 9) {
               data.showAddress = this.showAddressFun(data.owner_address)
-              data.register_date_show = moment(data.register_date).format("YYYY-MM-DD")
+              data.expire_date_show = moment(data.expire_date).format("YYYY-MM-DD")
             }
             this.cartList.forEach(element => {
               if (element.domain === data.domain) {
@@ -1052,7 +1049,7 @@ export default {
           let data = res.data.data;
           data.forEach(element => {
             this.cartList.forEach(ele => {
-              if (ele.domain === ele.domain) {
+              if (element.domain === ele.domain) {
                 element.isSelect = true
               } else {
                 element.isSelect = false
@@ -1060,7 +1057,7 @@ export default {
             })
             if (element.dom_state != 9) {
               element.showAddress = this.showAddressFun(element.owner_address)
-              element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+              element.expire_date_show = moment(element.expire_date).format("YYYY-MM-DD HH:mm:ss")
             }
           })
           this.linkList = res.data.data;
@@ -1179,7 +1176,9 @@ export default {
       let localCartList = arr.concat(this.cartListlocal)
       localStorage.cartList = JSON.stringify(localCartList);
       let bitcoin_address = localStorage.bitcoin_address;
+      console.log("bitcoin_address", bitcoin_address)
       if (!bitcoin_address) {
+        console.log("dsdddd")
         this.loginShow = true;
         this.goTcartpage = true;
       } else {
@@ -1187,6 +1186,9 @@ export default {
           name: "cart"
         })
       }
+    },
+    loginShowFun(value) {
+      this.loginShow = value;
     },
     changePageFun(e) {
       console.log(e)

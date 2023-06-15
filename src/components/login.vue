@@ -139,35 +139,46 @@
 import * as bitcoin from "bitcoinjs-lib";
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
-import ecc from "@bitcoinerlab/secp256k1";
 import BIP32Factory from "bip32";
 import { validate } from 'bitcoin-address-validation';
 import { Message } from 'view-ui-plus'
+const ecc = require('@bitcoinerlab/secp256k1');
+import { getAddress, signTransaction, signMessage } from "sats-connect";
+bitcoin.initEccLib(ecc);
+const bip32 = BIP32Factory(ecc);
+
+const toXOnly = (pubKey) =>
+  pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 export default {
   data() {
     return {
       walletTypeBoolean: false,
       walletTypeList: [
-        {
-          name: "FoxWallet",
-          url: require("../assets/head/connect_foxwallet@2x.png"),
-          isSelect: false
-        },
-        {
-          name: "TokenPocket",
-          url: require("../assets/head/connect_tokenpocket@2x.png"),
-          isSelect: false
-        },
+        // {
+        //   name: "FoxWallet",
+        //   url: require("../assets/head/connect_foxwallet@2x.png"),
+        //   isSelect: false
+        // },
+        // {
+        //   name: "TokenPocket",
+        //   url: require("../assets/head/connect_tokenpocket@2x.png"),
+        //   isSelect: false
+        // },
         {
           name: "UniSat",
           url: require("../assets/head/connect_unisat@2x.png"),
           isSelect: false
         },
         {
+          name: "Xverse",
+          url: require("../assets/head/connect_xverse@2x.png"),
+          isSelect: false
+        },
+        {
           name: "Metamask",
           url: require("../assets/head/connect_metamask@2x.png"),
           isSelect: false
-        }
+        },
       ],
       defaultPath: "m/86'/0'/0'/0/0",
       walletAddress: null,
@@ -192,6 +203,8 @@ export default {
         this.generateBitcoinAddrUnisat()
       } else if (item.name === 'Metamask') {
         this.generateBitcoinAddrMetaMask()
+      } else if (item.name === 'Xverse') {
+        this.generateBitcoinAddrXverse()
       }
     },
     showAddressFun(address) {
@@ -203,9 +216,6 @@ export default {
       } else {
         return address
       }
-    },
-    toXOnly(pubKey) {
-      return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
     },
     async generateBitcoinAddrMetaMask() {
       if (typeof window.ethereum === "undefined") {
@@ -220,18 +230,18 @@ export default {
       let signer = await provider.getSigner();
       let sig = await signer.signMessage(this.GivingMsg);
       const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
-      const bip32 = BIP32Factory(ecc);
-      const root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+      // const bip32 = BIP32Factory(ecc);
+      let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
       const taprootChild = root.derivePath(this.defaultPath);
       const pubKey = taprootChild.publicKey;
       const { address: taprootAddress } = bitcoin.payments.p2tr({
-        internalPubkey: this.toXOnly(pubKey),
+        internalPubkey: toXOnly(pubKey),
       });
       if (taprootAddress) {
         localStorage.bitcoin_address = taprootAddress;
         this.showAddress = this.showAddressFun(taprootAddress);
         localStorage.setItem("walletType", "metaMask");
-        localStorage.setItem("public_key", pubKey);
+        localStorage.setItem("public_key", pubKey.toString("hex"));
         this.$emit("loginEnd", this.showAddress)
       } else {
         Message.error("generate your bitcoin address failed, please retry.");
@@ -253,6 +263,42 @@ export default {
       this.$emit("loginEnd", this.showAddress)
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
     },
+    async generateBitcoinAddrXverse() {
+      const getAddressOptions = {
+        payload: {
+          purposes: ["ordinals", "payment"],
+          message: "Address for receiving Ordinals",
+          network: {
+            type: "Mainnet",
+          },
+        },
+        onFinish: async (response) => {
+          this.walletAddress = response.addresses[0].address;
+          let publiKey = response.addresses[0].publicKey;
+          this.showAddress = this.showAddressFun(this.walletAddress);
+          localStorage.setItem("bitcoin_address", this.walletAddress);
+          localStorage.setItem("public_key", publiKey);
+          localStorage.setItem("walletType", "Xverse");
+
+          const signMessageOptions = {
+            payload: {
+              network: {
+                type: "Mainnet",
+              },
+              address: this.walletAddress,
+              message: this.GivingMsg,
+            },
+            onFinish: (response) => {
+              this.$emit("loginEnd", this.showAddress)
+            },
+            onCancel: () => alert("Canceled"),
+          };
+          await signMessage(signMessageOptions);
+        },
+        onCancel: () => Message.info("Request canceled"),
+      };
+      await getAddress(getAddressOptions);
+    },
     handleAccountsChanged(_accounts) {
       if (this.walletAddress === _accounts[0]) {
         return;
@@ -269,9 +315,12 @@ export default {
         Message.error("Receive address must not be empty")
         return
       }
-      if (!validate(this.receiveAddress)) {
+      // if (!validate(this.receiveAddress)) {
+      //   Message.error("Receive bitcoin address is not valid")
+      //   return
+      // }
+      if (this.sendBtcaddress.indexOf('bc1p') == -1 || this.sendBtcaddress.indexOf('tb1') == -1) {
         Message.error("Receive bitcoin address is not valid")
-        return
       }
 
       if (this.receiveAddress.indexOf('bc1p') != -1) {

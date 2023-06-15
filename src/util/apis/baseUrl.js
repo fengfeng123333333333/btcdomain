@@ -5,7 +5,7 @@ if (url.indexOf("prod.btcwallet") != -1) {
     baseUrl="https://btcdomains.io";
 } else {
     // https://www.btcwallet.network/ 
-    baseUrl="https://www.btcwallet.network";
+    baseUrl="https://btcdomains.io";
 }
 let baseAppUrl = "https://btcdomains.io";
 let unisatUrl = "https://unisat.io"

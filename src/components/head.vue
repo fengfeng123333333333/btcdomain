@@ -212,6 +212,7 @@ export default {
       immediate: true,
       handler(val) {
         if (val) {
+          console.log("valeva", val)
           this.walletTypeBoolean = true;
         }
       }
@@ -231,7 +232,11 @@ export default {
       copyAction(localStorage.bitcoin_address)
     },
     outLoginFun() {
-      localStorage.clear();
+      localStorage.removeItem("walletType");
+      localStorage.removeItem("balance");
+      localStorage.removeItem("bitcoin_address");
+      localStorage.removeItem("public_key");
+      this.showAddress = null;
       this.downBoolean = false;
       this.$router.push({
         name: "home"
@@ -260,6 +265,7 @@ export default {
       this.walletTypeBoolean = true
     },
     closeMaskFun() {
+      this.$emit('loginShow', false)
       this.walletTypeBoolean = false
     },
     loginEndFun(value) {

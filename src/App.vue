@@ -73,4 +73,8 @@ body::-webkit-scrollbar {
   justify-content: flex-end;
   margin-top: 20px;
 }
+.unisatGray {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
 </style>

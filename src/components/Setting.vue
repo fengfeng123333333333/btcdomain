@@ -235,6 +235,12 @@
 .set_prime_table {
   margin-top: 16px;
   width: 100%;
+  height: 200px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.set_prime_table::-webkit-scrollbar {
+  display: none;
 }
 .set_prime_item {
   width: 100%;
@@ -360,7 +366,7 @@
             <div class="avatar_set">
               <img :src="personData.domain_img" alt="" class="avatar_set_img" v-if="personData.content_url&&personData.content_url.length<3">
               <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
-              <div class="avatar_set_option" @click="openmaskFun(1)">
+              <div class="avatar_set_option" @click="openmaskFun(1)" :class="{unisatGray:unisatPriver}">
                 <img src="../assets/person/icon_edit_p@2x.png" alt="">
                 <span>Set Avatar</span>
               </div>
@@ -372,7 +378,7 @@
             <div class="avatar_set">
               <span class="domain_name" v-if="personData">{{personData.domain}}</span>
               <span class="domain_name" v-else></span>
-              <div class="avatar_set_option" @click="openmaskFun(2)">
+              <div class="avatar_set_option" @click="openmaskFun(2)" :class="{unisatGray:unisatPriver}">
                 <img src="../assets/person/icon_edit_p@2x.png" alt="">
                 <span>Set Primary Domain Name</span>
               </div>
@@ -382,7 +388,7 @@
         </TabPane>
         <TabPane label="Account" name="Account">
           <div class="account_box">
-            <div class="account_item" @click="openmaskFun(3)">
+            <div class="account_item" @click="openmaskFun(3)" :class="{unisatGray:unisatPriver}">
               <span>Export private key</span>
               <img src="../assets/person/24px_arrow_down.png" alt="">
             </div>
@@ -484,12 +490,22 @@ import apis from '../util/apis/apis'
 const defaultPath = "m/86'/0'/0'/0/0";
 import { ethers } from "ethers";
 const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
+import BIP32Factory from "bip32";
+const ecc = require('@bitcoinerlab/secp256k1');
+
+import * as bitcoin from "bitcoinjs-lib";
+import {
+  Buffer
+} from "buffer";
+bitcoin.initEccLib(ecc);
+const bip32 = BIP32Factory(ecc);
 export default {
   components: {
     Tabs, TabPane, Page, Spin
   },
   data() {
     return {
+      unisatPriver: false,
       spanBoolean: false,
       monywallet: null,
       export_private_boolean: false,
@@ -521,7 +537,9 @@ export default {
       ],
       avatar: null,
       personData: {
-        content_url: ""
+        content_url: "",
+        domain_img: null,
+        domain: null
       },
       public_key: null,
       privKey: null
@@ -559,13 +577,22 @@ export default {
     },
     openmaskFun(index) {
       if (index === 1) {
+        if (this.unisatPriver) {
+          return
+        }
         this.addressFun("Image")
         this.set_avatar_boolean = true
       } else if (index === 2) {
+        if (this.unisatPriver) {
+          return
+        }
         this.selectData = null;
         this.addressFun("Domains")
       } else if (index === 3) {
-        this.privKey = this.exportPrivateKey()
+        if (this.unisatPriver) {
+          return
+        }
+        this.exportPrivateKey();
       }
     },
     async exportPrivateKey() {
@@ -591,6 +618,7 @@ export default {
         const taprootChild = root.derivePath(defaultPath);
         const privKey = taprootChild.privateKey?.toString("hex");
         this.export_private_boolean = true
+        this.privKey = privKey;
         return privKey;
       }
     },
@@ -602,7 +630,6 @@ export default {
     },
     searchFun() { },
     changePageFun(e) {
-      console.log(e)
     },
     async confirmFun(index) {
       let signRet = "";
@@ -611,9 +638,11 @@ export default {
         let provider = new ethers.BrowserProvider(window.ethereum);
         let signer = await provider.getSigner();
         let sig = await signer.signMessage(GivingMsg);
+        console.log("sigsigsig", sig)
         let seed = ethers.toUtf8Bytes(
           ethers.keccak256(ethers.toUtf8Bytes(sig))
         );
+        console.log("seedseed", seed)
         let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
         let taprootChild = root.derivePath(defaultPath);
         let buf = Buffer.from(this.monywallet);
@@ -660,7 +689,8 @@ export default {
             } else {
               this.set_avatar_boolean = false;
             }
-            Message.success("success")
+            Message.success("success");
+            location.reload()
           } else {
             Message.error(res.data.message)
           }
@@ -682,8 +712,10 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
-            this.personData = res.data.data[0];
-            this.spanBoolean = false
+            if (res.data.data.length > 0) {
+              this.personData = res.data.data[0];
+            }
+            this.spanBoolean = false;
           } else {
             Message.error(res.data.message)
             this.spanBoolean = false
@@ -731,6 +763,12 @@ export default {
     },
   },
   mounted() {
+    let walletType = localStorage.walletType
+    if (walletType === "uniSat") {
+      this.unisatPriver = true
+    } else {
+      this.unisatPriver = false
+    }
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
     this.addressPersonFun()
