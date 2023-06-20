@@ -541,7 +541,6 @@ export default {
       immediate: true,
       handler(val) {
         if (val) {
-          console.log(val)
           if (val.html_count > 0 || val.text_count > 0) {
             this.icons[4].isHeight = true
           }
@@ -1089,13 +1088,11 @@ export default {
             feeRate: feeRate,
           };
           const { txID, txHex } = await sendBTCTransFun(sBtcResq);
-          console.log("txHex", txHex)
           // submit
           this.pushTx(txHex);
         }
       }).catch(err => {
         this.loadingBoolean = false;
-        console.log(err)
       });
     },
     pushTx(rawtx) {
@@ -1120,7 +1117,6 @@ export default {
           }
         }
       }).catch(err => {
-        console.log(err)
       });
     }
   },

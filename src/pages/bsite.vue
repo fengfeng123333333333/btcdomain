@@ -198,7 +198,7 @@
               <div class="hori-line-view"></div>
             </div>
             <div class="step-cont-view">{{ item.cont }} <a v-if="idx == 2" href="https://www.discord.gg/btcdomain">Join our
-                Discoed</a></div>
+                Discord</a></div>
           </div>
         </div>
       </div>

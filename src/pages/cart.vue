@@ -691,7 +691,7 @@
     <template>
   <div class="cart_app">
 
-    <Head :showData="receiveAddress"></Head>
+    <Head :showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></Head>
     <div v-if="cartNum>0">
       <div class="cart_head" :class="{cart_head_anmian:contentShow}">
         <div class="cart_head_box">
@@ -938,6 +938,7 @@ export default {
   },
   data() {
     return {
+      receiveAddressHeadShow: null,
       promo_code_input: "",
       orderCode: null,
       spanMoreBoolean: false,
@@ -994,7 +995,6 @@ export default {
       copyAction(this.receiveAddress)
     },
     changeYearFun(value) {
-      console.log(value)
       if (!value) {
         return
       }
@@ -1152,9 +1152,7 @@ export default {
       }
     },
     addDomainFun(value) {
-      console.log("value", value)
       let cartListlocal = value;
-      console.log("cartListlocalcartListlocal", cartListlocal)
       localStorage.cartList = JSON.stringify(value);
       if (cartListlocal) {
         this.cartNum = cartListlocal.length
@@ -1301,8 +1299,17 @@ export default {
     closeMaskFun() {
       this.walletTypeBoolean = false
     },
+    cartChangeFun(value) {
+      this.showAddress = this.showAddressFun(localStorage.bitcoin_address);
+      this.receiveAddress = localStorage.bitcoin_address;
+    },
     loginEndFun(value) {
-      this.showAddress = value;
+      if (value === 'custom') {
+        this.receiveAddressHeadShow = 1;
+      } else {
+        this.receiveAddressHeadShow = localStorage.bitcoin_address;
+      }
+      this.showAddress = this.showAddressFun(localStorage.bitcoin_address);
       this.receiveAddress = localStorage.bitcoin_address;
       this.walletTypeBoolean = false
       this.goToCartFun()

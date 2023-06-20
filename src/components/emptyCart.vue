@@ -476,7 +476,6 @@ export default {
     },
     onfucusFun() {
       if (this.searchStutas) {
-        console.log("dfdfd")
         // this.contentShow = true;
       }
     },
@@ -514,7 +513,6 @@ export default {
         temp.year = 1;
         arr.push(temp)
       })
-      console.log(arr)
       localStorage.cartList = JSON.stringify(arr);
       this.$emit("addDomain", arr)
     },

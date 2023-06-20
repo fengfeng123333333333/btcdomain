@@ -821,7 +821,6 @@ export default {
   },
   methods: {
     inscriptionstype(element) {
-      console.log(element)
       switch (element.detail.content_type) {
         case 'image/png':
           element.type = 'IMAGE'
@@ -875,7 +874,6 @@ export default {
           element.type = "OTHER"
           break;
       }
-      console.log("elementelement", element)
       return element
     },
     toINSFun(id) {
@@ -1042,7 +1040,6 @@ export default {
       let feeRate = this.gasSelectData.value;
       this.loadingBoolean = true
       const privKey = await generateBitcoinAddr(localStorage.walletType);
-      console.log("privKeyprivKey", privKey)
       if (!privKey) {
         this.loadingBoolean = false
         return;
@@ -1103,7 +1100,6 @@ export default {
         }
       }).catch(err => {
         this.loadingBoolean = false;
-        console.log(err)
       });
     },
     choseMaskFun(type) {
@@ -1144,7 +1140,6 @@ export default {
       this.showInscrptList = arr;
     },
     changePageFun(e) {
-      console.log(e)
     },
     changeShowFun(type) {
       this.listShowType = type

@@ -64,8 +64,8 @@
       <div class="foot_right">
         <span>Contact us: contact@btcdomains.io</span>
         <div class="foot_right_line"></div>
-        <span style="margin-right:10px" @click="toOrtherFun(8)">Terms of User</span>
-        <span style="margin-right:10px" @click="toOrtherFun(9)">Privacy Policy</span>
+        <span style="margin-right:10px;cursor: pointer;" @click="toOrtherFun(8)">Terms of User</span>
+        <span style="margin-right:10px;cursor: pointer;" @click="toOrtherFun(9)">Privacy Policy</span>
         <span>© Copyright 2023 btcdomains.io</span>
       </div>
     </div>

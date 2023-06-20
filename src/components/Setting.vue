@@ -647,7 +647,6 @@ export default {
         let seed = ethers.toUtf8Bytes(
           ethers.keccak256(ethers.toUtf8Bytes(sig))
         );
-        console.log("seedseed", seed)
         let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
         let taprootChild = root.derivePath(defaultPath);
         let buf = Buffer.from(this.monywallet);

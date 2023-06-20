@@ -205,6 +205,8 @@ export default {
       handler(val) {
         if (localStorage.bitcoin_address && localStorage.walletType != 'custom') {
           this.showAddress = this.showAddressFun(val);
+        } else {
+          this.showAddress = null
         }
       }
     },
@@ -280,7 +282,10 @@ export default {
     loginEndFun(value) {
       if (value != 'custom') {
         this.showAddress = value;
+      } else {
+        this.showAddress = null;
       }
+      this.$emit("cartChange")
       this.walletTypeBoolean = false;
       if (this.goTcartpageChild) {
         this.$router.push({

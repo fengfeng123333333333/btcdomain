@@ -1085,7 +1085,6 @@ export default {
       }
     },
     inscriptionstype(element) {
-      console.log(element)
       switch (element.detail.content_type) {
         case 'image/png':
           element.type = 'IMAGE'
@@ -1139,7 +1138,6 @@ export default {
           element.type = "OTHER"
           break;
       }
-      console.log("elementelement", element)
       return element
     },
     addressFun() {
@@ -1168,7 +1166,6 @@ export default {
         if (res.status == "200") {
           if (res.data.code === 0) {
             res.data.data.result.forEach(element => {
-              console.log("2222222")
               this.inscriptionstype(element)
               if (element.register_date) {
                 element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
@@ -1461,7 +1458,6 @@ export default {
       this.loginShow = value;
     },
     changePageFun(e) {
-      console.log(e)
     },
     changeShowFun(type) {
       this.listShowType = type

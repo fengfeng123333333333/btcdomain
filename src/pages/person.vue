@@ -88,7 +88,6 @@ export default {
       })
     },
     changeOptionFun(value) {
-      console.log(value)
       this.type = value;
     },
     isInputFun() { },
@@ -102,7 +101,6 @@ export default {
   },
   mounted() {
     this.clientHeight = document.documentElement.clientHeight - 70;
-    console.log(this.clientHeight)
     let name = localStorage.optionName;
     if (name) {
       this.type = name;

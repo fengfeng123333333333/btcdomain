@@ -28,12 +28,9 @@ export async function generateBitcoinAddr(type) {
       return
     }
     let provider = new ethers.BrowserProvider(window.ethereum)
-    console.log("providerprovider",provider)
     let signer = await provider.getSigner();
-    console.log("signersignersigner", signer)
     try {
       let sig = await signer.signMessage(GivingMsg);
-      console.log("sigsigsigsig",sig)
       const seed = ethers.toUtf8Bytes(
         ethers.keccak256(ethers.toUtf8Bytes(sig))
       );
@@ -65,9 +62,6 @@ export async function generateBitcoinAddr(type) {
       internalPubkey: toXOnly(pubKey),
     });
     if (privKey) {
-      console.log("address: " + taprootAddress)
-      console.log("private key:" + privKey)
-      console.log("public key:" + pubKey.toString('hex'))
       return privKey
     }
   }
@@ -147,7 +141,6 @@ export async function signAsync(message) {
     return signRet
   } else if (walletType === 'uniSat') {
     sig = await window.unisat.signMessage(GivingMsg);
-    console.log("sigsigsig", sig)
     return sig
   }
 }
@@ -159,7 +152,6 @@ export async function exportPrivateKey() {
     let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
     const taprootChild = root.derivePath(defaultPath);
     const privKey = taprootChild.privateKey ? taprootChild.privateKey.toString("hex") : null;
-    console.log(privKey);
     return privKey;
   } else if (walletType === "metaMask") {
     if (typeof window.ethereum === "undefined") {
@@ -173,7 +165,6 @@ export async function exportPrivateKey() {
     let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
     const taprootChild = root.derivePath(defaultPath);
     const privKey = taprootChild.privateKey ? taprootChild.privateKey.toString("hex") : null;
-    console.log(privKey);
     return privKey;
   }
 }

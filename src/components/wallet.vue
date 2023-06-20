@@ -470,7 +470,6 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            console.log("sfdsfeeeeeeee")
             if (localStorage.walletType === 'uniSat') {
               this.unisatAction()
             } else {
@@ -486,11 +485,9 @@ export default {
       });
     },
     confirmFun() {
-      console.log("11111111")
       if (this.loadingBoolean) {
         return
       }
-      console.log("22222")
       if (!this.sendBtcaddress) {
         Message.error("Receive address must not be empty")
         return
@@ -504,7 +501,6 @@ export default {
           return
         }
       }
-      console.log("dfdfdf")
       this.sendRealAddress = this.sendBtcaddress;
       if (localStorage.walletType === 'uniSat') {
         this.unisatAction()
@@ -726,13 +722,11 @@ export default {
             feeRate: feeRate,
           };
           const { txID, txHex } = await sendBTCTransFun(sBtcResq);
-          console.log("txHex", txHex)
           // submit
           this.pushTx(txHex);
         }
       }).catch(err => {
         this.loadingBoolean = false;
-        console.log(err)
       });
     },
     pushTx(rawtx) {
@@ -757,7 +751,6 @@ export default {
           }
         }
       }).catch(err => {
-        console.log(err)
       });
     },
     copyActionFun(index, item) {

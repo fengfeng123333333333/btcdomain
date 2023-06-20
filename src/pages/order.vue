@@ -1364,7 +1364,6 @@ export default {
         }
       }).catch(err => {
         this.loadingBoolean = false;
-        console.log(err)
       });
     },
     pushTx(rawtx) {
@@ -1392,7 +1391,6 @@ export default {
           }
         }
       }).catch(err => {
-        console.log(err)
       });
     },
     async unisatAction() {
@@ -1836,7 +1834,6 @@ export default {
           }
         }
       }).catch(err => {
-        console.log(err)
       });
     },
     changePayFun(item) {
@@ -1947,7 +1944,6 @@ export default {
         } else {
           element.isSelect = false
         }
-        console.log(this.paySelData)
       })
     } else {
       this.paySelData = this.payMethors[0]

@@ -243,8 +243,8 @@ export default {
         internalPubkey: toXOnly(pubKey),
       });
       if (taprootAddress) {
-        localStorage.bitcoin_address = taprootAddress;
         this.showAddress = this.showAddressFun(taprootAddress);
+        localStorage.setItem("bitcoin_address", taprootAddress);
         localStorage.setItem("walletType", "metaMask");
         localStorage.setItem("public_key", pubKey.toString("hex"));
         this.addressPersonFun(taprootAddress)
@@ -328,7 +328,7 @@ export default {
       localStorage.setItem("bitcoin_address", this.receiveAddress);
       localStorage.setItem("walletType", "custom");
       localStorage.removeItem("headclick")
-      this.headclickChild = false
+      this.headclickChild = false;
       this.$emit("loginEnd", "custom")
     },
     addressPersonFun(address) {
