@@ -826,6 +826,18 @@
   line-height: 44px;
   cursor: pointer;
 }
+.order_pay_item_mixpay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order_pay_item_mixpay img {
+  margin-right: 0;
+  width: 99px;
+  height: 42px;
+}
 </style>
 <template>
   <div class="order_app">
@@ -886,7 +898,9 @@
             <div class="order_pay_list">
               <div class="order_pay_item" @click="changePayFun(item)" :class="{order_pay_item_sel:item.isSelect}" v-for="(item,index) in payMethors" :key="index">
                 <img :src="item.url" alt="" v-if="item.name!='MixPay'">
-                <img :src="item.url" alt="" v-else style="width:94px;height:23px">
+                <div class="order_pay_item_mixpay" v-else>
+                  <img :src="item.url" alt="">
+                </div>
                 <span v-if="item.name!='MixPay'">{{item.name}}</span>
               </div>
             </div>
@@ -1204,7 +1218,7 @@ export default {
         // },
         {
           name: "MixPay",
-          url: require("../assets/order/MixPay@2x.png"),
+          url: require("../assets/order/mixpay.png"),
           isSelect: false,
         },
       ],
