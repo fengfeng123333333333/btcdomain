@@ -34,14 +34,15 @@
     "moment": "^2.29.4",
     "patch-package": "^6.5.1",
     "qrcode": "^1.5.1",
+    "sats-connect": "0.2.0",
     "view-ui-plus": "^1.3.13",
     "vue": "^3.2.13",
     "vue-clipboard3": "^2.0.0",
     "vue-gtag": "^2.0.1",
+    "vue-lazyload": "^3.0.0",
     "vue-request": "^2.0.0-rc.4",
     "vue-router": "^4.0.13",
-    "vue-seamless-scroll": "^1.1.23",
-    "sats-connect": "0.2.0"
+    "vue-seamless-scroll": "^1.1.23"
   },
   "devDependencies": {
     "@babel/core": "^7.22.1",

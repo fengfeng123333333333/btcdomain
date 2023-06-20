@@ -28,22 +28,29 @@ export async function generateBitcoinAddr(type) {
       return
     }
     let provider = new ethers.BrowserProvider(window.ethereum)
+    console.log("providerprovider",provider)
     let signer = await provider.getSigner();
-    let sig = await signer.signMessage(GivingMsg);
-    const seed = ethers.toUtf8Bytes(
-      ethers.keccak256(ethers.toUtf8Bytes(sig))
-    );
-    let root = bip32.fromSeed(Buffer.from(seed.slice(2)))
-    const taprootChild = root.derivePath(defaultPath);
-    const privKey = taprootChild.privateKey
-    const pubKey = taprootChild.publicKey;
-    const {
-      address: taprootAddress
-    } = bitcoin.payments.p2tr({
-      internalPubkey: toXOnly(pubKey),
-    });
-    if (privKey) {
-      return privKey
+    console.log("signersignersigner", signer)
+    try {
+      let sig = await signer.signMessage(GivingMsg);
+      console.log("sigsigsigsig",sig)
+      const seed = ethers.toUtf8Bytes(
+        ethers.keccak256(ethers.toUtf8Bytes(sig))
+      );
+      let root = bip32.fromSeed(Buffer.from(seed.slice(2)))
+      const taprootChild = root.derivePath(defaultPath);
+      const privKey = taprootChild.privateKey
+      const pubKey = taprootChild.publicKey;
+      const {
+        address: taprootAddress
+      } = bitcoin.payments.p2tr({
+        internalPubkey: toXOnly(pubKey),
+      });
+      if (privKey) {
+        return privKey
+      }
+    } catch (err) {
+      return ""
     }
   } else if (type === 'uniSat') {
     let sig = await window.unisat.signMessage(GivingMsg);
@@ -93,7 +100,7 @@ export function formatInscriptions(inscriptions) {
   }
   return _inscriptions;
 }
-export function sendBTCTransaction(payload,type) {
+export function sendBTCTransFun(payload,type) {
   const sendAmount = new BigNumber(payload.amount || '0');
   const utxos = formatUTXOs(payload.utxos);
   const inscriptions = formatInscriptions(payload.inscriptions);

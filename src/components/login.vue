@@ -1,9 +1,9 @@
 <style scoped>
 .maskBox {
   width: 500px;
-  height: 556px;
   background: #ffffff;
   border: 1px solid #2e2f3e;
+  padding-bottom: 20px;
 }
 .maskhead {
   width: 100%;
@@ -109,7 +109,7 @@
 </style>
 <template>
   <div class="mask" @click="closeMaskFun">
-    <div class="maskBox" style="margin-top:180px" @click.stop>
+    <div class="maskBox" style="margin-top:1.8rem" @click.stop>
       <div class="maskhead displayCom">
         <span>Connect Wallet</span>
         <img src="../assets/head/icon_close_dialog@2x.png" alt="" @click="closeMaskFun">
@@ -121,15 +121,17 @@
           <span>{{item.name}}</span>
         </div>
       </div>
-      <div class="connect_other displayCom">
-        <div class="connect_other_line"></div>
-        <span>or</span>
-        <div class="connect_other_line"></div>
-      </div>
-      <div class="enter_address">Enter Receiving Address</div>
-      <div class="enter_address_box displayCom">
-        <input type="text" class="enter_input" v-model="receiveAddress">
-        <div class="connect_buttom" @click="confirmFun">Confirm</div>
+      <div v-if="!headclickChild">
+        <div class="connect_other displayCom">
+          <div class="connect_other_line"></div>
+          <span>or</span>
+          <div class="connect_other_line"></div>
+        </div>
+        <div class="enter_address">Enter Receiving Address</div>
+        <div class="enter_address_box displayCom">
+          <input type="text" class="enter_input" v-model="receiveAddress">
+          <div class="connect_buttom" :class="{unisatGray:!receiveAddress}" @click="confirmFun">Confirm</div>
+        </div>
       </div>
     </div>
   </div>
@@ -143,15 +145,16 @@ import BIP32Factory from "bip32";
 import { validate } from 'bitcoin-address-validation';
 import { Message } from 'view-ui-plus'
 const ecc = require('@bitcoinerlab/secp256k1');
+import apis from '../util/apis/apis';
 import { getAddress, signTransaction, signMessage } from "sats-connect";
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
-
 const toXOnly = (pubKey) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 export default {
   data() {
     return {
+      headclickChild: false,
       walletTypeBoolean: false,
       walletTypeList: [
         // {
@@ -189,12 +192,14 @@ export default {
   },
   methods: {
     closeMaskFun() {
+      localStorage.removeItem("headclick")
+      this.headclickChild = false
       this.$emit("closemask")
     },
     selectWalletFun(item) {
-      if (item.isSelect) {
-        return
-      }
+      // if (item.isSelect) {
+      //   return
+      // }
       this.walletTypeList.forEach(element => {
         element.isSelect = false
       })
@@ -242,7 +247,7 @@ export default {
         this.showAddress = this.showAddressFun(taprootAddress);
         localStorage.setItem("walletType", "metaMask");
         localStorage.setItem("public_key", pubKey.toString("hex"));
-        this.$emit("loginEnd", this.showAddress)
+        this.addressPersonFun(taprootAddress)
       } else {
         Message.error("generate your bitcoin address failed, please retry.");
       }
@@ -260,7 +265,7 @@ export default {
       localStorage.setItem("bitcoin_address", this.walletAddress);
       localStorage.setItem("walletType", "uniSat");
       localStorage.setItem("public_key", publiKey);
-      this.$emit("loginEnd", this.showAddress)
+      this.addressPersonFun(this.walletAddress)
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
     },
     async generateBitcoinAddrXverse() {
@@ -289,9 +294,9 @@ export default {
               message: this.GivingMsg,
             },
             onFinish: (response) => {
-              this.$emit("loginEnd", this.showAddress)
+              this.addressPersonFun(this.walletAddress)
             },
-            onCancel: () => alert("Canceled"),
+            onCancel: () => Message.info("Request canceled"),
           };
           await signMessage(signMessageOptions);
         },
@@ -306,13 +311,12 @@ export default {
         this.walletAddress = _accounts[0];
         localStorage.bitcoin_address = _accounts[0];
         this.showAddress = this.showAddressFun(_accounts[0]);
-        this.$emit("loginEnd", this.showAddress)
+        this.addressPersonFun(this.walletAddress)
         Message.info("changed the wallet");
       }
     },
     confirmFun() {
       if (!this.receiveAddress) {
-        Message.error("Receive address must not be empty")
         return
       }
       if (!validate(this.receiveAddress)) {
@@ -323,11 +327,45 @@ export default {
       this.showAddress = this.showAddressFun(this.receiveAddress);
       localStorage.setItem("bitcoin_address", this.receiveAddress);
       localStorage.setItem("walletType", "custom");
+      localStorage.removeItem("headclick")
+      this.headclickChild = false
       this.$emit("loginEnd", "custom")
-    }
+    },
+    addressPersonFun(address) {
+      let param = {};
+      param.address = address
+      this.$axios({
+        method: "post",
+        url: apis.getDomainApi,
+        data: param,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.headclickChild = false
+            localStorage.removeItem("headclick")
+            this.$emit("loginEnd", this.showAddress)
+            if (res.data.data.length > 0) {
+              let personData = res.data.data[0];
+              if (personData.content_url && personData.content_url.length > 0) {
+                localStorage.setItem("bitcoin_avater", personData.content_url);
+                this.$emit("avater", personData.content_ur)
+              }
+            }
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
   },
   mounted() {
-    bitcoin.initEccLib(ecc);
+    if (localStorage.headclick && localStorage.headclick === '1') {
+      this.headclickChild = true
+    }
   }
 }
 </script>

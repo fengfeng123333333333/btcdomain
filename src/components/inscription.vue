@@ -87,7 +87,6 @@
   margin-bottom: 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 .inscription_tab_list {
   width: 100%;
@@ -173,13 +172,17 @@
 }
 .inscription_tab_item_card {
   width: 280px;
-  background: #ffffff;
-  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
   border-radius: 8px;
-  border: 1px solid #d5d6e0;
   padding: 10px;
   margin-right: 20px;
   margin-top: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #f7f7fa;
+}
+.inscription_tab_item_card:hover {
+  border: 1px solid #d5d6e0;
+  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
 }
 .inscription_tab_item_card:nth-child(3n) {
   margin-right: 0;
@@ -368,7 +371,7 @@
   color: #2e2f3e;
 }
 .inscript_box {
-  width: 840px;
+  width: 700px;
   background: #ffffff;
   border: 1px solid #2e2f3e;
   padding-bottom: 20px;
@@ -379,10 +382,12 @@
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
   color: #2e2f3e;
+  padding: 0 20px;
 }
-.inscript_button {
+.inscript_button1 {
+  margin: 0 auto;
   margin-top: 20px;
-  width: 100%;
+  width: 80%;
   height: 44px;
   background: #4540d6;
   box-shadow: 0px -4px 8px 0px rgba(82, 82, 102, 0.08);
@@ -443,17 +448,19 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #8184a6;
+  padding: 0 20px;
 }
 .inscript_step_info_right_item {
   display: flex;
   align-items: center;
 }
 .inscript_body_dec {
-  margin-top: 20px;
-  font-size: 14px;
-  font-family: PingFangSC-Semibold, PingFang SC;
-  font-weight: 600;
-  color: #2e2f3e;
+  margin-top: 10px;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+  margin-bottom: 10px;
 }
 .inscript_button {
   margin-top: 20px;
@@ -470,51 +477,114 @@
   line-height: 44px;
   cursor: pointer;
 }
+.jiexiError {
+  color: red;
+}
+.inscript_step_info_right {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #8184a6;
+}
+.inscript_step_info_right_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.width1 {
+  width: 270px;
+}
+.width2 {
+  width: 100px;
+  margin-left: 40px;
+}
+.width3 {
+  width: 140px;
+  margin-left: 60px;
+}
+.width4 {
+  width: 80px;
+  margin-left: 50px;
+}
+.width5 {
+  width: 70px;
+  margin-left: 60px;
+  text-align: right;
+}
+.inscriptin_id_class {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tab_item_card_time {
+  margin-top: 15px;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.tab_item_card_time_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
 </style>
 <template>
   <div class="inscription_app">
-    <div class="inscription_head">
+    <!-- <div class="inscription_head">
       <span>Beginner's guide</span>
       <img src="../assets/person/icon_stars@2x.png" alt="" class="icon_star">
-    </div>
+    </div> -->
     <div class="inscription_title">Inscription</div>
     <div class="inscription_tab">
       <Tabs :value="type" @on-click="changeAddressTypefun">
         <TabPane :label="item.name" :name="item.type" v-for="(item,index) in tabList" :key="index">
           <div class="inscription_tab_box">
             <div class="inscription_search_box">
-              <input type="text" @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Search for domain name or inscription" class="search_insription">
+              <input type="text" @input="isInputFun" v-model="searchText" v-if="type==='Domains'" @keyup.enter="searchFun" placeholder="Search domain name or inscription number" class="search_insription">
+              <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Image'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
+              <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Other'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
               <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
             </div>
-            <div class="inscription_tab_title">
-              <span>Domain Name</span>
-              <span>Option</span>
+            <div class="inscription_tab_title" v-if='listShowType===2'>
+              <div class="width1">Domain Name</div>
+              <div class="width2"></div>
+              <div class="width3" style="margin-left:80px">Expiration Date</div>
+              <div class="width4">Inscription ID</div>
+              <div class="width5">Option</div>
             </div>
             <div class="inscription_tab_list" v-if="listShowType===2">
               <div class="inscription_tab_item" v-for="(item,index) in showInscrptList" :key="index">
-                <div class="tab_item_left">
+                <div class="tab_item_left width1">
                   <div v-if="type==='Domains'">
                     <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                     <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                   </div>
-                  <div v-else>
+                  <div v-else-if="type==='Image'">
                     <img :src="item.detail.content" alt="" v-if="item.detail.content.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                     <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                   </div>
+                  <div v-else-if="type==='Other'">
+                    <img v-if="item.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                    <img v-if="item.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                    <img v-if="item.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                    <img v-if="item.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
+                  </div>
                   <div class="tab_item_left_dec">
                     <span v-if="type==='Domains'">{{item.domain}}</span>
-                    <span class="tab_item_left_dec_type" v-if="item.number&&item.number>0">INS #{{item.number}}</span>
-                    <span class="tab_item_left_dec_type" v-else>INS -</span>
+                    <span class="tab_item_left_dec_type" v-if="item.number&&item.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(item.id)">INS #{{item.number}}</span>
+                    <span class="tab_item_left_dec_type" v-else>INS1 -</span>
                   </div>
                 </div>
-                <div class="tab_item_right">
-                  <div class="tab_item_right_status" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;"
-                    @click="openStatusFun(item)">Registering...
-                  </div>
-                  <div class="tab_item_right_option" :class="{tab_item_right_option_ing:item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''||unisatPriver}" @click="sendFun(item)">
-                    <img src="../assets/person/icon_16px_send@2x.png" alt="">
-                    <span>Send</span>
-                  </div>
+                <div class="tab_item_right_status width2" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;"
+                  @click="openStatusFun(item)">Registering...
+                </div>
+                <div v-else class="width2"></div>
+                <div class="width3" style="margin-left:80px">{{item.expire_date_show}}</div>
+                <div class="width4 inscriptin_id_class" @click="toinscriptionFun(item)">{{item.id_show}}</div>
+                <div class="tab_item_right_option width5" :class="{tab_item_right_option_ing:item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''||unisatPriver||loginType==='custom'}" @click="sendFun(item)">
+                  <img src="../assets/person/icon_16px_send@2x.png" alt="">
+                  <span>Send</span>
                 </div>
               </div>
             </div>
@@ -524,22 +594,47 @@
                   <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                   <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                 </div>
-                <div v-else>
+                <div v-else-if="type==='Image'">
                   <img :src="item.detail.content" alt="" v-if="item.detail.content.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                   <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                 </div>
+                <div v-else-if="type==='Other'">
+                  <img v-if="item.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                  <img v-if="item.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                  <img v-if="item.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                  <img v-if="item.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
+                </div>
                 <div class="tab_item_card">
                   <span v-if="type==='Domains'">{{item.domain}}</span>
-                  <span class="tab_item_card_dec" v-if="item.number&&item.number>0">INS #{{item.number}}</span>
+                  <span class="tab_item_card_dec" v-if="item.number&&item.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(item.id)">INS #{{item.number}}</span>
                   <span class="tab_item_card_dec" v-else>INS -</span>
                 </div>
                 <div class="inscription_tab_item_card_option_senf">
-                  <div class="inscription_tab_item_card_option" :class="{tab_item_right_option_ing:item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''||unisatPriver}" @click="sendFun(item)">
+                  <div class="inscription_tab_item_card_option" :class="{tab_item_right_option_ing:item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''||unisatPriver||loginType==='custom'}"
+                    @click="sendFun(item)">
                     <img src="../assets/person/icon_16px_send@2x.png" alt="">
                     <span>Send</span>
                   </div>
                   <div class="tab_item_right_status" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;"
                     @click="openStatusFun(item)">Registering...</div>
+                  <!-- <div class="tab_item_card" v-else>
+                    <span class="tab_item_card_dec">Inscription ID</span>
+                    <span class="tab_item_card_dec" @click="toinscriptionFun(item)" style="text-decoration: underline;cursor: pointer;">{{item.id_show}}</span>
+                  </div> -->
+                </div>
+                <div class="tab_item_card_time">
+                  <div class="tab_item_card_time_item">
+                    <span>Create Date</span>
+                    <span>{{item.register_date_show}}</span>
+                  </div>
+                  <div class="tab_item_card_time_item">
+                    <span>Registration Date</span>
+                    <span>{{item.register_date_show}}</span>
+                  </div>
+                  <div class="tab_item_card_time_item">
+                    <span>Expiration Date</span>
+                    <span>{{item.expire_date_show}}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -557,13 +652,13 @@
     <div class="mask" v-if="send_inscript_boolean">
       <div class="send_btc">
         <div class="displayCom  maskheadcom">
-          <span>Send inscription</span>
+          <span>Send #{{selectItem.number}}</span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(1)">
         </div>
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div>{{jiexiAddress}}</div>
+          <div :class="{jiexiError:!jiexiType}">{{jiexiAddress}}</div>
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
@@ -579,8 +674,8 @@
             <span class="input_number_year">sats/vB</span>
             <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
             <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
-            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
-            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
+            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.economyFee" style="color:red">Minimun Fee：{{gasSelectData.economyFee}}sats/vB</div>
+            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun">
             <Icon type="ios-loading" v-if="loadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
@@ -599,7 +694,7 @@
           <div class="inscript_step">
             <img src="../assets/order/icon_processing_ok@2x.png" class="inscript_step_img" alt="">
             <div class="inscript_step_info">
-              <span>Locked the dominate</span>
+              <span>Locked The Dominate</span>
               <span class="inscript_step_info_dec">This domain name has been locked. Don't worry about being preempted.</span>
             </div>
           </div>
@@ -612,7 +707,7 @@
                 <span>Fund Transfer Pending</span>
                 <!-- <span class="inscript_step_info_copy">Copy Message ID</span> -->
               </div>
-              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
+              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks.</span>
             </div>
           </div>
           <div class="inscript_step">
@@ -623,7 +718,7 @@
             <div class="inscript_step_info">
               <span>Inscribing</span>
               <div class="inscript_step_info_bing">
-                <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
+                <span class="inscript_step_info_dec">Confirm the remaining 2 blocks.</span>
               </div>
             </div>
           </div>
@@ -634,10 +729,22 @@
             <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state>3&&full_state!=9' class="inscript_step_img" alt="">
             <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state===0' class="inscript_step_img" alt="">
             <div class="inscript_step_info">
-              <span>Inscription Transfer Panding</span>
-              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
+              <span>Inscription Transfer Pending </span>
+              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks.</span>
             </div>
           </div>
+          <div class="inscript_body_dec">The domain name transfer may take some time.</div>
+          <div class="inscript_step_info_right">
+            <div class="inscript_step_info_right_item">
+              <span>Network rate:</span>
+              <span style="margin-left:8px">{{networkRate}} sats/vB</span>
+            </div>
+            <div class="inscript_step_info_right_item">
+              <span>Your rate:</span>
+              <span style="margin-left:8px">{{yourRate}} sats/vB</span>
+            </div>
+          </div>
+          <div class="inscript_button1" @click="choseMaskFun(2)">OK</div>
         </div>
       </div>
     </div>
@@ -654,7 +761,7 @@ import * as bitcoin from "bitcoinjs-lib";
 const ecc = require('@bitcoinerlab/secp256k1');
 import apis from '../util/apis/apis';
 import { validate } from "bitcoin-address-validation";
-import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransaction } from '../util/func/index'
+import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun } from '../util/func/index'
 import { number } from 'bitcoinjs-lib/src/script';
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -667,6 +774,10 @@ export default {
   },
   data() {
     return {
+      yourRate: null,
+      networkRate: null,
+      loginType: null,
+      sendRealAddress: null,
       loadingBoolean: false,
       balance: null,
       sendBtcaddress: null,
@@ -674,6 +785,7 @@ export default {
       gasList: [],
       sendAmount: null,
       jiexiAddress: null,
+      jiexiType: false,
       monywallet: null,
       type: "Domains",
       listShowType: 2,
@@ -708,10 +820,102 @@ export default {
     }
   },
   methods: {
+    inscriptionstype(element) {
+      console.log(element)
+      switch (element.detail.content_type) {
+        case 'image/png':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/jpg':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/jpeg':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/webp':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/svg+xml':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/gif':
+          element.type = "GIF"
+          break;
+
+        case 'text/plain;charset=utf-8':
+          element.type = "TEXT"
+          break;
+
+        case 'text/html':
+          element.type = "HTML"
+          break;
+
+        case 'text/html;charset=utf-8':
+          element.type = "HTML"
+          break;
+
+        case 'application/json':
+          element.type = "TEXT"
+          break;
+
+        case 'mp3':
+          element.type = "AUDIO"
+          break;
+
+        case 'mp4':
+          element.type = "VIDEO"
+          break;
+
+        default:
+          element.type = "OTHER"
+          break;
+      }
+      console.log("elementelement", element)
+      return element
+    },
+    toINSFun(id) {
+      let url = "https://ordinals.com/inscription/" + id;
+      window.open(url, '_blank');
+    },
     openStatusFun(item) {
-      this.inscritpBoolean = true;
       this.full_state = parseInt(item.state);
-      console.log(this.full_state)
+      this.queryDomainMintFeeFun(item)
+    },
+    toinscriptionFun(item) {
+      let id = item.id.slice(0, item.id.length - 2);
+      let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
+      window.open(url, '_blank');
+    },
+    queryDomainMintFeeFun(item) {
+      this.spanBoolean = true;
+      let param = {};
+      param.domain = item.domain
+      this.$axios({
+        method: "post",
+        url: apis.queryDomainMintFeeApi,
+        data: param,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          this.spanBoolean = false;
+          if (res.data.code === 0) {
+            this.inscritpBoolean = true;
+            this.yourRate = res.data.data.rate_fee;
+            this.networkRate = res.data.data.fastest_fee;
+          } else {
+            // Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+        this.spanBoolean = false;
+      });
     },
     goToCartFun() {
       this.spanBoolean = true;
@@ -731,6 +935,7 @@ export default {
               this.gasSelectData.fast = data.fastestFee;
               this.gasSelectData.avg = data.halfHourFee
               this.gasSelectData.slow = data.hourFee
+              this.gasSelectData.economyFee = data.economyFee
               this.gasSelectData.value = this.gasList[0].value
             }
             this.spanBoolean = false;
@@ -762,10 +967,12 @@ export default {
         if (res.status == "200") {
           if (res.data.code === 0) {
             this.jiexiAddress = res.data.data.owner_address;
+            this.jiexiType = true
             this.sendRealAddress = res.data.data.owner_address;
             return
           } else {
-            Message.error("the address is  error")
+            this.jiexiAddress = "the address is  error"
+            this.jiexiType = false;
           }
         }
       }).catch(err => {
@@ -790,6 +997,7 @@ export default {
       } else {
         this.listShowType = 2;
       }
+      this.searchText = null;
       this.addressFun()
     },
     sendFun(item) {
@@ -800,6 +1008,9 @@ export default {
       if (this.unisatPriver) {
         return
       }
+      if (this.loginType === 'custom') {
+        return
+      }
       this.goToCartFun()
     },
     setDomainFun(item) {
@@ -807,7 +1018,6 @@ export default {
     },
     async submitInsTxAction(item) {
       // to address
-      let tempAddr = "";
       if (!this.sendBtcaddress) {
         Message.warning("to address must not be empty");
         return;
@@ -822,25 +1032,18 @@ export default {
           Message.warning("to address is not valid");
           return;
         }
-        tempAddr = this.sendRealAddress;
       } else {
         if (!validate(this.sendBtcaddress)) {
           Message.warning("to address is not valid");
           return;
         }
-        tempAddr = this.sendRealAddress;
+        this.sendRealAddress = this.sendBtcaddress
       }
-
-      if (!tempAddr) {
-        Message.warning("to address must not be empty");
-        return;
-      }
-
       let feeRate = this.gasSelectData.value;
       this.loadingBoolean = true
       const privKey = await generateBitcoinAddr(localStorage.walletType);
+      console.log("privKeyprivKey", privKey)
       if (!privKey) {
-        Message.warning("private key must not be empty");
         this.loadingBoolean = false
         return;
       }
@@ -869,15 +1072,12 @@ export default {
             receiver: tempAddr,
             feeRate: feeRate,
           };
-          console.log("sBtcResq", sBtcResq)
-          const { txID, txHex } = await sendBTCTransaction(sBtcResq, "inscription");
-          console.log("txHex", txHex)
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "inscription");
           // submit
           this.pushTx(txHex);
         }
       }).catch(err => {
         this.loadingBoolean = false;
-        console.log(err)
       });
     },
     pushTx(rawtx) {
@@ -895,7 +1095,7 @@ export default {
         if (res.status == "200") {
           this.loadingBoolean = false;
           if (res.data.message === 'OK') {
-            this.send_btc_boolean = false
+            this.send_inscript_boolean = false
             Message.success("tx: " + res.data.result + " has been publiced");
           } else {
             Message.info(res.data.message);
@@ -928,6 +1128,7 @@ export default {
       this.gasSelectData.name = item.name;
     },
     isInputFun(e) {
+      this.searchText = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
       if (!e.target.value) {
         this.showInscrptList = this.inscrptList;
       }
@@ -1005,58 +1206,6 @@ export default {
         return address
       }
     },
-    imgFun(type) {
-      let param = {}
-      param.inscribe_type = type;
-      param.address = this.monywallet
-      param.sign = ""
-      this.$axios({
-        method: "post",
-        data: param,
-        url: apis.addressApi,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.code === 0) {
-            let temp = {};
-            if (type === 'Domains') {
-              temp.name = 'Domains';
-              if (res.data.data.result.length > 0) {
-                temp.isHeight = true
-                this.$emit('imgNum', temp)
-              } else {
-                temp.isHeight = false
-                this.$emit('imgNum', temp)
-              }
-            } else if (type === 'Image') {
-              temp.name = 'Image';
-              if (res.data.data.result.length > 0) {
-                temp.isHeight = true
-                this.$emit('imgNum', temp)
-              } else {
-                temp.isHeight = false
-                this.$emit('imgNum', temp)
-              }
-            } else if (type === 'Other') {
-              temp.name = 'Other';
-              if (res.data.data.result.length > 0) {
-                temp.isHeight = true
-                this.$emit('imgNum', temp)
-              } else {
-                temp.isHeight = false
-                this.$emit('imgNum', temp)
-              }
-            }
-
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
     addressFun() {
       this.spanBoolean = true
       let param = {};
@@ -1077,13 +1226,30 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
-            res.data.data.result = res.data.data.result.sort(function (a, b) {
-              let c = moment(a.detail.timestamp);
-              let d = moment(b.detail.timestamp);
-              return d.diff(c)
-            });
+            res.data.data.result.forEach(element => {
+              this.inscriptionstype(element)
+              if (element.register_date) {
+                element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
+              } else {
+                element.register_date_show = "-"
+              }
+              if (element.expire_date) {
+                element.expire_date_show = moment(element.expire_date).format("YYYY-MM-DD HH:mm:ss")
+              } else {
+                element.expire_date_show = "-"
+              }
+              if (element.id && element.id.length > 10) {
+                let index1 = element.id.slice(0, 4)
+                let index2 = element.id.slice(element.id.length - 4)
+                element.id_show = index1 + "..." + index2
+              } else {
+                element.id_show = "-"
+              }
+            })
             this.inscrptList = res.data.data.result;
             this.showInscrptList = res.data.data.result;
+            this.$emit('imgNum', res.data.data.total)
+            this.$emit('og', res.data.data.og)
             this.spanBoolean = false
           } else {
             this.spanBoolean = false
@@ -1101,13 +1267,11 @@ export default {
     } else {
       this.unisatPriver = false
     }
+    this.loginType = localStorage.walletType
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
     this.balance = localStorage.balance;
     this.addressFun();
-    this.imgFun("Domains")
-    this.imgFun("Image")
-    this.imgFun("Other")
   },
 }
 </script>

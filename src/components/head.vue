@@ -88,6 +88,7 @@
   width: 0.32rem;
   height: 0.32rem;
   margin-right: 0.06rem;
+  border-radius: 50%;
 }
 .arrow_down {
   width: 0.16rem;
@@ -120,6 +121,7 @@
 .out_login_avater {
   width: 0.4rem;
   height: 0.4rem;
+  border-radius: 50%;
 }
 .out_login_address {
   display: flex;
@@ -157,21 +159,23 @@
       <img src="../assets/head/logo_nav@2x.png" alt="" class="head_logo" @click="toHomePageFun">
       <div class="head_left_line"></div>
       <a class="head_nav_item" href="https://docs.btcdomains.io" target="_blank">Document</a>
-      <a class="head_nav_item" href="https://linktr.ee/btcdomain" target="_blank">Exchange</a>
+      <a class="head_nav_item" href="https://linktr.ee/btcdomain_btc" target="_blank">Linktree</a>
     </div>
     <div class="head_right">
       <div class="head_right_content" @click="collectFun" v-if="!showAddress">Connect Wallet</div>
       <div class="head_right_content_has" v-else @click="toPersonPageFun">
         <div class="head_right_content_has_left">
-          <img src="../assets/head/avater_def@2x.png" alt="" class="avater_def">
+          <img :src="avaterImg" alt="" class="avater_def" v-if="avaterImg">
+          <img src="../assets/head/avater_def@2x.png" alt="" class="avater_def" v-else>
           <span>{{showAddress}}</span>
         </div>
         <img src="../assets/head/arrow_down_white@2x.png" alt="" @click.stop="downFun" class="arrow_down">
         <div class="out_login_box" v-if="downBoolean">
-          <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater">
+          <img :src="avaterImg" alt="" class="out_login_avater" v-if="avaterImg">
+          <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater" v-else>
           <div class="out_login_address">
             <span>{{showAddress}}</span>
-            <img src="../assets/head/icon_16px_copy@2x.png" alt="" @click="copyActionFun">
+            <img src="../assets/head/icon_16px_copy@2x.png" alt="" @click.stop="copyActionFun">
           </div>
           <div class="out_login_disconnent" @click.stop="outLoginFun">
             <img src="../assets/head/icon_disconnect@2x.png" alt="">
@@ -181,13 +185,15 @@
       </div>
       <img src="../assets/head/icon_cart@2x.png" alt="" class="cart" @click="toCartPageFun" />
     </div>
-    <Login v-if="walletTypeBoolean" @loginEnd="loginEndFun" @closemask="closeMaskFun"></Login>
+    <Login v-if="walletTypeBoolean" @loginEnd="loginEndFun" @avater="avaterFun" @closemask="closeMaskFun"></Login>
   </div>
 </template>
       
 <script>
 import Login from './login.vue'
 import { copyAction } from '../util/func/index'
+import { address } from 'bitcoinjs-lib';
+import apis from '../util/apis/apis'
 export default {
   components: {
     Login
@@ -214,7 +220,6 @@ export default {
       immediate: true,
       handler(val) {
         if (val) {
-          console.log("valeva", val)
           this.walletTypeBoolean = true;
         }
       }
@@ -226,7 +231,8 @@ export default {
       showAddress: null,
       downBoolean: false,
       goTcartpageChild: this.goTcartpage,
-      typePage: false
+      typePage: false,
+      avaterImg: null,
     }
   },
   methods: {
@@ -264,6 +270,7 @@ export default {
       }
     },
     collectFun() {
+      localStorage.headclick = 1;
       this.walletTypeBoolean = true
     },
     closeMaskFun() {
@@ -286,6 +293,11 @@ export default {
         })
       }
     },
+    avaterFun(value) {
+      if (value) {
+        this.avaterImg = value;
+      }
+    },
     showAddressFun(address) {
       if (address) {
         let addressBefor = address.slice(0, 6);
@@ -300,11 +312,39 @@ export default {
       this.$router.push({
         name: "person"
       })
-    }
+    },
+    addressPersonFun(address) {
+      this.spanBoolean = true
+      let param = {};
+      param.address = address
+      this.$axios({
+        method: "post",
+        url: apis.getDomainApi,
+        data: param,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            if (res.data.data.length > 0) {
+              this.avaterImg = res.data.data[0].content_url;
+            }
+            this.spanBoolean = false;
+          } else {
+            Message.error(res.data.message)
+            this.spanBoolean = false
+          }
+        }
+      }).catch(err => {
+        this.spanBoolean = false
+      });
+    },
   },
   mounted() {
     if (localStorage.bitcoin_address && localStorage.walletType != 'custom') {
       this.showAddress = this.showAddressFun(localStorage.bitcoin_address)
+      this.addressPersonFun(localStorage.bitcoin_address)
     }
   }
 }

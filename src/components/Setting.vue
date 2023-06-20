@@ -359,13 +359,13 @@
   <div class="setting_app">
     <div class="setting_head">Setting</div>
     <div class="setting_content">
-      <Tabs value="Profile">
-        <TabPane label="Profile" name="Profile">
+      <Tabs v-model="tabsName">
+        <TabPane label="Profile" name="Profile" v-if="!unisatPriver">
           <div class="avatar_box">
             <div class="avatar_title">Avatar</div>
             <div class="avatar_dec">Set your profile picture as the img-type inscription you own.</div>
             <div class="avatar_set">
-              <img :src="personData.domain_img" alt="" class="avatar_set_img" v-if="personData.content_url&&personData.content_url.length<3">
+              <img :src="personData.content_url" alt="" class="avatar_set_img" v-if="personData.content_url&&personData.content_url.length>3">
               <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
               <div class="avatar_set_option" @click="openmaskFun(1)" :class="{unisatGray:unisatPriver}">
                 <img src="../assets/person/icon_edit_p@2x.png" alt="">
@@ -410,7 +410,7 @@
         <div class="private_Key">Choose an img-type inscription to set as your profile picture.</div>
         <div class="set_prime_boy">
           <div class="set_prime_search">
-            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search by domain name">
+            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search  inscription number">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
@@ -419,7 +419,7 @@
           </div>
           <div class="set_avatar_table">
             <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
-              <img :src="item.detail.content" alt="">
+              <img :v-lazy="item.detail.content" alt="">
               <div class="set_avatar_item_dec">
                 <span>{{item.domain}}</span>
                 <span class="set_prime_item_left_dec_inf"> INS #{{item.number}}</span>
@@ -442,7 +442,7 @@
         <div class="private_Key">You can choose one of your domain names as your main domain name</div>
         <div class="set_prime_boy">
           <div class="set_prime_search">
-            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search by domain name">
+            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search domain name or inscription number">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
@@ -477,7 +477,7 @@
         <div class="private_Key">Private Key</div>
         <div class="copyBox">
           <span class="copyBoxContent">{{privKey}}</span>
-          <img src="../assets/cart/16px_icon_copy@2x.png" alt="">
+          <img src="../assets/cart/16px_icon_copy@2x.png" alt="" @click='copyActionFun'>
         </div>
         <div class="private_Key_title">* Anyone who has the private key can take control your account. Please manage it properly.</div>
       </div>
@@ -500,12 +500,15 @@ import {
 } from "buffer";
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
+import { copyAction } from '../util/func/index'
+import VueLazyload from 'vue-lazyload'
 export default {
   components: {
     Tabs, TabPane, Page, Spin
   },
   data() {
     return {
+      tabsName: "Account",
       searchText: null,
       unisatPriver: false,
       spanBoolean: false,
@@ -527,6 +530,9 @@ export default {
     }
   },
   methods: {
+    copyActionFun() {
+      copyAction(this.privKey)
+    },
     chooseDomainFun(item) {
       if (item.isSelect) {
         return
@@ -564,7 +570,6 @@ export default {
           return
         }
         this.addressFun("Image")
-        this.set_avatar_boolean = true
       } else if (index === 2) {
         if (this.unisatPriver) {
           return
@@ -621,6 +626,7 @@ export default {
       this.domainShowList = arr;
     },
     isInputFun(e) {
+      this.searchText = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
       if (!e.target.value) {
         this.domainShowList = this.domainList;
       }
@@ -628,6 +634,10 @@ export default {
     changePageFun(e) {
     },
     async confirmFun(index) {
+      if (!this.selectData) {
+        Message.info("choose one of your domain names")
+        return
+      }
       let signRet = "";
       let walletType = localStorage.walletType;
       if (walletType === 'metaMask') {
@@ -763,9 +773,11 @@ export default {
   mounted() {
     let walletType = localStorage.walletType
     if (walletType != "metaMask") {
-      this.unisatPriver = true
+      this.unisatPriver = true;
+      this.tabsName = "Account"
     } else {
-      this.unisatPriver = false
+      this.unisatPriver = false;
+      this.tabsName = "Profile"
     }
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;

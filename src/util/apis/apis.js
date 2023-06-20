@@ -17,11 +17,13 @@ export default {
     walletInfoApi: baseApis.generativeApi + "/api/wallet/wallet-info",
     mixpayApi: baseApis.baseUrl + "/api/v2/mixpay",
     setDomainApi: baseApis.baseUrl + "/api/head/set",
-    getDomainApi: baseApis.baseAppUrl + "/api/head/get",
+    getDomainApi: baseApis.baseUrl + "/api/head/get",
     orderInfoApi: baseApis.baseUrl + "/api/v2/orderInfo",
     queryBalanceApi: baseApis.baseAppUrl + "/api/queryBalance",
     domainChangeApi: baseApis.baseAppUrl + "/api/queryDomain",
     pushTxApi: baseApis.unisatUrl + "/api/v1/tx/broadcast",
 getRateFeeApi: baseApis.baseUrl + "/api/v2/getRateFee",
 exchangeApi: baseApis.baseUrl + "/api/exchange",
+    queryDomainMintFeeApi: baseApis.baseUrl + "/api/v2/queryDomainMintFee",
+oldBalanceApi:baseApis.unisatUrl + "/api/v2/address/balance"
 };

@@ -3,6 +3,7 @@ const home = () => import('@/pages/home.vue')
 const cart = () => import('@/pages/cart.vue')
 const order = () => import('@/pages/order.vue')
 const person = () => import('@/pages/person.vue')
+const bsite = () => import('@/pages/bsite.vue')
 const history=createWebHashHistory()
 const router = createRouter({
     history,
@@ -29,6 +30,14 @@ const router = createRouter({
         component: order,
         meta: {
           title: 'domain-order'
+        },
+      },
+      {
+        path: '/bsite',
+        name: 'bsite',
+        component: bsite,
+        meta: {
+          title: 'domain-bsite'
         },
       },
       {

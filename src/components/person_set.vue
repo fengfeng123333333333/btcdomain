@@ -370,6 +370,26 @@
   width: 18px;
   height: 18px;
 }
+.codeShareImg {
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.jiexiError {
+  color: red;
+}
+.website {
+  margin-top: 20px;
+  width: 100%;
+  height: 44px;
+  cursor: pointer;
+}
+.website img {
+  width: 100%;
+  height: 100%;
+}
 </style>
   
 <template>
@@ -378,7 +398,7 @@
       <div class="set_avater">
         <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length>3">
         <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
-        <img src="../assets/person/og@2x.png" alt="" class="ogImg">
+        <img src="../assets/person/og@2x.png" v-if="ogShow" alt="" class="ogImg">
       </div>
       <div class="set_domain" v-if="personData">{{personData.domain}}</div>
       <div class="set_address">
@@ -388,9 +408,9 @@
       <div class="set_value">{{personBalanceData.amount}} BTC</div>
       <div class="set_option">
         <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatPriver}" @click='openMaskFun(1)'>Send</div>
-        <div class="set_option_com" :class="{set_option_com_cuton:loginType==='custom'}" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
+        <div class="set_option_com" style="margin-left:10px" @click='openMaskFun(2)'>Receive</div>
       </div>
-      <img class="set_head_share" @click="saveFun" src="../assets/person/icon_24px_share@2x.png" alt="">
+      <!-- <img class="set_head_share" :class="{unisatGray:loginType==='custom'}" @click="saveFun" src="../assets/person/icon_24px_share@2x.png" alt=""> -->
     </div>
     <div class="set_options">
       <div class="set_options_item" v-for="(item,index) in optionsList" :key="index" @click="changeOptionFun(item)">
@@ -399,6 +419,9 @@
         <img :src="item.cusUrl" alt="" v-else-if="loginType==='custom'">
         <span :class="{set_options_item_select:item.isSelect,set_options_item_cus:loginType==='custom'&&item.name!='Inscription'}">{{item.name}}</span>
       </div>
+    </div>
+    <div class="website" @click="toBsitePage" v-if="!unisatPriver">
+      <img src="../assets/person/getbtcwebsite@2x.png" alt="">
     </div>
     <div class="mask" v-if="send_btc_boolean">
       <div class="send_btc">
@@ -409,7 +432,7 @@
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div>{{jiexiAddress}}</div>
+          <div :class="{jiexiError:!jiexiType}">{{jiexiAddress}}</div>
           <div class="send_btc_title">
             <span>Amount</span>
             <span class="send_btc_title_balance">Balance：{{personBalanceData.amount}} BTC</span>
@@ -430,8 +453,8 @@
             <span class="input_number_year">sats/vB</span>
             <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
             <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
-            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
-            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
+            <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.economyFee" style="color:red">Minimun Fee：{{gasSelectData.economyFee}}sats/vB</div>
+            <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun" v-if="!unisatPriver">
             <Icon type="ios-loading" v-if="loadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
@@ -462,14 +485,17 @@
           <span>Share Picture</span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(3)">
         </div>
-        <div class="share_img">
-          <img :src="personData.content_url" alt="" class="avaterImg" v-if="personData.content_url&&personData.content_url.length>3">
-          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" class="avaterImg" v-else>
+        <div class="share_img" id='share_img'>
+          <img :src="personData.content_url" alt="" class="avaterImg" referrerpolicy="no-referrer" v-if="personData.content_url&&personData.content_url.length>3">
+          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" referrerpolicy="no-referrer" class="avaterImg" v-else>
           <div class="iconsBox">
             <div v-for="(item,index) in icons" :key="index">
-              <img :src="item.disurl" v-if="!item.isHeight" alt="">
-              <img :src="item.selurl" v-else alt="">
+              <img :src="item.disurl" v-if="!item.isHeight" alt="" referrerpolicy="no-referrer">
+              <img :src="item.selurl" v-else alt="" referrerpolicy="no-referrer">
             </div>
+          </div>
+          <div class="codeShareImg">
+            <vue-qrcode :value="shareVodeUrl" :options="{ width: 70 }"></vue-qrcode>
           </div>
         </div>
         <div class="save_button" @click="savePicFun">
@@ -486,15 +512,16 @@ import { InputNumber, Message, Spin, Icon } from 'view-ui-plus'
 import VueQrcode from '@chenfengyuan/vue-qrcode';
 import apis from '../util/apis/apis'
 import { copyAction } from '../util/func/index'
-import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransaction } from '../util/func/index'
+import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
 import html2canvas from 'html2canvas'
 import BigNumber from "bignumber.js";
+import domtoimage from "dom-to-image-more";
 export default {
   components: {
     InputNumber, VueQrcode, Spin, Icon
   },
-  props: ["sendWalletPageType", "saveImgObj"],
+  props: ["sendWalletPageType", "saveImgObj", "ogBoolean"],
   watch: {
     sendWalletPageType: {
       immediate: true,
@@ -514,22 +541,31 @@ export default {
       immediate: true,
       handler(val) {
         if (val) {
-          val.forEach(element => {
-            if (element.name === 'Domains') {
-              this.icons[2].isHeight = element.isHeight
-            } else if (element.name === 'Image') {
-              this.icons[3].isHeight = element.isHeight
-            } else if (element.name === 'Other') {
-              this.icons[4].isHeight = element.isHeight
-            }
-          })
+          console.log(val)
+          if (val.html_count > 0 || val.text_count > 0) {
+            this.icons[4].isHeight = true
+          }
+          if (val.video_count > 0 || val.audio_count > 0) {
+            this.icons[2].isHeight = true
+          }
+          if (val.gif_count > 0 || val.image_count > 0) {
+            this.icons[3].isHeight = true;
+          }
         }
-        console.log("iconsicons", this.icons)
+      }
+    },
+    ogBoolean: {
+      immediate: true,
+      handler(val) {
+        this.ogShow = val
       }
     },
   },
   data() {
     return {
+      ogShow: this.ogBoolean,
+      jiexiType: false,
+      shareVodeUrl: null,
       unisatPriver: false,
       loadingBoolean: false,
       pageType: this.sendWalletPageType,
@@ -538,6 +574,7 @@ export default {
         {
           selUrl: require("../assets/person/icon_24px_inscription_sel@2x.png"),
           norUrl: require("../assets/person/icon_24px_inscription_nor@2x.png"),
+          cusUrl: require("../assets/person/icon_24px_inscription_sel@2x.png"),
           name: "Inscription",
           isSelect: true
         },
@@ -570,14 +607,14 @@ export default {
           id: 1
         },
         {
-          disurl: "https://app.btcdomains.io/images/assets/bcard/img_dis@2x.png",
-          selurl: "https://app.btcdomains.io/images/assets/bcard/img_sel@2x.png",
+          disurl: "https://app.btcdomains.io/images/assets/bcard/music_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/music_sel@2x.png",
           isHeight: false,
           id: 2
         },
         {
-          disurl: "https://app.btcdomains.io/images/assets/bcard/music_dis@2x.png",
-          selurl: "https://app.btcdomains.io/images/assets/bcard/music_sel@2x.png",
+          disurl: "https://app.btcdomains.io/images/assets/bcard/img_dis@2x.png",
+          selurl: "https://app.btcdomains.io/images/assets/bcard/img_sel@2x.png",
           isHeight: false,
           id: 3
         },
@@ -608,6 +645,11 @@ export default {
     }
   },
   methods: {
+    toBsitePage() {
+      this.$router.push({
+        name: "bsite"
+      })
+    },
     changeGasInputFun(value) {
       if (!value) {
         return
@@ -621,6 +663,10 @@ export default {
       this.gasSelectData.customValue = value
     },
     saveFun() {
+      if (this.loginType === 'custom') {
+        return
+      }
+      this.shareVodeUrl = "https://app.btcdomains.io/#/?search=" + this.personData.domain
       this.save_pic_boolean = true
     },
     dataURLtoBlob(dataurl) {
@@ -637,41 +683,30 @@ export default {
       });
     },
     savePicFun() {
-      let canvas = document.querySelector('.share_img');
-      let that = this;
-      html2canvas(canvas, {
-        scale: 2,
-        logging: true,
-        useCORS: true
-      }).then(function (canvas) {
-        let imgData = canvas.toDataURL("image/png");
-        let prefixBase64 = that.dataURLtoBlob(imgData);
-        let data = prefixBase64;
-        if (!data) {
-          return;
-        }
-        let blob = new Blob([data], {
-          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8"
+      var node = document.getElementById("share_img");
+      domtoimage
+        .toPng(node, { quality: 0.95 })
+        .then(function (dataUrl) {
+          var link = document.createElement("a");
+          link.download = "card.png";
+          link.href = dataUrl;
+          link.click();
         });
-        let url = window.URL.createObjectURL(blob);
-        let fileName = "card.png";
-        if ("download" in document.createElement("a")) {
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(a.href);
-          document.body.removeChild(a);
-          that.save_pic_boolean = false
-        } else {
-          navigator.msSaveBlob(blob, fileName);
-        }
-      });
     },
-    jiexiFun(value) {
+    dataURLToBlob(dataurl) {//ie 图片转格式
+      var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime })
+    },
+    jiexiFun(e) {
       if (this.sendBtcaddress.endsWith(".btc")) {
         this.domainChangeFun(1)
+      }
+      if (!e.target.value) {
+        this.jiexiAddress = null;
       }
     },
     domainChangeFun(type) {
@@ -689,6 +724,7 @@ export default {
           if (res.data.code === 0) {
             if (type === 1) {
               this.jiexiAddress = res.data.data.owner_address;
+              this.jiexiType = true
               return
             }
             this.sendRealAddress = res.data.data.owner_address;
@@ -709,7 +745,9 @@ export default {
               }
             }
           } else {
-            Message.error("the address is  error")
+            this.jiexiAddress = "the address is  error"
+            this.jiexiType = false;
+            this.sendRealAddress = null;
           }
         }
       }).catch(err => {
@@ -807,10 +845,10 @@ export default {
       Message.info("submit transaction: " + txid);
     },
     openMaskFun(index) {
-      if (this.loginType === 'custom') {
-        return
-      }
       if (index === 1) {
+        if (this.loginType === 'custom') {
+          return
+        }
         if (this.unisatPriver) {
           return
         }
@@ -844,7 +882,7 @@ export default {
           if (res.data.code === 0) {
             if (res.data.data.length > 0) {
               this.personData = res.data.data[0];
-              if (this.personData.content_url && this.personData.domain.length > 0) {
+              if (this.personData.content_url && this.personData.content_url.length > 0) {
                 this.icons[1].isHeight = true
               }
             }
@@ -855,23 +893,56 @@ export default {
       }).catch(err => {
       });
     },
-    balanceFun() {
+    inscriptionsFun(confirm_amount) {
       this.$axios({
         method: "get",
-        url: apis.balanceApi + "/" + this.monywallet,
+        url: apis.inscriptionsApi + "?address=" + this.monywallet,
         headers: {
           "Content-Type": "application/json",
+          'X-Client': 'UniSat Wallet'
         },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.code === 0) {
-            let balance = res.data.data
-            this.personBalanceData = balance;
-            this.sendAmount = this.personBalanceData.amount;
+          if (res.data.message === "OK") {
+            let inscriptions = res.data.result;
+            let totalSatoshi = new BigNumber(0)
+            inscriptions.forEach(element => {
+              if (element.detail) {
+                let tmp = new BigNumber(element.detail.output_value)
+                totalSatoshi = totalSatoshi.plus(tmp)
+              }
+            });
+            let amout_tmp = new BigNumber(confirm_amount);
+            let amount_sat = amout_tmp.multipliedBy(100000000);
+            let available_sat = amount_sat.minus(totalSatoshi);
+
+
+            this.sendAmount = available_sat.div(100000000).toPrecision(8).toString();;
+            this.personBalanceData.amount = available_sat.div(100000000).toPrecision(8).toString();;
             if (this.sendAmount && parseFloat(this.sendAmount) > 0) {
               this.icons[0].isHeight = true
             }
-            localStorage.balance = balance.amount;
+            localStorage.balance = available_sat.div(100000000).toPrecision(8).toString();;
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    balanceFun() {
+      this.$axios({
+        method: "get",
+        url: apis.oldBalanceApi + "?address=" + this.monywallet,
+        headers: {
+          "Content-Type": "application/json",
+          'X-Client': 'UniSat Wallet'
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.message === "OK") {
+            let balance = res.data.result
+            this.inscriptionsFun(balance.confirm_amount)
           } else {
             Message.error(res.data.message)
           }
@@ -896,6 +967,7 @@ export default {
               this.gasSelectData.fast = data.fastestFee;
               this.gasSelectData.avg = data.halfHourFee
               this.gasSelectData.slow = data.hourFee
+              this.gasSelectData.economyFee = data.economyFee
               this.gasSelectData.value = this.gasList[0].value
             }
             this.send_btc_boolean = true;
@@ -971,15 +1043,13 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      // availBal
-      // let avail = new BigNumber(this.personBalanceData.amount);
-      // if (one.gte(avail)) {
-      //   Message.warning(
-      //     "max value you must transfer is " + this.personBalanceData.amount + "btc"
-      //   );
-      //   return;
-      // }
-      // feeRate
+      let avail = new BigNumber(this.personBalanceData.amount);
+      if (one.gte(avail)) {
+        Message.warning(
+          "max value you must transfer is " + this.personBalanceData.amount + "btc"
+        );
+        return;
+      }
       this.spanBoolean = true
       let feeRate = "";
       if (this.gasSelectData.name === "Custom") {
@@ -991,7 +1061,6 @@ export default {
       this.loadingBoolean = true;
       const privKey = await generateBitcoinAddr(walletType);
       if (!privKey) {
-        Message.warning("private key must not be empty");
         this.loadingBoolean = false;
         return;
       }
@@ -1019,7 +1088,7 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransaction(sBtcResq);
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
           console.log("txHex", txHex)
           // submit
           this.pushTx(txHex);

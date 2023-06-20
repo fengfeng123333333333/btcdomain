@@ -5,7 +5,7 @@
 }
 .person_head {
   width: 100%;
-  height: 1.63rem;
+  height: 160px;
   background: linear-gradient(180deg, #4540d6 0%, #bfeaff 78%, #ffffff 100%);
   position: absolute;
   left: 0;
@@ -40,12 +40,12 @@
     <Head></Head>
     <div class="person_head">
     </div>
-    <div class="person_body">
+    <div class="person_body" :style="{minHeight:clientHeight+'px'}">
       <div class="person_body_left">
-        <personSet :saveImgObj="saveImgObj" @changeOption="changeOptionFun" :sendWalletPageType="sendWalletPageType"></personSet>
+        <personSet :saveImgObj="saveImgObj" @changeOption="changeOptionFun" :sendWalletPageType="sendWalletPageType" :ogBoolean="ogBoolean"></personSet>
       </div>
       <div class="person_body_right">
-        <personContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun" @imgNum="imgNumFun"></personContent>
+        <personContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun" @imgNum="imgNumFun" @og="ogFun"></personContent>
       </div>
     </div>
     <Foot></Foot>
@@ -63,15 +63,19 @@ export default {
   },
   data() {
     return {
-      searchText: null,
       type: "Inscription",
       sendWalletPageType: 0,
-      saveImgObj: null
+      saveImgObj: null,
+      clientHeight: null,
+      ogBoolean: false
     }
   },
   methods: {
     imgNumFun(value) {
       this.saveImgObj = value
+    },
+    ogFun(value) {
+      this.ogBoolean = value
     },
     toCartPageFun() {
       this.$router.push({
@@ -97,6 +101,8 @@ export default {
     },
   },
   mounted() {
+    this.clientHeight = document.documentElement.clientHeight - 70;
+    console.log(this.clientHeight)
     let name = localStorage.optionName;
     if (name) {
       this.type = name;

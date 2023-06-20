@@ -125,6 +125,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+  position: relative;
 }
 .result_left {
   font-size: 22px;
@@ -180,6 +181,7 @@
 }
 .link_box {
   width: 100%;
+  position: relative;
 }
 .link_item {
   width: 100%;
@@ -356,6 +358,7 @@
             <span>Add To Cart</span>
           </div>
           <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
+          <Spin size="large" fix :show="spanResultBoolean"></Spin>
         </div>
         <div class="home_content_link">
           <div class="link_head">More Domains</div>
@@ -383,6 +386,7 @@
                 <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
               </div>
             </div>
+            <Spin size="large" fix :show="spanMoreBoolean"></Spin>
           </div>
           <!-- <div class="link_more">More…</div> -->
         </div>
@@ -390,7 +394,8 @@
     </div>
     <div class="home_foot_cart" v-show="cartNum>0">
       <div class="home_cart">
-        <div class="home_cart_num">{{cartNum}} Domains</div>
+        <div class="home_cart_num" v-if="cartNum>1">{{cartNum}} Domains</div>
+        <div class="home_cart_num" v-else>{{cartNum}} Domain</div>
         <div class="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
             <span>{{item.domain}}</span>
@@ -410,9 +415,15 @@
 import apis from '../util/apis/apis'
 const moment = require('moment');
 import { copyAction } from '../util/func/index'
+import { Spin } from 'view-ui-plus'
 export default {
+  components: {
+    Spin
+  },
   data() {
     return {
+      spanMoreBoolean: false,
+      spanResultBoolean: false,
       searchText: null,
       searchStutas: false,
       contentShow: false,
@@ -452,6 +463,7 @@ export default {
       if (!this.searchText) {
         return
       }
+      this.contentShow = true
       this.queryDomainFun()
       this.queryMoreDomainFun()
     },
@@ -507,7 +519,7 @@ export default {
       this.$emit("addDomain", arr)
     },
     queryDomainFun() {
-      this.contentShow = true;
+      this.spanResultBoolean = true;
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -526,12 +538,15 @@ export default {
             data.showAddress = this.showAddressFun(data.owner_address)
             data.expire_date_show = moment(data.expire_date).format("YYYY-MM-DD HH:mm:ss")
           }
+          this.spanResultBoolean = false;
           this.resultData = data;
         }
       }).catch(err => {
+        this.spanResultBoolean = false;
       });
     },
     queryMoreDomainFun() {
+      this.spanMoreBoolean = true
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -552,8 +567,10 @@ export default {
             }
           })
           this.linkList = res.data.data;
+          this.spanMoreBoolean = false
         }
       }).catch(err => {
+        this.spanMoreBoolean = false
       });
     },
     showAddressFun(address) {

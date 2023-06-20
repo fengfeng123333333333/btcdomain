@@ -74,7 +74,7 @@ body::-webkit-scrollbar {
   margin-top: 20px;
 }
 .unisatGray {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed !important;
 }
 .ivu-spin-fix {

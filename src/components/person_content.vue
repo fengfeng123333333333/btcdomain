@@ -5,7 +5,7 @@
 </style>
 <template>
   <div class="person_content_app">
-    <Inscription v-if="optionType==='Inscription'" @imgNum="imgNumFun"></Inscription>
+    <Inscription v-if="optionType==='Inscription'" @imgNum="imgNumFun" @og="ogFun"></Inscription>
     <Wallet v-if="optionType==='Wallet'" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun"></Wallet>
     <Setting v-if="optionType==='Setting'"></Setting>
   </div>
@@ -37,10 +37,10 @@ export default {
   },
   methods: {
     imgNumFun(value) {
-      console.log("valuevaluevaluevaluevalue", value)
-      let arr = [];
-      arr.push(value)
-      this.$emit("imgNum", arr)
+      this.$emit("imgNum", value)
+    },
+    ogFun(value) {
+      this.$emit("og", value)
     },
     sendBtcFun() {
       this.$emit("sendBtc")

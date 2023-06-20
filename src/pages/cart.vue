@@ -117,6 +117,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+  position: relative;
 }
 .result_left {
   font-size: 18px;
@@ -172,6 +173,7 @@
 }
 .link_box {
   width: 100%;
+  position: relative;
 }
 .link_item {
   width: 100%;
@@ -725,6 +727,7 @@
               <span>Add To Cart</span>
             </div>
             <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
+            <Spin size="large" fix :show="spanResultBoolean"></Spin>
           </div>
           <div class="home_content_link">
             <div class="link_head">More Domains</div>
@@ -752,6 +755,7 @@
                   <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
                 </div>
               </div>
+              <Spin size="large" fix :show="spanMoreBoolean"></Spin>
             </div>
             <!-- <div class="link_more">More…</div> -->
           </div>
@@ -804,9 +808,9 @@
                   <div class="cart_fee_left">
                     <span>Gas Fee</span>
                     <div class="cart_fee_left_dec">The gas fee fluctuates and is updated every 10 seconds</div>
-                    <div>Service Fee</div>
+                    <div style="margin-top:18px">Service Fee</div>
                     <div class="cart_fee_right_ze_none">Service Fee Basic Discount</div>
-                    <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">Service Fee Promotion Discount</div>
+                    <!-- <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">Service Fee Promotion Discount</div> -->
                     <div>Payable Service Fee</div>
                   </div>
                   <div class="cart_fee_right">
@@ -815,7 +819,7 @@
                     <div>
                       <div class="cart_fee_right_ze">&nbsp;&nbsp;&nbsp;{{item.fee.origin_service_fee}} BTC</div>
                       <div class="cart_fee_right_ze_none">- {{item.fee.promo_service_fee}} BTC</div>
-                      <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">- {{item.promcode_fee}} BTC</div>
+                      <!-- <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">- {{item.promcode_fee}} BTC</div> -->
                       <div class="cart_fee_right_ze_nor">&nbsp;&nbsp;&nbsp;{{item.fee.service_fee}} BTC</div>
                     </div>
                   </div>
@@ -851,28 +855,27 @@
               <span class="input_number_year">sats/vB</span>
               <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
               <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
-              <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.slow" style="color:red">This fee is below the slow, which may lead to a long wait time for inscription.</div>
-              <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg" style="color:red">This fee is below the average, which may lead to a long wait time for inscription.</div>
+              <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.economyFee" style="color:red">Minimun Fee：{{gasSelectData.economyFee}}sats/vB</div>
+              <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
             </div>
-            <div class="slow_class" v-if="gasSelectData.name==='Slow'">This fee is below the average, which may lead to a long wait time for inscription.</div>
-            <div class="cart_right_gas" style="margin-top:10px">
-              <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
+            <!-- <div class="cart_right_gas" style="margin-top:10px">
+              <img src="../assets/cart/16px_icon_promote@2x.png" alt="">
               <span>Promo Code</span>
-            </div>
-            <div class="promoDiv">
-              <input v-model="promo_code" placeholder="Enter Promo Code" class="codeInput" />
-              <div class="promoDivButton" @click="confirmCodeFun">Confirm</div>
-            </div>
+            </div> -->
+            <!-- <div class="promoDiv">
+              <input v-model="promo_code_input" placeholder="Enter Promo Code" class="codeInput" />
+              <div class="promoDivButton" :class='{unisatGray:!promo_code_input}' @click="confirmCodeFun">Confirm</div>
+            </div> -->
             <div class="cart_right_line"></div>
             <div class="cart_fee cart_fee_gas">
               <div class="cart_fee_left">
                 <span>Total Gas Fee</span>
-                <div style="margin-top:8px">
+                <div style="margin-top:15px">
                   <span>Total Service Fee</span>
                   <div class="service_code">Service Fee Basic Discount</div>
-                  <div class="service_code" style="margin-top:10px" v-if="gasTotalData.total_promcode_fee>0">Service Fee Promotion Discount</div>
+                  <!-- <div class="service_code" style="margin-top:10px" v-if="gasTotalData.total_promcode_fee>0">Service Fee Promotion Discount</div> -->
                 </div>
-                <div>Payable Service Fee</div>
+                <div style="margin-top:2px">Payable Service Fee</div>
               </div>
               <div>
                 <span>{{gasTotalData.total_gas_fee}} BTC</span>
@@ -880,7 +883,7 @@
                   <div class="cart_fee_gas_right_com">
                     <span class="cart_fee_right_ze">{{gasTotalData.total_origin_service_fee}} BTC</span>
                     <div class="service_code">- {{gasTotalData.total_promo_service_fee}} BTC</div>
-                    <div class="service_code" v-if="gasTotalData.total_promcode_fee>0">- {{gasTotalData.total_promcode_fee}} BTC</div>
+                    <!-- <div class="service_code" v-if="gasTotalData.total_promcode_fee>0">- {{gasTotalData.total_promcode_fee}} BTC</div> -->
                   </div>
                   <div>{{gasTotalData.total_service_fee}} BTC</div>
                 </div>
@@ -935,6 +938,10 @@ export default {
   },
   data() {
     return {
+      promo_code_input: "",
+      orderCode: null,
+      spanMoreBoolean: false,
+      spanResultBoolean: false,
       walletTypeBoolean: false,
       searchText: null,
       searchStutas: false,
@@ -959,7 +966,8 @@ export default {
         customValue: null,
         fast: null,
         avg: null,
-        slow: null
+        slow: null,
+        economyFee: null
       },
       gasTotalData: {
         total_gas_fee: null,
@@ -1033,7 +1041,7 @@ export default {
       }
       return arr
     },
-    goToCartFun() {
+    goToCartFun(type) {
       this.spanBoolean = true
       let param = {};
       let arr = []
@@ -1059,7 +1067,12 @@ export default {
       } else {
         param.rate_fee = this.gasSelectData.value;
       }
-      param.promo_code = this.promo_code
+      // if (type === 1) {
+      //   param.promo_code = this.promo_code_input
+      // } else {
+      //   param.promo_code = this.promo_code
+      // }
+      param.promo_code = ""
       this.$axios({
         method: "post",
         data: param,
@@ -1085,6 +1098,7 @@ export default {
               this.gasSelectData.fast = data.recommended_fee.fastestFee;
               this.gasSelectData.avg = data.recommended_fee.halfHourFee
               this.gasSelectData.slow = data.recommended_fee.hourFee
+              this.gasSelectData.economyFee = data.recommended_fee.economyFee
               this.gasSelectData.value = this.gasList[0].value
             }
             this.gasTotalData.total_gas_fee = data.total_gas_fee;
@@ -1101,11 +1115,17 @@ export default {
             this.gasTotalData.usd_value = data.total_fee_usd;
             this.spanBoolean = false;
             this.contentShow = false;
-            localStorage.promo_code = this.promo_code;
+            // if (this.promo_code_input) {
+            //   this.promo_code = this.promo_code_input;
+            //   localStorage.promo_code = this.promo_code;
+            // }
           } else {
             this.spanBoolean = false
             if (res.data.code === 500) {
               return
+            }
+            if (res.data.message === 'promo_rate error') {
+              this.gasTotalData.total_promcode_fee = 0
             }
             Message.error(res.data.message)
           }
@@ -1167,7 +1187,6 @@ export default {
       if (!value) {
         return
       }
-      console.log(this.gasSelectData)
       if (this.gasSelectData.slow > value) {
         return
       }
@@ -1178,7 +1197,10 @@ export default {
       this.goToCartFun()
     },
     confirmCodeFun() {
-      this.goToCartFun()
+      if (!this.promo_code_input) {
+        return
+      }
+      this.goToCartFun(1)
     },
     checkFeeFun(item) {
       item.isPort = !item.isPort
@@ -1210,6 +1232,7 @@ export default {
       this.queryMoreDomainFun()
     },
     isInputFun(e) {
+      this.searchText = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
       if (e.target.value) {
         this.searchStutas = true;
       } else {
@@ -1285,6 +1308,7 @@ export default {
       this.goToCartFun()
     },
     queryMoreDomainFun() {
+      this.spanMoreBoolean = true
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -1312,12 +1336,14 @@ export default {
             })
           })
           this.linkList = res.data.data;
+          this.spanMoreBoolean = false
         }
       }).catch(err => {
+        this.spanMoreBoolean = false
       });
     },
     queryDomainFun() {
-      this.contentShow = true;
+      this.spanResultBoolean = true;
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -1341,9 +1367,11 @@ export default {
               data.isSelect = true
             }
           })
+          this.spanResultBoolean = false;
           this.resultData = data;
         }
       }).catch(err => {
+        this.spanResultBoolean = false;
       });
     },
     createPayOrderFun() {
@@ -1360,7 +1388,8 @@ export default {
       param.out_wallet = this.receiveAddress;
       param.rate_fee = Number(value);
       param.source = "btc_domain";
-      param.promo_code = this.promo_code;
+      // param.promo_code = this.promo_code;
+      param.promo_code = "";
       this.$axios({
         method: "post",
         data: param,
@@ -1380,11 +1409,15 @@ export default {
             localStorage.orderCode = res.data.data.order_code;
             this.spanBoolean = false
           } else {
+            this.orderCode = "";
+            // localStorage.removeItem(promo_code)
             this.spanBoolean = false
             Message.error(res.data.message)
           }
         }
       }).catch(err => {
+        this.orderCode = "";
+        // localStorage.removeItem(promo_code)
         this.spanBoolean = false
       });
     },
@@ -1399,9 +1432,9 @@ export default {
   },
   mounted() {
     let cartListlocal = localStorage.cartList;
-    if (localStorage.promo_code) {
-      this.promo_code = localStorage.promo_code;
-    }
+    // if (localStorage.promo_code) {
+    //   this.promo_code = localStorage.promo_code;
+    // }
     if (cartListlocal) {
       this.cartNum = JSON.parse(cartListlocal).length
     }

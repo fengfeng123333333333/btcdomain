@@ -64,8 +64,8 @@
       <div class="foot_right">
         <span>Contact us: contact@btcdomains.io</span>
         <div class="foot_right_line"></div>
-        <span style="margin-right:10px">Terms of User</span>
-        <span style="margin-right:10px">Privacy Policy</span>
+        <span style="margin-right:10px" @click="toOrtherFun(8)">Terms of User</span>
+        <span style="margin-right:10px" @click="toOrtherFun(9)">Privacy Policy</span>
         <span>© Copyright 2023 btcdomains.io</span>
       </div>
     </div>
@@ -90,6 +90,10 @@ export default {
         window.open("http://twitter.com/btcdomain_btc", '_blank');
       } else if (index === 7) {
         window.open("https://t.me/btcdomain_btc", '_blank');
+      } else if (index === 8) {
+        window.open("https://app.btcdomains.io/images/assets/terms-of-use.pdf", '_blank');
+      } else if (index === 9) {
+        window.open("https://app.btcdomains.io/images/assets/privacy-policy.pdf", '_blank');
       }
     }
   }

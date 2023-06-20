@@ -143,13 +143,18 @@
   padding: 0 10px;
   animation: search_box_history 0.5s forwards;
   overflow: hidden;
+  overflow-y: auto;
+  z-index: 9;
+}
+.search_box_history::-webkit-scrollbar {
+  display: none;
 }
 @keyframes search_box_history {
   from {
     height: 0px;
   }
   to {
-    height: 96px;
+    height: 200px;
   }
 }
 .search_box_history_head {
@@ -245,6 +250,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+  position: relative;
 }
 .result_left {
   font-size: 22px;
@@ -300,6 +306,7 @@
 }
 .link_box {
   width: 100%;
+  position: relative;
 }
 .link_item {
   width: 100%;
@@ -347,12 +354,22 @@
   bottom: 0;
   left: 0;
 }
+.home_foot_cart::after {
+  content: "+";
+  display: block;
+  font-size: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+.home_foot_cart.expand::after {
+  content: "-";
+}
 @keyframes cart {
   from {
-    height: 0;
+    min-height: 0;
   }
   to {
-    height: 100px;
+    min-height: 100px;
   }
 }
 .home_cart {
@@ -449,7 +466,7 @@
 }
 .inscription_tab_box {
   margin-top: 4px;
-  width: 900px;
+  width: 100%;
 }
 .inscription_tab_box_kong {
   display: flex;
@@ -553,16 +570,19 @@
 }
 .inscription_tab_item_card {
   width: 280px;
-  height: 370px;
+  height: 440px;
   background: #ffffff;
-  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
   border-radius: 8px;
-  border: 1px solid #d5d6e0;
+  border: 1px solid #f7f7fa;
   padding: 10px;
   margin-right: 20px;
   margin-top: 20px;
 }
-.inscription_tab_item_card:nth-child(3n) {
+.inscription_tab_item_card:hover {
+  border: 1px solid #d5d6e0;
+  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
+}
+.inscription_tab_item_card:nth-child(4n) {
   margin-right: 0;
 }
 .inscription_tab_item_card img {
@@ -614,13 +634,65 @@
   width: 100%;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 .history_item {
   cursor: pointer;
+  margin-top: 5px;
+}
+.inscription_tab_title {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+.width1 {
+  width: 380px;
+}
+.width2 {
+  width: 140px;
+  margin-left: 100px;
+}
+.width3 {
+  width: 140px;
+  margin-left: 50px;
+}
+.width4 {
+  width: 140px;
+  margin-left: 50px;
+}
+.width5 {
+  width: 80px;
+  margin-left: 60px;
+  text-align: right;
+}
+.inscriptin_id_class {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.inscription_tab_item_card_option_senf {
+  display: flex;
+}
+.tab_item_card_time {
+  margin-top: 15px;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.tab_item_card_time_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
 }
 </style>
 <template>
-  <div class="home_app" :class="{test:selectId===2}" @click="histroyBoolean=false">
+  <div class="home_app" :class="{test:selectId===2}" @click="histroycloseFun">
 
     <Head :loginShow="loginShow" :goTcartpage="goTcartpage" @loginShow="loginShowFun"></Head>
     <div class="home_body">
@@ -651,10 +723,10 @@
           </div>
         </div>
         <div class="search_box" @click.stop>
-          <input type="text" onkeypress="return /^[0-9a-zA-Z]*$/.test(event.key)" v-if="selectId===1" @focus.stop='onfucusDomainFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun"
-            placeholder="Your name / product / brand / company / industry…" class="searchInput">
-          <input type="text" onkeypress="return /^[0-9a-zA-Z]*$/.test(event.key)" v-else @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Enter a BTC address."
-            class="searchInput" :class='{searchInputSelect:selectId===2}'>
+          <input type="text" v-if="selectId===1" @focus.stop='onfucusDomainFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Your name / product / brand / company / industry…"
+            class="searchInput">
+          <input type="text" v-else @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Enter a BTC address." class="searchInput"
+            :class='{searchInputSelect:selectId===2}'>
           <img src="../assets/home/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
           <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
           <div class="search_box_history" @click.stop="histroyBoolean=!histroyBoolean" v-if="histroyBoolean">
@@ -663,7 +735,7 @@
                 <img src="../assets/home/icon_timehistory@2x.png" alt="">
                 <span>Histroy</span>
               </div>
-              <div class="search_box_history_head_item" style="cursor: pointer;" @click="clearHistoryFun">
+              <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryFun">
                 <img src="../assets/home/icon_clear@2x.png" alt="">
                 <span>Clear</span>
               </div>
@@ -672,6 +744,24 @@
               <div class="cart_item history_item" v-for="(item,index) in historyList" :key="index" @click="historyseachFun(item)">
                 <span>{{item.domain}}</span>
                 <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyFun(index)">
+              </div>
+            </div>
+          </div>
+          <div class="search_box_history" @click.stop="histroyAddressBoolean=!histroyAddressBoolean" v-if="histroyAddressBoolean">
+            <div class="search_box_history_head">
+              <div class="search_box_history_head_item">
+                <img src="../assets/home/icon_timehistory@2x.png" alt="">
+                <span>Histroy</span>
+              </div>
+              <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryAddressFun">
+                <img src="../assets/home/icon_clear@2x.png" alt="">
+                <span>Clear</span>
+              </div>
+            </div>
+            <div class="historyItem">
+              <div class="cart_item history_item" v-for="(item,index) in historyAddressList" :key="index" @click="historyseachAddressFun(item)">
+                <span>{{item.domain}}</span>
+                <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyAddressFun(index)">
               </div>
             </div>
           </div>
@@ -690,6 +780,7 @@
                   <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                   <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
                   <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
                 </div>
                 <div v-else>
                   <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering...</div>
@@ -702,6 +793,7 @@
               <span>Add To Cart</span>
             </div>
             <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
+            <Spin size="large" fix :show="spanResultBoolean"></Spin>
           </div>
           <div class="home_content_link">
             <div class="link_head">More Domains</div>
@@ -717,6 +809,7 @@
                       <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
                       <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
                       <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
                     </div>
                     <div v-else>
                       <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
@@ -729,7 +822,7 @@
                   <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
                 </div>
               </div>
-              <!-- <Spin size="large" fix :show="spanMoreBoolean"></Spin> -->
+              <Spin size="large" fix :show="spanMoreBoolean"></Spin>
             </div>
             <!-- <div class="link_more">More…</div> -->
           </div>
@@ -743,49 +836,92 @@
               <TabPane :label="item.name" :name="item.type" v-for="(item,index) in tabList" :key="index">
                 <div class="inscription_tab_box" v-if="inscrptList.length>0">
                   <div class="inscription_tab_list" v-if="listShowType===2">
+                    <div class="inscription_tab_title">
+                      <div class="width1">Domain Name</div>
+                      <div class="width2" style="margin-left:120px">Create Date</div>
+                      <div class="width3" style="margin-left:80px">Registration Date</div>
+                      <div class="width4">Expiration Date</div>
+                      <div class="width5">Inscription ID</div>
+                    </div>
                     <div class="inscription_tab_item" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
-                      <div class="tab_item_left">
+                      <div class="tab_item_left width1">
                         <div v-if="type==='Domains'">
-                          <img :src="itemInscript.domain_img" alt="" v-if='itemInscript.domain_img.length>3'>
-                          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" v-else>
+                          <img :src="itemInscript.domain_img" alt="" v-if="itemInscript.domain_img.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                          <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                         </div>
-                        <div v-else>
-                          <img :src="itemInscript.detail.content" alt="" v-if='itemInscript.detail.content.length>3'>
-                          <img src="https://app.btcdomains.io/images/assets/avater_def@2x.png" alt="" v-else>
+                        <div v-else-if="type==='Image'">
+                          <img :src="itemInscript.detail.content" alt="" v-if="itemInscript.detail.content.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                          <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
+                        </div>
+                        <div v-else-if="type==='Other'">
+                          <img v-if="itemInscript.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                          <img v-if="itemInscript.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                          <img v-if="itemInscript.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                          <img v-if="itemInscript.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
                         </div>
                         <div class="tab_item_left_dec">
                           <span v-if="type==='Domains'">{{itemInscript.domain}}</span>
-                          <span class="tab_item_left_dec_type">INS -{{itemInscript.number}}</span>
+                          <span class="tab_item_left_dec_type" v-if="itemInscript.number&&itemInscript.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(itemInscript.id)">INS
+                            #{{itemInscript.number}}</span>
+                          <span class="tab_item_left_dec_type" v-else>INS -</span>
                         </div>
                       </div>
-                      <div class="tab_item_right">
-                        <div class="tab_item_right_status" v-if='itemInscript.state=="9"' style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
-                        <div class="tab_item_right_status" v-else style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                        <!-- <div class="tab_item_right_option">
-                          <img src="../assets/person/icon_16px_send@2x.png" alt="">
-                          <span>Send</span>
-                        </div> -->
-                      </div>
+                      <div class="width2" style="margin-left:120px">{{itemInscript.register_date_show}}</div>
+                      <div class="width3" style="margin-left:80px">{{itemInscript.register_date_show}}</div>
+                      <div class="width4">{{itemInscript.expire_date_show}}</div>
+                      <div class="width5 inscriptin_id_class" @click="toinscriptionFun(itemInscript)">{{itemInscript.id_show}}</div>
                     </div>
                   </div>
                   <div class="inscription_tab_list_card" v-if="listShowType===1">
-                    <div class="inscription_tab_item_card" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
-                      <img src="../assets/person/bg@2x.png" alt="">
-                      <div class="tab_item_card">
-                        <span>{{itemInscript.showAddress}}</span>
-                        <span class="tab_item_card_dec">INS #{{itemInscript.number}}</span>
+                    <div class="inscription_tab_item_card" v-for="(item,index) in inscrptList" :key="index">
+                      <div v-if="type==='Domains'">
+                        <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
+                        <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                       </div>
-                      <!-- <div class="inscription_tab_item_card_option">
-                        <img src="../assets/person/icon_16px_send@2x.png" alt="">
-                        <span>Send</span>
-                      </div> -->
+                      <div v-else-if="type==='Image'">
+                        <img :src="item.detail.content" alt="" v-if="item.detail.content.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
+                        <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
+                      </div>
+                      <div v-else-if="type==='Other'">
+                        <img v-if="item.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                        <img v-if="item.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                        <img v-if="item.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                        <img v-if="item.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
+                      </div>
+                      <div class="tab_item_card">
+                        <span v-if="type==='Domains'">{{item.domain}}</span>
+                        <span class="tab_item_card_dec" v-if="item.number&&item.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(item.id)">INS #{{item.number}}</span>
+                        <span class="tab_item_card_dec" v-else>INS -</span>
+                      </div>
+                      <div class="inscription_tab_item_card_option_senf" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''">
+                        <div class="tab_item_right_status" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;">Registering...
+                        </div>
+                      </div>
+                      <div class="tab_item_card" v-else>
+                        <span class="tab_item_card_dec">Inscription ID</span>
+                        <span class="tab_item_card_dec" @click="toinscriptionFun(item)" style="text-decoration: underline;cursor: pointer;">{{item.id_show}}</span>
+                      </div>
+                      <div class="tab_item_card_time">
+                        <div class="tab_item_card_time_item">
+                          <span>Create Date</span>
+                          <span>{{item.register_date_show}}</span>
+                        </div>
+                        <div class="tab_item_card_time_item">
+                          <span>Registration Date</span>
+                          <span>{{item.register_date_show}}</span>
+                        </div>
+                        <div class="tab_item_card_time_item">
+                          <span>Expiration Date</span>
+                          <span>{{item.expire_date_show}}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <!-- <div class="pageBox">
                   <Page :total="40" size="small" @on-change="changePageFun" />
                 </div> -->
                 </div>
-                <div class="inscription_tab_box_kong" v-else>暂无数据</div>
+                <div class="inscription_tab_box_kong" v-else>No data yet...</div>
               </TabPane>
             </Tabs>
             <div class="inscription_showtype">
@@ -795,12 +931,13 @@
           </div>
           <Spin size="large" fix :show="spanBoolean"></Spin>
         </div>
-        <div class="home_kongbai" v-show="!contentShow"></div>
+        <div class="home_kongbai" v-show="!addressSearchShow"></div>
       </div>
     </div>
     <div class="home_foot_cart" v-show="cartNum>0">
       <div class="home_cart">
-        <div class="home_cart_num">{{cartNum}} Domains</div>
+        <div class="home_cart_num" v-if="cartNum>1">{{cartNum}} Domains</div>
+        <div class="home_cart_num" v-else>{{cartNum}} Domain</div>
         <div class="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
             <span>{{item.domain}}</span>
@@ -841,6 +978,7 @@ export default {
     return {
       goTcartpage: false,
       spanMoreBoolean: false,
+      spanResultBoolean: false,
       loginShow: false,
       spanBoolean: false,
       classOption: {
@@ -873,7 +1011,9 @@ export default {
         owner_address: null,
         expire_date: null,
         showAddress: null,
-        expire_date_show: null
+        expire_date_show: null,
+        inscribe_id: null,
+        number: null
       },
       linkList: [],
       cartList: [],
@@ -891,10 +1031,6 @@ export default {
           type: "Image",
           num: 2
         },
-        // {
-        //   name: "Video",
-        //   num: 3
-        // },
         {
           name: "Other",
           type: "Other",
@@ -907,10 +1043,28 @@ export default {
       receiveAddress: null,
       addressSearchShow: false,
       historyList: [],
-      histroyBoolean: false
+      histroyBoolean: false,
+      historyAddressList: [],
+      histroyAddressBoolean: false,
     }
   },
   methods: {
+    toinscriptionFun(item) {
+      if (!item.id) {
+        return
+      }
+      let id = item.id.slice(0, item.id.length - 2);
+      let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
+      window.open(url, '_blank');
+    },
+    toINSFun(id) {
+      let url = "https://ordinals.com/inscription/" + id;
+      window.open(url, '_blank');
+    },
+    histroycloseFun() {
+      this.histroyBoolean = false;
+      this.histroyAddressBoolean = false;
+    },
     copyFun(obj) {
       copyAction(obj.owner_address)
     },
@@ -930,6 +1084,64 @@ export default {
         this.addressFun()
       }
     },
+    inscriptionstype(element) {
+      console.log(element)
+      switch (element.detail.content_type) {
+        case 'image/png':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/jpg':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/jpeg':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/webp':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/svg+xml':
+          element.type = 'IMAGE'
+          break;
+
+        case 'image/gif':
+          element.type = "GIF"
+          break;
+
+        case 'text/plain;charset=utf-8':
+          element.type = "TEXT"
+          break;
+
+        case 'text/html':
+          element.type = "HTML"
+          break;
+
+        case 'text/html;charset=utf-8':
+          element.type = "HTML"
+          break;
+
+        case 'application/json':
+          element.type = "TEXT"
+          break;
+
+        case 'mp3':
+          element.type = "AUDIO"
+          break;
+
+        case 'mp4':
+          element.type = "VIDEO"
+          break;
+
+        default:
+          element.type = "OTHER"
+          break;
+      }
+      console.log("elementelement", element)
+      return element
+    },
     addressFun() {
       if (!this.searchText) {
         Message.error("address must not be empty")
@@ -939,40 +1151,60 @@ export default {
         Message.error("bitcoin address is not valid")
         return
       }
-      if (this.searchText.indexOf('bc1p') != -1 || this.searchText.indexOf('tb1') != -1) {
-        if (this.searchText.length == 62) {
-          this.addressSearchShow = true;
-          this.inscrptList = []
-          this.spanBoolean = true
-          let param = {};
-          param.inscribe_type = this.type;
-          param.address = this.searchText
-          param.sign = ""
-          this.$axios({
-            method: "post",
-            data: param,
-            url: apis.inscriptListApi,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }).then(res => {
-            if (res.status == "200") {
-              if (res.data.code === 0) {
-                this.inscrptList = res.data.data.result;
-                this.spanBoolean = false
+      this.inscrptList = []
+      this.spanBoolean = true
+      let param = {};
+      param.inscribe_type = this.type;
+      param.address = this.searchText
+      param.sign = ""
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.inscriptListApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            res.data.data.result.forEach(element => {
+              console.log("2222222")
+              this.inscriptionstype(element)
+              if (element.register_date) {
+                element.register_date_show = moment(element.register_date).format("YYYY-MM-DD HH:mm:ss")
               } else {
-                this.spanBoolean = false
-                Message.error(res.data.message)
+                element.register_date_show = "-"
               }
-            }
-          }).catch(err => {
+              if (element.expire_date) {
+                element.expire_date_show = moment(element.expire_date).format("YYYY-MM-DD HH:mm:ss")
+              } else {
+                element.expire_date_show = "-"
+              }
+              if (element.id && element.id.length > 10) {
+                let index1 = element.id.slice(0, 4)
+                let index2 = element.id.slice(element.id.length - 4)
+                element.id_show = index1 + "..." + index2
+              } else {
+                element.id_show = "-"
+              }
+            })
+            this.inscrptList = res.data.data.result;
+            this.addressSearchShow = true;
+            this.spanBoolean = false;
+            let temp = {};
+            temp.domain = this.searchText;
+            this.historyAddressList.unshift(temp);
+            this.historyAddressList = this.historyAddressList.slice(0, 20);
+            localStorage.historyAddressList = JSON.stringify(this.historyAddressList);
+            this.histroyAddressBoolean = false;
+          } else {
             this.spanBoolean = false
-          });
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
+            Message.error(res.data.message)
+          }
         }
-      }
+      }).catch(err => {
+        this.spanBoolean = false
+      });
     },
     querySuccessDomainFun() {
       let param = {};
@@ -996,6 +1228,7 @@ export default {
       });
     },
     queryDomainFun() {
+      this.spanResultBoolean = true;
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -1010,6 +1243,7 @@ export default {
           if (res.data.code === 0) {
             res.data.data.isSelect = false;
             let data = res.data.data;
+            data.domain = data.dom_name
             data = changeStatusFun(data);
             if (data.dom_state != 9) {
               data.showAddress = this.showAddressFun(data.owner_address)
@@ -1021,20 +1255,25 @@ export default {
               }
             })
             this.resultData = data;
-            this.contentShow = true;
             let temp = {};
-            temp.domain = this.searchText
-            this.historyList.push(temp);
+            temp.domain = this.searchText;
+            this.historyList.unshift(temp);
+            this.historyList = this.historyList.slice(0, 20);
             localStorage.historyList = JSON.stringify(this.historyList);
             this.histroyBoolean = false
+            this.spanResultBoolean = false;
           } else {
+            this.contentShow = false
+            this.spanResultBoolean = false;
             Message.error(res.data.message)
           }
         }
       }).catch(err => {
+        this.contentShow = false
       });
     },
     queryMoreDomainFun() {
+      this.spanMoreBoolean = true
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -1048,6 +1287,7 @@ export default {
         if (res.status == "200") {
           let data = res.data.data;
           data.forEach(element => {
+            element.domain = element.dom_name
             this.cartList.forEach(ele => {
               if (element.domain === ele.domain) {
                 element.isSelect = true
@@ -1061,8 +1301,10 @@ export default {
             }
           })
           this.linkList = res.data.data;
+          this.spanMoreBoolean = false
         }
       }).catch(err => {
+        this.spanMoreBoolean = false
       });
     },
     changeSearchTypeFun(item) {
@@ -1090,6 +1332,7 @@ export default {
         return
       }
       if (this.selectId === 1) {
+        this.contentShow = true;
         this.queryDomainFun()
         this.queryMoreDomainFun()
       } else {
@@ -1097,6 +1340,7 @@ export default {
       }
     },
     isInputFun(e) {
+      this.searchText = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '');
       if (e.target.value) {
         this.searchStutas = true;
       } else {
@@ -1118,8 +1362,17 @@ export default {
       }
     },
     onfucusFun() {
-      if (this.searchStutas) {
-        // this.contentShow = true;
+      let historyAddressList = localStorage.historyAddressList;
+      if (historyAddressList) {
+        let arr = JSON.parse(historyAddressList);
+        let set = new Set(arr.map((item) => JSON.stringify(item)));
+        this.historyAddressList = [...set].map((item) => JSON.parse(item));
+        localStorage.historyAddressList = JSON.stringify(this.historyAddressList)
+      } else {
+        return
+      }
+      if (historyAddressList.length > 0) {
+        this.histroyAddressBoolean = true;
       }
     },
     addLinkFun(item) {
@@ -1157,9 +1410,28 @@ export default {
         localStorage.historyList = JSON.stringify(this.historyList);
       }
     },
+    delectHistroyAddressFun(index) {
+      this.historyAddressList.splice(index, 1);
+      if (this.historyAddressList.length === 0) {
+        localStorage.removeItem("historyAddressList")
+        this.histroyAddressBoolean = false
+      } else {
+        localStorage.historyAddressList = JSON.stringify(this.historyAddressList);
+      }
+    },
     clearHistoryFun() {
       localStorage.removeItem("historyList");
+      this.historyList = []
       this.histroyBoolean = false
+    },
+    clearHistoryAddressFun() {
+      localStorage.removeItem("historyAddressList");
+      this.historyAddressList = []
+      this.histroyAddressBoolean = false
+    },
+    historyseachAddressFun(item) {
+      this.searchText = item.domain;
+      this.addressFun()
     },
     historyseachFun(item) {
       this.searchText = item.domain;
@@ -1176,9 +1448,7 @@ export default {
       let localCartList = arr.concat(this.cartListlocal)
       localStorage.cartList = JSON.stringify(localCartList);
       let bitcoin_address = localStorage.bitcoin_address;
-      console.log("bitcoin_address", bitcoin_address)
       if (!bitcoin_address) {
-        console.log("dsdddd")
         this.loginShow = true;
         this.goTcartpage = true;
       } else {

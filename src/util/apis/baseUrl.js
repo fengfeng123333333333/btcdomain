@@ -1,16 +1,27 @@
 let url = window.location.href;
-console.log(url)
 let baseUrl = "";
 if (url.indexOf("prod.btcwallet") != -1) {
     baseUrl="https://btcdomains.io";
 } else {
-    // https://www.btcwallet.network/ 
+    // baseUrl="https://www.btcwallet.network"
     baseUrl="https://btcdomains.io";
 }
+
+let locationUrl="https://app.btcdomains.io/mobile/#"
+// if (url.indexOf("prod.btcwallet")!=-1){
+//   locationUrl="https://prod.btcwallet.network/mobile/"
+// } else if (url.indexOf("btcwallet")!=- 1) {
+//   locationUrl="https://www.btcwallet.network/mobile/"
+// } else if (url.indexOf("localhost")!=-1) {
+//   locationUrl="https://www.btcwallet.network/mobile/"
+// }else {
+//   locationUrl="https://app.btcdomains.io/mobile/#"
+// }
+
 let baseAppUrl = "https://btcdomains.io";
 let unisatUrl = "https://unisat.io"
 let coinApi = "https://rest.coinapi.io"
 let generativeApi="https://devnet.generative.xyz/generative"
 export default {
-    baseUrl, baseAppUrl, unisatUrl, coinApi,generativeApi
+    baseUrl, baseAppUrl, unisatUrl, coinApi,generativeApi,locationUrl
 }

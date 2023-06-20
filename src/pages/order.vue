@@ -544,6 +544,7 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #090c1d;
+  cursor: pointer;
 }
 .inscript_body {
   margin-top: 20px;
@@ -602,6 +603,7 @@
 .inscript_step_info_right_item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 .inscript_box {
   width: 840px;
@@ -610,11 +612,12 @@
   border: 1px solid #2e2f3e;
 }
 .inscript_body_dec {
-  margin-top: 20px;
-  font-size: 14px;
-  font-family: PingFangSC-Semibold, PingFang SC;
-  font-weight: 600;
-  color: #2e2f3e;
+  margin-top: 10px;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+  margin-bottom: 10px;
 }
 .inscript_button {
   margin-top: 20px;
@@ -970,9 +973,10 @@
           </div>
           <div v-else>
             <div class="cart_order_button" :class="{cart_order_button_stop:!stop_pay&&paySelData.name==='BTC'}" v-if="isPay===1" @click="otherPayFun">
-              <span> Continue Pay</span>
+              <span> Continue Payment</span>
             </div>
             <div class="cart_order_button" v-else @click="otherHavePayFun">
+              <Icon type="ios-loading" v-if="otherLoadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
               <span> I Have Paid</span>
             </div>
           </div>
@@ -988,13 +992,13 @@
         </div>
         <div class="payment_status_box">
           <img src="../assets/order/icon_44px_loading@2x.png" alt="" class="icon_44px_loading demo-spin-icon-load">
-          <div class="payment_status_box_title">Don't close the window until payment is finished. </div>
+          <!-- <div class="payment_status_box_title">Don't close the window until payment is finished. </div> -->
           <div class="payment_status_box_dec">
             <span>Payment issues? contact us:</span>
             <span class="payment_status_box_line">contact@btcdomains.io</span>
           </div>
           <div class="payment_status_button" @click='iHasPaiFun(3)'>
-            <Icon type="ios-loading" v-if='mixpayHavePaidBoolean' size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
+            <Icon type="ios-loading" v-if='ishasPaiBoolean' size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
             <span>I Have Paid</span>
           </div>
           <div class="payment_status_again" v-if="paySelData.name==='MixPay'" @click='mixPayOpwnFun'>Try Again</div>
@@ -1012,7 +1016,7 @@
           <div class="payment_result_box_title">No payment has been detected yet. Please try again later. Or join our Discord. Click on the "Create ticket" button on the open-ticket channel to contact us.</div>
           <img src="../assets/order/discord@2x.png" alt="" class="payment_result_box_code">
           <div class="payment_result_box_name">Join Our Discord</div>
-          <div class="payment_result_box_url">https://discord.com/invite/btcdomain</div>
+          <div class="payment_result_box_url" @click='todiscordFun'>https://discord.com/invite/btcdomain</div>
           <div class="payment_status_button" @click="choseMaskFun(2)">OK</div>
         </div>
       </div>
@@ -1028,8 +1032,8 @@
           <div class="payment_result_box_title">Join our Discord. Click on the "Create ticket" button on the open-ticket channel to contact us.</div>
           <img src="../assets/order/discord@2x.png" alt="" class="payment_result_box_code">
           <div class="payment_result_box_name">Join Our Discord</div>
-          <div class="payment_result_box_url">https://discord.com/invite/btcdomain</div>
-          <div class="payment_status_button">OK</div>
+          <div class="payment_result_box_url" @click='todiscordFun'>https://discord.com/invite/btcdomain</div>
+          <div class="payment_status_button" @click="choseMaskFun(3)">OK</div>
         </div>
       </div>
     </div>
@@ -1043,7 +1047,7 @@
           <div class="inscript_step">
             <img src="../assets/order/icon_processing_ok@2x.png" class="inscript_step_img" alt="">
             <div class="inscript_step_info">
-              <span>Locked the dominate</span>
+              <span>Locked The Dominate</span>
               <span class="inscript_step_info_dec">This domain name has been locked. Don't worry about being preempted.</span>
             </div>
           </div>
@@ -1056,7 +1060,7 @@
                 <span>Fund Transfer Pending</span>
                 <!-- <span class="inscript_step_info_copy">Copy Message ID</span> -->
               </div>
-              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
+              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. </span>
             </div>
           </div>
           <div class="inscript_step">
@@ -1067,17 +1071,7 @@
             <div class="inscript_step_info">
               <span>Inscribing</span>
               <div class="inscript_step_info_bing">
-                <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
-                <div class="inscript_step_info_right">
-                  <div class="inscript_step_info_right_item">
-                    <span>Network rate:</span>
-                    <span style="margin-left:8px">{{networkRate}} sats/vB</span>
-                  </div>
-                  <div class="inscript_step_info_right_item">
-                    <span>Your rate::</span>
-                    <span style="margin-left:8px">{{yourRate}} sats/vB</span>
-                  </div>
-                </div>
+                <span class="inscript_step_info_dec">Confirm the remaining 2 blocks.</span>
               </div>
             </div>
           </div>
@@ -1088,11 +1082,21 @@
             <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state>3&&full_state!=9' class="inscript_step_img" alt="">
             <img src="../assets/order/icon_processing_ok@2x.png" v-else-if='full_state===0' class="inscript_step_img" alt="">
             <div class="inscript_step_info">
-              <span>Inscription Transfer Panding</span>
-              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks. If the rate is lower than the current network rate, it may take a long time to wait.</span>
+              <span>Inscription Transfer Pending </span>
+              <span class="inscript_step_info_dec">Confirm the remaining 2 blocks.</span>
             </div>
           </div>
-          <div class="inscript_body_dec">The domain name transfer may take some time. You can directly check the status of the domain transfer on your wallet homepage.</div>
+          <div class="inscript_body_dec">If the rate is lower than the current network rate, it may take a long time to wait.</div>
+          <div class="inscript_step_info_right">
+            <div class="inscript_step_info_right_item">
+              <span>Network rate:</span>
+              <span style="margin-left:8px">{{networkRate}} sats/vB</span>
+            </div>
+            <div class="inscript_step_info_right_item">
+              <span>Your rate:</span>
+              <span style="margin-left:8px">{{yourRate}} sats/vB</span>
+            </div>
+          </div>
           <div class="inscript_button" @click="toPersonFun" v-if="full_state===4">{{pensonIndex}}(s) Check Wallet Homepage</div>
           <div class="inscript_button" @click="toPersonFun" v-else>Check Wallet Homepage</div>
         </div>
@@ -1147,14 +1151,14 @@ import Head from '../components/head'
 import Foot from '../components/foot'
 import EmptyCart from '../components/emptyCart'
 import { InputNumber, Icon, Message, Spin, Tooltip } from 'view-ui-plus'
-import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransaction } from '../util/func/index'
+import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun } from '../util/func/index'
 import VueQrcode from '@chenfengyuan/vue-qrcode';
 import apis from '../util/apis/apis'
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
-
+// import { getAddress, sendBtcTransaction, signMessage } from "sats-connect";
 const Decimal = require('decimal.js');
 export default {
   components: {
@@ -1162,6 +1166,10 @@ export default {
   },
   data() {
     return {
+      GivingMsg: "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk.",
+      confirmBoolean: true,
+      ishasPaiBoolean: false,
+      otherLoadingBoolean: false,
       isPay: 1,
       codePaidBoolean: false,
       mixpayHavePaidBoolean: false,
@@ -1235,17 +1243,18 @@ export default {
     }
   },
   destroyed() {
-    clearInterval(this.timerMixPay)
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
   },
   beforeRouteLeave(to, from, next) {
-    clearInterval(this.timerMixPay)
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
     next()
   },
   methods: {
+    todiscordFun() {
+      window.open("https://discord.com/invite/btcdomain", '_blank');
+    },
     changeGasInputFun(value) {
       if (!value) {
         return
@@ -1349,12 +1358,7 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          this.isPay = 2
-          this.send_btc_boolean = false;
-          this.payStatusBoolean = true;
-          console.log(this.isPay)
-          const { txID, txHex } = await sendBTCTransaction(sBtcResq);
-          console.log("txHex", txHex)
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
           // submit
           this.pushTx(txHex);
         }
@@ -1380,7 +1384,7 @@ export default {
           if (res.data.message === 'OK') {
             this.send_btc_boolean = false;
             this.payStatusBoolean = true;
-            localStorage.isPay = "btcpay";
+            localStorage.isPay = 2;
             this.isPay = 2
             Message.success("tx: " + res.data.result + " has been publiced");
           } else {
@@ -1392,26 +1396,57 @@ export default {
       });
     },
     async unisatAction() {
-      this.loadingBoolean = true;
-      const num = new BigNumber(this.sendAmount);
-      const weivalue = num.multipliedBy(100000000).toNumber();
-      let feeRate = "";
-      if (this.gasSelectData.name === "Custom") {
-        feeRate = this.gasSelectData.customValue
-      } else {
-        feeRate = this.gasSelectData.value
+      if (typeof window.unisat === "undefined") {
+        Message.error("unisat is not installed!");
+        return;
       }
+      const num = new BigNumber(this.feeData.total_fee);
+      const weivalue = num.multipliedBy(100000000).toNumber();
       const txid = await window.unisat.sendBitcoin(
-        this.sendRealAddress,
+        this.monywallet,
         weivalue,
         {
-          feeRate: feeRate,
+          feeRate: this.feeData.rate_fee,
         }
       );
-      if (tixd) {
-        this.payStatusBoolean = true;
-      }
+      localStorage.isPay = 2;
+      this.isPay = 2
+      this.payStatusBoolean = true;
       Message.info("submit transaction: " + txid);
+    },
+    async tiggerXverseAction() {
+      const signMessageOptions = {
+        payload: {
+          network: {
+            type: "Mainnet",
+          },
+          address: localStorage.getItem("bitcoin_address"),
+          message: this.GivingMsg,
+        },
+        onFinish: (response) => {
+          // alert(response);
+        },
+        // onCancel: () => Message.info("Request canceled"),
+      };
+      await signMessage(signMessageOptions);
+      const num = new BigNumber(this.feeData.total_fee);
+      const weivalue = num.multipliedBy(100000000).toNumber()
+      const signPsbtOptions = {
+        payload: {
+          network: {
+            type: "Mainnet",
+          },
+          amountSats: weivalue,
+          recipientAddress: this.GivingMsg,
+          message: this.monywallet,
+        },
+        onFinish: (response) => {
+          // alert(response.psbtBase64);
+        },
+        onCancel: () => Message.info("Request canceled"),
+      };
+      await sendBtcTransaction(signPsbtOptions);
+      // this.statusInfoFun(3)
     },
     recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
       let arr = [];
@@ -1423,17 +1458,14 @@ export default {
       temp1.value = fastestFee;
       temp1.fast = fastestFee;
       temp1.isSelect = false;
-
       temp2.name = "Avg";
       temp2.value = halfHourFee;
       temp2.avg = halfHourFee;
       temp2.isSelect = false;
-
       temp3.name = "Slow";
       temp3.value = hourFee;
       temp3.slow = hourFee;
       temp3.isSelect = false;
-
       temp4.name = "Custom";
       temp4.value = null;
       temp4.isSelect = false;
@@ -1550,13 +1582,8 @@ export default {
       if (this.mixPayLoading) {
         return
       }
-      clearInterval(this.timerMixPay)
-      clearInterval(this.timer);
       this.mixPayLoading = true;
       this.mixPayFun();
-      this.timerMixPay = setInterval(() => {
-        this.statusInfoFun(3)
-      }, 10000);
     },
     mixPayFun() {
       let param = {};
@@ -1609,6 +1636,8 @@ export default {
       }
     },
     toPersonFun() {
+      clearInterval(this.timer);
+      clearInterval(this.timerPenson);
       this.$router.push({
         name: "person"
       })
@@ -1672,12 +1701,44 @@ export default {
         this.spanBoolean = false
       });
     },
+    confirmStatusFun(type) {
+      let param = {};
+      param.order_code = this.order_code;
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.confirmApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        this.statusInfoFun(type)
+      }).catch(err => {
+      });
+    },
+    confirmlunxunFun() {
+      let param = {};
+      param.order_code = this.order_code;
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.confirmApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.data.code === 0) {
+          this.inscritpBoolean = true;
+          this.payStatusBoolean = false
+          localStorage.removeItem('cartList');
+          localStorage.removeItem('orderCode');
+          localStorage.removeItem('isPay');
+          this.isPay = 1;
+        }
+      }).catch(err => {
+      });
+    },
     statusInfoFun(type) {
-      // if (type === 4) {
-      //   this.paydingBoolean = true;
-      // } else if (type === 2) {
-      //   this.mixpayHavePaidBoolean = true
-      // }
       let param = {};
       param.order_code = this.order_code;
       this.$axios({
@@ -1689,9 +1750,9 @@ export default {
         },
       }).then(res => {
         if (res.status === 200) {
-          // this.paydingBoolean = false;
-          // this.mixpayHavePaidBoolean = false;
           this.codePaidBoolean = false;
+          this.ishasPaiBoolean = false;
+          this.otherLoadingBoolean = false;
           if (res.data.code === 0) {
             this.full_state = res.data.data.full_state;
             if (this.full_state === 9) {
@@ -1701,49 +1762,42 @@ export default {
                 this.payStatusBoolean = true;
               } else if (type === 3) {
                 Message.info("No payment detected. Please ensure that you have completed the payment, or try again later.")
+              } else if (type === 0) {
+                this.payIssueBoolean = true;
+                clearInterval(this.timer);
               }
+            } else if (this.full_state === 4) {
+              this.inscritpBoolean = true;
+              localStorage.removeItem('cartList');
+              localStorage.removeItem('orderCode');
+              localStorage.removeItem('isPay');
+              this.isPay = 1;
+              this.timerPenson = setInterval(() => {
+                this.pensonIndex--
+                if (this.pensonIndex === 0) {
+                  clearInterval(this.timerPenson);
+                  this.toPersonFun()
+                }
+              }, 1000);
+            } else if (this.full_state === 0 || this.full_state === 5) {
+              localStorage.removeItem('cartList');
+              localStorage.removeItem('orderCode');
+              localStorage.removeItem('isPay');
+              this.isPay = 1;
+              this.toPersonFun()
             } else {
               this.inscritpBoolean = true;
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
+              localStorage.removeItem('isPay');
+              this.isPay = 1;
             }
-            // if (this.full_state === 9) {
-            //   if (type === 4) {
-            //     this.payResultBoolean = true
-            //   } else if (type === 2) {
-            //     Message.info("No payment detected. Please ensure that you have completed the payment, or try again later.")
-            //   }
-            //   else if (type === 3) {
-            //     // this.payStatusBoolean = true
-            //   }
-            // } else if (this.full_state === 4) {
-            //   localStorage.removeItem('cartList');
-            //   localStorage.removeItem('orderCode');
-            //   this.timerPenson = setInterval(() => {
-            //     this.pensonIndex--
-            //     if (this.pensonIndex === 0) {
-            //       clearInterval(this.timerPenson);
-            //       this.toPersonFun()
-            //     }
-            //   }, 1000);
-            // } else {
-            //   this.inscritpBoolean = true;
-            // }
-            // if (this.full_state === 0) {
-            //   localStorage.removeItem('cartList');
-            //   localStorage.removeItem('orderCode');
-            // }
           } else {
-            this.codePaidBoolean = false
-            // this.paydingBoolean = false;
-            // this.mixpayHavePaidBoolean = false;
             Message.error(res.data.message)
           }
         }
       }).catch(err => {
         this.codePaidBoolean = false
-        // this.paydingBoolean = false;
-        // this.mixpayHavePaidBoolean = false;
       });
     },
     lunXun() {
@@ -1760,8 +1814,25 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 0) {
             this.full_state = res.data.data.full_state;
+            if (this.full_state === 0 || this.full_state === 5) {
+              localStorage.removeItem('cartList');
+              localStorage.removeItem('orderCode');
+              localStorage.removeItem('isPay');
+              this.confirmBoolean = false
+              this.isPay = 1;
+              this.toPersonFun()
+            } else if (this.full_state === 9) {
+              this.confirmBoolean = true
+            } else {
+              // this.inscritpBoolean = true;
+              localStorage.removeItem('cartList');
+              localStorage.removeItem('orderCode');
+              localStorage.removeItem('isPay');
+              this.confirmBoolean = false
+              this.isPay = 1;
+            }
           } else {
-            Message.error(res.data.message)
+            // Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -1777,14 +1848,6 @@ export default {
       })
       item.isSelect = true;
       this.paySelData = item;
-      if (item.name != 'BTC') {
-        clearInterval(this.timer);
-        clearInterval(this.timerMixPay);
-      } else {
-        this.timer = setInterval(() => {
-          this.statusInfoFun(1)
-        }, 10000);
-      }
     },
     changebtcFun(item) {
       if (item.isSelect) {
@@ -1794,60 +1857,13 @@ export default {
         element.isSelect = false
       })
       item.isSelect = true;
-      if (item.type === 1) {
-        clearInterval(this.timer);
-      }
       this.selectBtcType = item.type;
     },
-    async unisatAction() {
-      if (typeof window.unisat === "undefined") {
-        Message.error("unisat is not installed!");
-        return;
-      }
-      const num = new BigNumber(this.feeData.total_fee);
-      const weivalue = num.multipliedBy(100000000).toNumber();
-      const txid = await window.unisat.sendBitcoin(
-        this.monywallet,
-        weivalue,
-        {
-          feeRate: this.feeData.rate_fee,
-        }
-      );
-      console.log(txid)
-      Message.info("submit transaction: " + txid);
-      this.statusInfoFun(3)
-    },
-    async tiggerXverseAction() {
-      const signPsbtOptions = {
-        payload: {
-          network: {
-            type: "Mainnet",
-          },
-          // message: "Sign Transaction",
-          psbtBase64: `cHNidP8BAKcCAAAAAtJVbmYvrS64adekw4rhCtbWQNNs9IhWFyNrhYIdkG5dAAAAAAD/////hNCzRVacJR32LJ/chDNUO9B0C3/ci9ZJzHIClfjHLSAAAAAAAP////8CoIYBAAAAAAAiUSCjXEwEb409zg9tZ4NJlmnPqVZaF2TYm9Q1txG7GQ/Q3dB+AQAAAAAAF6kUBE+9kGn9tJlLagtxL54ozfiuyqGHAAAAAAABASughgEAAAAAACJRIDmZV7+7TrMlgI87KFqU2MFVtCS9fmg3f4ZF8zwLgUEtARcguZB1Id24Xg5qN2IrfGhe+9yK5TozSSitvRLPIErU5xcAAQEgoIYBAAAAAAAXqRS9FdmY/QjP0cXH1/+o/144F2orn4ciAgN1Cual4w1uAxLWT+SalvUzyZpqp5eYW7Hlychubra2iEcwRAIgOHUp0YFRZXOrpz5V90PLaPDF/uhCPKLTLbEwVtA7wjsCICPkH0tjb3bS+jmqv/6R746ASxFWGcB8/N41rSHO+4cVAQEEFgAUGAo7GWfcpwS2XI7SsZEN06q8yTIAAAA=`,
-          broadcast: false,
-          inputsToSign: [
-            {
-              address: this.state.ordinalsAddress,
-              signingIndexes: [0],
-            },
-          ],
-        },
-        onFinish: (response) => {
-          alert(response.psbtBase64);
-        },
-        onCancel: () => alert("Canceled"),
-      };
-      await signTransaction(signPsbtOptions);
-      this.statusInfoFun(3)
-    },
     otherPayFun() {
-      clearInterval(this.timerMixPay)
-      clearInterval(this.timer);
-      // if (!this.stop_pay && this.paySelData.name === "BTC") {
-      //   Message.error("balance in not enough")
-      //   return
-      // }
+      if (!this.stop_pay && this.paySelData.name === "BTC") {
+        Message.error("balance in not enough")
+        return
+      }
       if (this.paySelData.name === 'UniSat') {
         this.unisatAction()
       } else if (this.paySelData.name === 'BTC') {
@@ -1859,16 +1875,19 @@ export default {
       }
     },
     otherHavePayFun() {
-      this.statusInfoFun(2)
+      this.otherLoadingBoolean = true
+      this.confirmStatusFun(2)
     },
     iHasPaiFun(type) {
-      // clearInterval(this.timerMixPay)
-      // clearInterval(this.timer);
-      this.statusInfoFun(type)
+      if (this.ishasPaiBoolean) {
+        return
+      }
+      this.confirmStatusFun(type)
+      this.ishasPaiBoolean = true
     },
     codePaidFun() {
+      this.confirmStatusFun(1)
       this.codePaidBoolean = true;
-      this.statusInfoFun(1)
     },
     balanceFun() {
       this.$axios({
@@ -1901,6 +1920,21 @@ export default {
     },
   },
   mounted() {
+    let index = 0
+    this.timer = setInterval(() => {
+      index++;
+      this.lunXun();
+      if (this.confirmBoolean) {
+        this.confirmlunxunFun()
+      }
+      if (index === 60) {
+        this.statusInfoFun(0)
+      }
+    }, 10000);
+    let isPay = localStorage.isPay;
+    if (isPay) {
+      this.isPay = parseInt(isPay)
+    }
     this.order_code = this.$route.query.orderCode;
     let walletType = localStorage.walletType;
     this.urlType = this.$route.query.type;
@@ -1915,14 +1949,8 @@ export default {
         }
         console.log(this.paySelData)
       })
-      this.timerMixPay = setInterval(() => {
-        this.lunXun()
-      }, 10000);
     } else {
       this.paySelData = this.payMethors[0]
-      // this.timer = setInterval(() => {
-      //   this.lunXun()
-      // }, 10000);
     }
     if (walletType === "metaMask") {
       let temp = {
