@@ -419,7 +419,7 @@
           </div>
           <div class="set_avatar_table">
             <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
-              <img :v-lazy="item.detail.content" alt="">
+              <img :src="item.detail.content" alt="">
               <div class="set_avatar_item_dec">
                 <span>{{item.domain}}</span>
                 <span class="set_prime_item_left_dec_inf"> INS #{{item.number}}</span>
@@ -501,7 +501,6 @@ import {
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 import { copyAction } from '../util/func/index'
-import VueLazyload from 'vue-lazyload'
 export default {
   components: {
     Tabs, TabPane, Page, Spin

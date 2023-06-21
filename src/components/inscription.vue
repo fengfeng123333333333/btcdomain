@@ -528,6 +528,14 @@
   justify-content: space-between;
   margin-bottom: 2px;
 }
+.inscript_step_info_bottom {
+  font-size: 14px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #2e2f3e;
+  margin-top: 30px;
+  padding: 0 20px;
+}
 </style>
 <template>
   <div class="inscription_app">
@@ -744,6 +752,7 @@
               <span style="margin-left:8px">{{yourRate}} sats/vB</span>
             </div>
           </div>
+          <!-- <div class="inscript_step_info_bottom">The domain name transfer may take some time. You can close the window and check the status of the domain transfer on your wallet homepage.</div> -->
           <div class="inscript_button1" @click="choseMaskFun(2)">OK</div>
         </div>
       </div>
@@ -774,6 +783,7 @@ export default {
   },
   data() {
     return {
+      inscritpBooleanLunXun: true,
       yourRate: null,
       networkRate: null,
       loginType: null,
@@ -1107,7 +1117,8 @@ export default {
         this.loadingBoolean = false
         this.send_inscript_boolean = false
       } else if (type === 2) {
-        this.inscritpBoolean = false
+        this.inscritpBoolean = false;
+        this.inscritpBooleanLunXun = false
       }
     },
     changeGasFun(item) {
