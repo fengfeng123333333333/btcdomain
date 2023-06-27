@@ -90,8 +90,6 @@ export default {
     changeOptionFun(value) {
       this.type = value;
     },
-    isInputFun() { },
-    searchFun() { },
     sendBtcFun() {
       this.sendWalletPageType = 1
     },

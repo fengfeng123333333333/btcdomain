@@ -1470,8 +1470,6 @@ export default {
     }
     this.querySuccessDomainFun()
   },
-  destroyed() {
-  }
 }
 </script>
       
