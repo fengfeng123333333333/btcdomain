@@ -118,4 +118,8 @@ body::-webkit-scrollbar {
   justify-content: center;
   z-index: 9999;
 }
+
+.mobile_button_loading {
+  margin-right: 0.016rem;
+}
 </style>

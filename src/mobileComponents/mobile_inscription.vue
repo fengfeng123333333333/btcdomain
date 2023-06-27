@@ -220,6 +220,7 @@
   font-weight: 600;
   color: #2e2f3e;
   cursor: pointer;
+  margin-bottom: 0.1rem;
 }
 .gas_tab_item_sel {
   border: 0.02rem solid #4540d6;
@@ -256,12 +257,6 @@
   align-items: center;
   justify-content: space-between;
 }
-.send_btc_title_balance {
-  font-size: 14px;
-  font-family: Poppins-Regular, Poppins;
-  font-weight: 400;
-  color: #2e2f3e;
-}
 .inscript_box {
   width: 7.1rem;
   background: #ffffff;
@@ -274,12 +269,12 @@
   padding: 0 0.4rem;
 }
 .inscript_body_dec {
-  margin-top: 20px;
-  font-size: 14px;
+  margin-top: 0.2rem;
+  font-size: 0.28rem;
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
   color: #2e2f3e;
-  padding: 0 20px;
+  margin-bottom: 0.2rem;
 }
 .inscript_button1 {
   margin: 0 auto;
@@ -358,8 +353,9 @@
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #ffffff;
-  text-align: center;
-  line-height: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   position: relative;
 }
@@ -483,7 +479,7 @@
                 <input type="text" @input="isInputFun" v-model="searchText" v-if="type==='Domains'" @keyup.enter="searchFun" placeholder="Search domain name or inscription..." class="search_insription">
                 <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Image'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
                 <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Other'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
-                <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
+                <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click="searchFun">
               </div>
               <div class="inscription_showtype">
                 <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
@@ -536,7 +532,7 @@
                     <span>Send</span>
                   </div>
                   <div class="tab_item_right_status" v-if="itemInscript.state!='9'&&itemInscript.state!='0'&&itemInscript.state!='5'&&itemInscript.state!=''"
-                    style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;" @click="openStatusFun(item)">Registering...
+                    style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;" @click="openStatusFun(itemInscript)">Registering...
                   </div>
                 </div>
               </div>
@@ -585,7 +581,7 @@
                     <span>Send</span>
                   </div>
                   <div class="tab_item_right_status" v-if="itemInscript.state!='9'&&itemInscript.state!='0'&&itemInscript.state!='5'&&itemInscript.state!=''"
-                    style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;" @click="openStatusFun(item)">Registering...
+                    style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;" @click="openStatusFun(itemInscript)">Registering...
                   </div>
                 </div>
               </div>
@@ -603,7 +599,7 @@
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div :class="{jiexiError:!jiexiType}">{{jiexiAddress}}</div>
+          <div :class="{jiexiError:!jiexiType}">{{ showAddressFun(jiexiAddress)}}</div>
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
@@ -623,7 +619,7 @@
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun">
-            <div class="mobile_page_loading" v-if="loadingBoolean" style="margin-right:5px;" color="#1989fa">
+            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:5px;" color="#1989fa">
               <van-loading type="spinner" color="#1989fa" class='vant_loading' />
             </div>
             <span>Confirm</span>
@@ -938,7 +934,7 @@ export default {
       this.gasSelectData.customValue = value
     },
     changeAddressTypefun(value) {
-      this.type = value
+      this.type = value.name
       if (value === "Image") {
         this.listShowType = 1;
       } else {
@@ -1137,6 +1133,9 @@ export default {
     },
     async confirmFun() {
       if (this.selectItem.state != '9' && this.selectItem.state != '0' && this.selectItem.state != '5' && this.selectItem.state != '') {
+        return
+      }
+      if (this.loadingBoolean) {
         return
       }
       this.setDomainFun(this.selectItem)

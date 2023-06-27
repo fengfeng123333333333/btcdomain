@@ -1200,6 +1200,9 @@ export default {
       if (this.selectItem.state != '9' && this.selectItem.state != '0' && this.selectItem.state != '5' && this.selectItem.state != '') {
         return
       }
+      if (this.loadingBoolean) {
+        return
+      }
       this.setDomainFun(this.selectItem)
     },
     showAddressFun(address) {

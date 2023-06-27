@@ -2,70 +2,58 @@
 .setting_app {
   width: 100%;
 }
-.setting_head {
-  width: 100%;
-  height: 73px;
-  padding-left: 20px;
-  line-height: 73px;
-  font-size: 22px;
-  font-family: Poppins-SemiBold, Poppins;
-  font-weight: 600;
-  color: #2e2f3e;
-  border-radius: 8px 8px 0px 0px;
-  backdrop-filter: blur(10px);
-  background: white;
-}
 .setting_content {
   width: 100%;
-  padding: 0 10px;
+  padding: 0 0.2rem;
+  margin-top: 0.8rem;
 }
 .avatar_box {
-  margin: 0 auto;
-  width: 580px;
-  margin-top: 40px;
+  width: 100%;
+  margin-top: 0.4rem;
 }
 .avatar_title {
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #2e2f3e;
 }
 .avatar_dec {
-  font-size: 13px;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
-  margin-top: 10px;
+  margin-top: 0.2rem;
 }
 .avatar_set {
   width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   background: #f7f7fa;
-  border-radius: 8px;
   justify-content: space-between;
-  padding: 30px 10px 30px 30px;
+  padding: 0.6rem 0;
 }
 .avatar_set_img {
-  width: 120px;
-  height: 120px;
+  width: 2.4rem;
+  height: 2.4rem;
   border-radius: 50%;
 }
 .avatar_set_option {
-  height: 44px;
+  height: 0.48rem;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  font-size: 13px;
+  justify-content: center;
+  font-size: 0.26rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #4540d6;
   cursor: pointer;
+  margin-top: 0.4rem;
 }
 .avatar_set_option img {
-  width: 24px;
-  height: 24px;
-  margin-right: 6px;
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-right: 0.12rem;
 }
 .setting_save {
   margin: 0 auto;
@@ -83,161 +71,159 @@
   cursor: pointer;
 }
 .account_box {
-  margin: 0 auto;
-  margin-top: 80px;
-  width: 580px;
+  margin-top: 0.4rem;
+  width: 100%;
 }
 .account_item {
   width: 100%;
-  height: 44px;
+  height: 0.88rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: PingFangSC-Regular, PingFang SC;
   font-weight: 400;
   color: #2e2f3e;
-  padding: 0 10px;
-  border-bottom: 1px solid rgba(167, 169, 190, 0.4);
-  margin-bottom: 1px;
+  padding: 0 0.2rem;
+  border-bottom: 0.02rem solid rgba(167, 169, 190, 0.4);
   cursor: pointer;
 }
 .account_item img {
-  width: 24px;
-  height: 24px;
+  width: 0.48rem;
+  height: 0.48rem;
 }
 .export_private_box {
-  width: 500px;
-  height: 315px;
+  width: 7.1rem;
+  padding-bottom: 0.4rem;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #2e2f3e;
   margin-top: 2rem;
 }
 .maskheadcom {
-  font-size: 16px;
+  font-size: 0.32rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #2e2f3e;
-  height: 65px;
-  padding: 0 20px;
+  height: 1.08rem;
+  padding: 0 0.4rem;
 }
 .maskheadcomImg {
-  width: 24px;
-  height: 24px;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
 }
 .private_Key {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 0.02rem;
+  font-size: 0.28rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #2e2f3e;
-  padding: 0 20px;
+  padding: 0 0.4rem;
 }
+
 .copyBox {
   margin: 0 auto;
-  width: 460px;
-  height: 60px;
+  width: 6.3rem;
+  height: 1.6rem;
   background: #f6f6fc;
-  border: 1px solid #a7a9be;
-  border-radius: 2px;
-  padding: 0 20px;
+  border: 0.02rem solid #a7a9be;
+  border-radius: 0.04rem;
+  padding: 0 0.4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 40px;
+  margin-top: 0.2rem;
 }
 .copyBoxContent {
-  width: 370px;
-  height: 40px;
+  width: 4.62rem;
+  height: 1.2rem;
   word-break: break-all;
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #090c1d;
 }
 .copyBox img {
-  width: 24px;
-  height: 24px;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
 }
 .private_Key_title {
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #a7a9be;
-  padding: 0 20px;
-  margin-top: 20px;
+  padding: 0 0.4rem;
+  margin-top: 0.4rem;
 }
 .set_prime_box {
-  width: 840px;
+  width: 7.1rem;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
-  margin-top: 1.3rem;
-  padding-bottom: 20px;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #2e2f3e;
+  margin-top: 0.2rem;
+  padding-bottom: 0.4rem;
 }
 .set_prime_boy {
   width: 100%;
-  padding: 0 20px;
-  margin-top: 10px;
+  padding: 0 0.4rem;
+  margin-top: 0.2rem;
 }
 .set_prime_search {
   position: relative;
   width: 100%;
-  height: 40px;
+  height: 0.8rem;
+  margin-top: 0.2rem;
 }
 .set_prime_search img {
   position: absolute;
   right: 0;
   top: 0;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
+  width: 0.8rem;
+  height: 0.8rem;
 }
 .set_input {
   width: 100%;
-  height: 40px;
+  height: 0.88rem;
   background: #ffffff;
-  border-radius: 4px;
-  border: 2px solid #d5d6e0;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #d5d6e0;
   outline: none;
-  padding: 10px;
-  font-size: 14px;
+  padding: 0 0.2rem;
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
 }
 .set_input:focus {
-  border: 2px solid #4540d6;
+  border: 0.02rem solid #4540d6;
 }
 .selectdiv {
   width: 100%;
-  height: 36px;
+  height: 0.72rem;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  margin-top: 20px;
-  font-size: 13px;
+  padding: 0 0.2rem;
+  margin-top: 0.2rem;
+  font-size: 0.26rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #4540d6;
-  justify-content: space-between;
 }
 .hasdomain {
   background: rgba(69, 64, 214, 0.1);
   border-radius: 2px;
 }
 .selectdiv img {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
+  height: 0.32rem;
+  width: 0.32rem;
+  margin-right: 0.16rem;
 }
 .set_prime_table {
-  margin-top: 16px;
+  margin-top: 0.4rem;
   width: 100%;
-  height: 200px;
+  height: 5rem;
   overflow: hidden;
   overflow-y: auto;
 }
@@ -246,95 +232,91 @@
 }
 .set_prime_item {
   width: 100%;
-  height: 64px;
-  border-radius: 8px;
+  height: 1.28rem;
+  border-radius: 0.16rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
+  padding: 0 0.2rem;
 }
 .set_prime_item_left {
   display: flex;
   align-items: center;
 }
 .set_prime_item_left img {
-  width: 44px;
-  height: 44px;
-  margin-right: 10px;
+  width: 0.88rem;
+  height: 0.88rem;
+  margin-right: 0.2rem;
 }
 .set_prime_item_left_dec {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 13px;
+  font-size: 0.26rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #090c1d;
 }
 .set_prime_item_left_dec_inf {
-  font-size: 12px;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
 }
 .set_prime_item_right {
-  width: 16px;
-  height: 16px;
+  width: 0.32rem;
+  height: 0.32rem;
 }
 .inscript_button {
-  margin-top: 20px;
+  margin-top: 0.4rem;
   width: 100%;
-  height: 44px;
+  height: 0.88rem;
   background: #4540d6;
-  box-shadow: 0px -4px 8px 0px rgba(82, 82, 102, 0.08);
-  border-radius: 4px;
-  font-size: 14px;
+  box-shadow: 0 -0.08rem 0.16rem 0 rgba(82, 82, 102, 0.08);
+  border-radius: 0.08rem;
+  font-size: 0.28rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #ffffff;
   text-align: center;
-  line-height: 44px;
+  line-height: 0.88rem;
   cursor: pointer;
 }
 .set_avatar_item {
-  width: 280px;
+  width: 3.08rem;
   background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #d5d6e0;
-  padding: 10px;
-  margin-right: 16px;
-  margin-bottom: 20px;
+  border-radius: 0.16rem;
+  border: 0.02rem solid #d5d6e0;
+  padding: 0.2rem;
+  margin-bottom: 0.2rem;
 }
 .set_avatar_item img {
   width: 100%;
-  height: 260px;
+  height: 2.68rem;
 }
 .set_avatar_item_dec {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
+  flex-direction: column;
+  font-size: 0.24rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #090c1d;
 }
 .set_avatar_table {
-  margin-top: 16px;
+  margin-top: 0.4rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
-.set_avatar_item:nth-child(3n) {
-  margin-right: 0;
-}
 .set_avatar_box {
-  width: 920px;
-  margin-top: 0;
+  width: 7.1rem;
+  margin-top: 0 auto;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #2e2f3e;
+  padding-bottom: 0.4rem;
+  margin-top: 0.2rem;
 }
 .maskScroll {
   overflow: hidden;
@@ -342,26 +324,33 @@
 }
 .set_prime_item_sel {
   background: #f6f6fc;
-  border-radius: 8px;
-  border: 2px solid #4540d6;
+  border-radius: 0.16rem;
+  border: 0.02rem solid #4540d6;
 }
 .domain_name {
-  font-size: 18px;
+  font-size: 0.36rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #2e2f3e;
 }
 .avaterImg {
-  width: 120px;
-  height: 120px;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+}
+
+.set_dec {
+  font-size: 0.26rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #090c1d;
 }
 </style>
 <template>
   <div class="setting_app">
-    <div class="setting_head">Setting</div>
     <div class="setting_content">
-      <Tabs v-model="tabsName">
-        <TabPane label="Profile" name="Profile" v-if="!unisatPriver">
+      <van-tabs v-model:active="tabsName">
+        <van-tab title="Profile" name="Profile" v-if="!unisatPriver">
           <div class="avatar_box">
             <div class="avatar_title">Avatar</div>
             <div class="avatar_dec">Set your profile picture as the img-type inscription you own.</div>
@@ -374,7 +363,7 @@
               </div>
             </div>
           </div>
-          <div class="avatar_box" style="margin-top:10px">
+          <div class="avatar_box" style="margin-top:0.2rem">
             <div class="avatar_title">Name</div>
             <div class="avatar_dec">Set your .btc domain name that you own as your profile name.</div>
             <div class="avatar_set">
@@ -386,9 +375,8 @@
               </div>
             </div>
           </div>
-          <!-- <div class="setting_save">Save</div> -->
-        </TabPane>
-        <TabPane label="Account" name="Account">
+        </van-tab>
+        <van-tab title="Account" name="Account">
           <div class="account_box">
             <div class="account_item" @click="openmaskFun(3)" :class="{unisatGray:unisatPriver}">
               <span>Export private key</span>
@@ -399,8 +387,8 @@
               <img src="../assets/person/24px_arrow_down.png" alt="">
             </div>
           </div>
-        </TabPane>
-      </Tabs>
+        </van-tab>
+      </van-tabs>
     </div>
     <div class="mask maskScroll" v-if="set_avatar_boolean ">
       <div class="set_avatar_box">
@@ -408,8 +396,8 @@
           <span>Set Avatar </span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(1)">
         </div>
-        <div class="private_Key">Choose an img-type inscription to set as your profile picture.</div>
         <div class="set_prime_boy">
+          <div class="set_dec">Choose an img-type inscription to set as your profile picture.</div>
           <div class="set_prime_search">
             <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search  inscription number">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click='searchFun'>
@@ -440,8 +428,8 @@
           <span>Set Prime Name </span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(2)">
         </div>
-        <div class="private_Key">You can choose one of your domain names as your main domain name</div>
         <div class="set_prime_boy">
+          <div class="set_dec">You can choose one of your domain names as your main domain name</div>
           <div class="set_prime_search">
             <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search domain name or inscription number">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click='searchFun'>
@@ -614,7 +602,7 @@ export default {
     outLoginFun() {
       localStorage.clear();
       this.$router.push({
-        name: "home"
+        name: "mobile_home"
       })
     },
     searchFun() {
@@ -779,6 +767,8 @@ export default {
       this.unisatPriver = false;
       this.tabsName = "Profile"
     }
+    console.log(this.tabsName)
+    console.log(this.unisatPriver)
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
     this.addressPersonFun()

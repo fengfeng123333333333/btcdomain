@@ -79,7 +79,7 @@
   color: #4540d6;
 }
 .person_body_right {
-  margin-top: 0.8rem;
+  margin-top: 1.8rem;
 }
 </style>
 <template>
@@ -105,6 +105,8 @@
       </div>
       <div class="person_body_right">
         <MobileInscription v-if="type==='Inscription'"></MobileInscription>
+        <MobileWallet v-if="type==='Wallet'"></MobileWallet>
+        <MobileSetting v-if="type==='Setting'"></MobileSetting>
         <!-- <MobilePersonContent :type="type" @sendBtc="sendBtcFun" @receiveBtc="receiveBtcFun" @imgNum="imgNumFun" @og="ogFun"></MobilePersonContent> -->
       </div>
     </div>
@@ -116,10 +118,12 @@
 import MobileHead from '@/mobileComponents/mobileHead.vue'
 import MobileFoot from '@/mobileComponents/mobileFoot.vue'
 import MobileInscription from '@/mobileComponents/mobile_inscription.vue'
+import MobileWallet from '@/mobileComponents/mobile_wallet.vue'
+import MobileSetting from '@/mobileComponents/mobile_setting.vue'
 import apis from '../util/apis/apis'
 export default {
   components: {
-    MobileHead, MobileFoot, MobileInscription
+    MobileHead, MobileFoot, MobileInscription, MobileWallet, MobileSetting
   },
   ogBoolean: {
     immediate: true,
@@ -214,6 +218,13 @@ export default {
     this.addressPersonFun()
     let name = localStorage.optionName;
     if (name) {
+      this.optionsList.forEach(element => {
+        if (element.name === name) {
+          element.isSelect = true
+        } else {
+          element.isSelect = false;
+        }
+      })
       this.type = name;
     }
   }

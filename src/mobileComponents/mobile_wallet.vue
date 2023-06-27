@@ -56,18 +56,17 @@
   border-bottom: 0.02rem solid #2e2f3e;
 }
 .wallet_table_com {
-  width: 2.4rem;
-  margin-right: 20px;
+  width: 2.3rem;
 }
 .wallet_table_head_com {
-  font-size: 12px;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
 }
 .wallet_table {
   width: 100%;
-  height: 300px;
+  height: 6rem;
   overflow: hidden;
   overflow-y: auto;
 }
@@ -76,15 +75,13 @@
 }
 .wallet_table_item {
   width: 100%;
-  height: 54px;
-  border-bottom: 1px solid rgba(167, 169, 190, 0.3);
+  height: 1.08rem;
+  border-bottom: 0.02rem solid rgba(167, 169, 190, 0.3);
   display: flex;
   align-items: center;
 }
 .wallet_table_item_com {
-  display: flex;
-  align-items: center;
-  font-size: 12px;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
@@ -97,62 +94,71 @@
 }
 .copyclass {
   cursor: pointer;
+  text-decoration: underline;
 }
 .send_btc {
-  width: 840px;
-  height: 481px;
+  width: 7.1rem;
+  margin: 0 auto;
+  padding-bottom: 0.4rem;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
-  margin-top: 1.4rem;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #2e2f3e;
+  margin-top: 1rem;
 }
 .send_inscript_box {
   width: 100%;
-  padding: 0 20px;
+  padding: 0 0.4rem;
+  margin-top: 0.2rem;
 }
 .send_btc_title {
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
-  margin-top: 10px;
+  margin-top: 0.2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.set_input {
-  width: 100%;
-  height: 44px;
-  background: #ffffff;
-  border-radius: 4px;
-  border: 2px solid #d5d6e0;
-  outline: none;
-  padding: 10px;
-  font-size: 14px;
+.send_btc_title_balance {
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
-  margin-top: 2px;
+}
+.set_input {
+  width: 100%;
+  height: 0.88rem;
+  background: #ffffff;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #d5d6e0;
+  outline: none;
+  padding: 0 0.2rem;
+  font-size: 0.28rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
+  margin-top: 0rem;
 }
 .set_input:focus {
-  border: 2px solid #4540d6;
+  border: 0.02rem solid #4540d6;
 }
 .maskheadcom {
-  font-size: 16px;
+  font-size: 0.32rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #2e2f3e;
-  height: 54px;
-  padding: 0 20px;
+  height: 1.08rem;
+  padding: 0 0.4rem;
 }
 .maskheadcomImg {
-  width: 24px;
-  height: 24px;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
 }
 .send_inscript_dec {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 0.2rem;
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
@@ -160,45 +166,48 @@
 .cart_right_gas {
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
-  margin-top: 10px;
+  margin-top: 0.2rem;
 }
 .cart_right_gas img {
-  width: 16px;
-  height: 16px;
-  margin-right: 3px;
+  width: 0.32rem;
+  height: 0.32rem;
+  margin-right: 0.06rem;
 }
 .gas_tab {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 0.2rem;
+  flex-wrap: wrap;
 }
 .gas_tab_item {
-  width: 190px;
-  height: 60px;
+  width: 3.1rem;
+  height: 1.2rem;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #d5d6e0;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #d5d6e0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
-  font-size: 14px;
+  padding: 0.2rem 0;
+  font-size: 0.28rem;
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
   color: #2e2f3e;
   cursor: pointer;
+  margin-bottom: 0.1rem;
 }
 .gas_tab_item_sel {
-  border: 2px solid #4540d6;
+  border: 0.02rem solid #4540d6;
 }
 .gas_tab_item_value {
-  font-size: 12px;
+  font-size: 0.24rem;
   font-family: PingFangSC-Regular, PingFang SC;
   font-weight: 400;
   color: #a7a9be;
@@ -206,81 +215,92 @@
 .gas_input {
   width: 100%;
   position: relative;
-  margin-top: 8px;
+  margin-top: 0.2rem;
 }
-.input_number_year {
+.input_number_year_position {
   position: absolute;
-  right: 30px;
-  top: 7px;
-  font-size: 12px;
+  right: 0.88rem;
+  top: 0.05rem;
+  height: 0.28rem;
+  font-size: 0.24rem;
   font-family: PingFangSC-Regular, PingFang SC;
   font-weight: 400;
-  color: #2e2f3e;
-  z-index: 2;
+  color: #a7a9be;
 }
 .inscript_button {
-  margin-top: 20px;
+  margin-top: 0.4rem;
   width: 100%;
-  height: 44px;
+  height: 0.88rem;
   background: #4540d6;
-  box-shadow: 0px -4px 8px 0px rgba(82, 82, 102, 0.08);
-  border-radius: 4px;
-  font-size: 14px;
+  box-shadow: 0 -0.08rem 0.16rem 0 rgba(82, 82, 102, 0.08);
+  border-radius: 0.08rem;
+  font-size: 0.28rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #ffffff;
-  text-align: center;
-  line-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  position: relative;
 }
 .receive_btc {
-  width: 500px;
-  height: 413px;
+  width: 7.1rem;
+  margin: 0 auto;
   background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #2e2f3e;
   margin-top: 2rem;
+  padding-bottom: 0.4rem;
 }
 .codeImg {
-  width: 100%;
-  height: 168px;
+  margin: 0 auto;
+  width: 3.36rem;
+  height: 3.36rem;
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 0.8rem;
 }
 .copyBox {
   margin: 0 auto;
-  width: 460px;
-  height: 60px;
+  width: 6.3rem;
+  height: 1.6rem;
   background: #f6f6fc;
-  border: 1px solid #a7a9be;
-  border-radius: 2px;
-  padding: 0 20px;
+  border: 0.02rem solid #a7a9be;
+  border-radius: 0.04rem;
+  padding: 0 0.4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 40px;
+  margin-top: 0.8rem;
 }
 .copyBoxContent {
-  width: 370px;
-  height: 40px;
+  width: 4.6rem;
+  height: 1.2rem;
   word-break: break-all;
-  font-size: 14px;
+  font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #090c1d;
 }
 .copyBox img {
-  width: 24px;
-  height: 24px;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
+}
+.qrcode {
+  width: 100% !important;
+  height: 100% !important;
+}
+.jiexiError {
+  color: red;
 }
 </style>
 <template>
   <div class="wallet_app">
     <div class="wallet_box">
       <div class="wallet_address">
-        <span>{{wallet}}</span>
+        <span>{{walletShow}}</span>
         <img src="../assets/person/icon_16px_copy@2x.png" alt="" @click="copyActionFun(1)">
       </div>
       <div class="wallet_balance">{{balance}} BTC</div>
@@ -290,33 +310,28 @@
       </div>
       <div class="wallet_content">
         <div class="wallet_table_head">
-          <div class="wallet_table_com wallet_table_head_com">Date</div>
-          <div class="wallet_table_com wallet_table_head_com">Address</div>
-          <div class="wallet_table_com wallet_table_head_com">Amount</div>
-          <div class="wallet_table_com wallet_table_head_com">TxHash</div>
+          <div class="wallet_table_com wallet_table_head_com" style="width:1.8rem">Date</div>
+          <div class="wallet_table_com wallet_table_head_com" style="width:2.5rem">Address</div>
+          <div class="wallet_table_com wallet_table_head_com" style="text-align: right;">Amount</div>
         </div>
         <div class="wallet_table">
           <div class="wallet_table_item" v-for="(item,index) in historyList" :key="index">
-            <div class="wallet_table_com wallet_table_item_com">{{item.date}}</div>
-            <div class="wallet_table_com wallet_table_item_com copyclass" @click="copyActionFun(2,item)">{{item.addressShow}}</div>
-            <div class="wallet_table_com wallet_table_item_com">{{item.amount}} {{item.symbol}}</div>
-            <div class="wallet_table_com wallet_table_item_com copyclass" @click="copyActionFun(3,item)">{{item.tixdShow}}</div>
+            <div class="wallet_table_com wallet_table_item_com" style="width:1.8rem">{{item.date}}</div>
+            <div class="wallet_table_com wallet_table_item_com copyclass" style="width:2.4rem" @click="copyActionFun(2,item)">{{item.addressShow}}</div>
+            <div class="wallet_table_com wallet_table_item_com" style="text-align: right;">{{item.amount}} {{item.symbol}}</div>
           </div>
         </div>
       </div>
-      <!-- <div class="pageBox">
-        <Page :total="40" size="small" @on-change="changePageFun" />
-      </div> -->
     </div>
     <Spin size="large" fix :show="spanBoolean"></Spin>
-    <div class="mask" v-if="receive_btc_boolean">
+    <div class="mask" v-show="receive_btc_boolean">
       <div class="receive_btc">
         <div class="displayCom  maskheadcom">
           <span>Receive BTC/Inscription</span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(2)">
         </div>
         <div class="codeImg">
-          <vue-qrcode :value="wallet" :options="{ width: 168 }"></vue-qrcode>
+          <canvas id="canvas"></canvas>
         </div>
         <div class="copyBox">
           <span class="copyBoxContent">{{wallet}}</span>
@@ -333,7 +348,7 @@
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div :class="{jiexiError:!jiexiType}">{{jiexiAddress}}</div>
+          <div :class="{jiexiError:!jiexiType}">{{showAddressFun(jiexiAddress)}}</div>
           <div class="send_btc_title">
             <span>Amount</span>
             <span class="send_btc_title_balance">Balance：{{personBalanceData.amount}} BTC</span>
@@ -351,14 +366,16 @@
             </div>
           </div>
           <div class="gas_input">
-            <span class="input_number_year">sats/vB</span>
-            <InputNumber :min="1" v-model="gasSelectData.value" disabled class="InputNumberClass" style="width: 100%;" v-if="gasSelectData.name!='Custom'" />
-            <InputNumber @on-change="changeGasInputFun" :min="1" v-model="gasSelectData.customValue" class="InputNumberClass" style="width: 100%;" v-else />
+            <span class="input_number_year_position">sats/vB</span>
+            <van-stepper integer v-if="gasSelectData.name!='Custom'" :min="0" v-model="gasSelectData.value" disabled input-width="5rem" button-size="0.48rem" />
+            <van-stepper integer v-else @change="changeGasInputFun" :min="0" v-model="gasSelectData.customValue" input-width="5rem" button-size="0.48rem" />
             <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.economyFee" style="color:red">Minimun Fee：{{gasSelectData.economyFee}}sats/vB</div>
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun" v-if="!unisatPriver">
-            <Icon type="ios-loading" v-if="loadingBoolean" size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
+            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:5px;" color="#1989fa">
+              <van-loading type="spinner" color="#1989fa" class='vant_loading' />
+            </div>
             <span>Confirm</span>
           </div>
           <div class="inscript_button unisatGray" v-else>Confirm</div>
@@ -372,16 +389,18 @@
 import { Tooltip, Page, Spin, InputNumber, Message, Icon } from 'view-ui-plus'
 import apis from '../util/apis/apis'
 import { copyAction } from '../util/func/index'
-import VueQrcode from '@chenfengyuan/vue-qrcode';
+import VueQrcode from 'qrcode';
+
 import { validate } from "bitcoin-address-validation";
 import BigNumber from "bignumber.js";
 import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun } from '../util/func/index'
 export default {
   components: {
-    Tooltip, Page, Spin, InputNumber, VueQrcode, Icon
+    Tooltip, Page, Spin, InputNumber, Icon
   },
   data() {
     return {
+      walletShow: null,
       loadingBoolean: false,
       sendBtcaddress: null,
       jiexiType: false,
@@ -472,6 +491,9 @@ export default {
         }
         this.goToCartFun()
       } else {
+        var canvas = document.getElementById("canvas")
+        console.log(canvas)
+        VueQrcode.toCanvas(canvas, this.wallet)
         this.receive_btc_boolean = true;
       }
     },
@@ -772,7 +794,8 @@ export default {
     this.loginType = localStorage.walletType
     this.balance = localStorage.balance;
     this.wallet = localStorage.bitcoin_address;
-    this.recentHistoryFun()
+    this.walletShow = this.showAddressFun(localStorage.bitcoin_address)
+    this.recentHistoryFun();
   }
 }
 </script>
