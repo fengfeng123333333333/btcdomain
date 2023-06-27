@@ -86,12 +86,6 @@
   font-weight: 400;
   color: #2e2f3e;
 }
-.pageBox {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
 .copyclass {
   cursor: pointer;
   text-decoration: underline;
@@ -306,7 +300,7 @@
       <div class="wallet_balance">{{balance}} BTC</div>
       <div class="wallet_balance_right">
         <div class="wallet_balance_right_item" :class="{set_option_com_cuton:loginType==='custom',unisatGray:unisatPriver}" @click="openMaskFun(1)">Send</div>
-        <div class="wallet_balance_right_item" style="margin-left:10px" @click="openMaskFun(2)">Receive</div>
+        <div class="wallet_balance_right_item" style="margin-left:0.2rem" @click="openMaskFun(2)">Receive</div>
       </div>
       <div class="wallet_content">
         <div class="wallet_table_head">
@@ -373,7 +367,7 @@
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun" v-if="!unisatPriver">
-            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:5px;" color="#1989fa">
+            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:0.1rem;" color="#1989fa">
               <van-loading type="spinner" color="#1989fa" class='vant_loading' />
             </div>
             <span>Confirm</span>

@@ -113,7 +113,7 @@
 }
 @keyframes searchbox_card {
   from {
-    height: 0px;
+    height: 0;
   }
   to {
     height: 10.4rem;
@@ -132,14 +132,6 @@
   width: 100%;
   height: 100%;
   margin-bottom: 0.2rem;
-}
-.send_inscript {
-  width: 840px;
-  height: 395px;
-  background: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #2e2f3e;
-  margin-top: 1.6rem;
 }
 .maskheadcom {
   font-size: 0.323rem;
@@ -325,8 +317,8 @@
 .inscript_step_info_copy {
   cursor: pointer;
   text-decoration: underline;
-  margin-left: 10px;
-  font-size: 12px;
+  margin-left: 0.2rem;
+  font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
@@ -362,12 +354,6 @@
 .jiexiError {
   color: red;
 }
-.inscript_step_info_right {
-  font-size: 12px;
-  font-family: Poppins-Regular, Poppins;
-  font-weight: 400;
-  color: #8184a6;
-}
 .inscript_step_info_right_item {
   display: flex;
   align-items: center;
@@ -376,27 +362,6 @@
 .inscriptin_id_class {
   text-decoration: underline;
   cursor: pointer;
-}
-.tab_item_card_time {
-  margin-top: 15px;
-  font-size: 12px;
-  font-family: Poppins-Regular, Poppins;
-  font-weight: 400;
-  color: #a7a9be;
-}
-.tab_item_card_time_item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-.inscript_step_info_bottom {
-  font-size: 14px;
-  font-family: PingFangSC-Semibold, PingFang SC;
-  font-weight: 600;
-  color: #2e2f3e;
-  margin-top: 30px;
-  padding: 0 20px;
 }
 .inscription_tab_item_option {
   margin-top: 0.2rem;
@@ -483,7 +448,7 @@
               </div>
               <div class="inscription_showtype">
                 <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
-                <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+                <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 0.2rem;">
               </div>
             </div>
             <div class="inscription_tab_list" v-if="listShowType===2">
@@ -619,7 +584,7 @@
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="inscript_button" @click="confirmFun">
-            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:5px;" color="#1989fa">
+            <div class="mobile_button_loading" v-if="loadingBoolean" style="margin-right:0.1rem;" color="#1989fa">
               <van-loading type="spinner" color="#1989fa" class='vant_loading' />
             </div>
             <span>Confirm</span>
@@ -680,14 +645,13 @@
           <div class="inscript_step_info_right">
             <div class="inscript_step_info_right_item">
               <span>Network rate:</span>
-              <span style="margin-left:8px">{{networkRate}} sats/vB</span>
+              <span style="margin-left:0.16rem">{{networkRate}} sats/vB</span>
             </div>
             <div class="inscript_step_info_right_item">
               <span>Your rate:</span>
-              <span style="margin-left:8px">{{yourRate}} sats/vB</span>
+              <span style="margin-left:0.16rem">{{yourRate}} sats/vB</span>
             </div>
           </div>
-          <!-- <div class="inscript_step_info_bottom">The domain name transfer may take some time. You can close the window and check the status of the domain transfer on your wallet homepage.</div> -->
           <div class="inscript_button1" @click="choseMaskFun(2)">OK</div>
         </div>
       </div>

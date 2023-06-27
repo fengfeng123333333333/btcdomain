@@ -460,7 +460,7 @@
 }
 @keyframes searchbox_card {
   from {
-    height: 0px;
+    height: 0;
   }
   to {
     height: 10.4rem;
@@ -688,7 +688,7 @@
               <div class="vant_loading_box_address">
                 <div class="inscription_showtype" v-if="inscrptList.length>0">
                   <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
-                  <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+                  <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 0.2rem;">
                 </div>
                 <div class="inscription_tab_box" v-if="inscrptList.length>0">
                   <div class="inscription_tab_list" v-if="listShowType===2">

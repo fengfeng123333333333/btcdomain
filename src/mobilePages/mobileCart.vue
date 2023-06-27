@@ -182,7 +182,7 @@
   font-weight: 600;
 }
 .cart_list_item_value img {
-  margin-left: 4px;
+  margin-left: 0.08rem;
   width: 0.48rem;
   height: 0.48rem;
   cursor: pointer;
@@ -193,7 +193,7 @@
 }
 @keyframes cart_fee_anmil {
   from {
-    height: 0px;
+    height: 0;
   }
   to {
     height: 2.8rem;
@@ -346,7 +346,7 @@
 }
 .cart_order_button {
   margin: 0 auto;
-  margin-top: 20px;
+  margin-top: 0.4rem;
   width: 7.1rem;
   height: 0.88rem;
   background: #4540d6;
@@ -596,14 +596,7 @@ export default {
         Message.error("Receive bitcoin address is not valid")
         return
       }
-      if (this.receiveAddress.indexOf('bc1p') != -1 || this.receiveAddress.indexOf('tb1') != -1) {
-        if (this.receiveAddress.length == 62) {
-          this.createPayOrderFun()
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
-        }
-      }
+      this.createPayOrderFun()
     },
     changeYearFun(value) {
       console.log(value)
@@ -706,7 +699,7 @@ export default {
         if (res.status == "200") {
           if (res.data.code === 0) {
             this.$router.push({
-              name: "mobiel_order",
+              name: "mobile_order",
               query: {
                 orderCode: res.data.data.order_code
               }

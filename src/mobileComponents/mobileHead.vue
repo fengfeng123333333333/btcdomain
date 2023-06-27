@@ -167,8 +167,8 @@
     </div>
     <div class="mobile_head_app_right">
       <div class="mobile_connet" v-if="!showAddress">Wallet</div>
-      <img :src="avaterImg" alt="" class="out_login_avater" v-if="avaterImg&&showAddress">
-      <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater" v-else-if="!avaterImg&&showAddress">
+      <img :src="avaterImg" alt="" class="out_login_avater" v-if="avaterImg&&showAddress" @click='toPersonFun'>
+      <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater" v-else-if="!avaterImg&&showAddress" @click='toPersonFun'>
       <img src="../assets/mobileHead/icon_cart@2x.png" alt="" class="mobile_cart" @click='toCartPageFun'>
     </div>
     <div class="mobile_menu_box" v-if="menuBoolean">
@@ -247,6 +247,11 @@ export default {
     }
   },
   methods: {
+    toPersonFun() {
+      this.$router.push({
+        name: "mobile_person"
+      })
+    },
     collectFun() {
       localStorage.headclick = 1;
       this.walletTypeBoolean = true

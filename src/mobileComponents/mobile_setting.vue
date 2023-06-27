@@ -55,21 +55,6 @@
   height: 0.48rem;
   margin-right: 0.12rem;
 }
-.setting_save {
-  margin: 0 auto;
-  margin-top: 40px;
-  width: 540px;
-  text-align: center;
-  line-height: 44px;
-  background: #4540d6;
-  box-shadow: 0px -4px 8px 0px rgba(82, 82, 102, 0.08);
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: Poppins-SemiBold, Poppins;
-  font-weight: 600;
-  color: #ffffff;
-  cursor: pointer;
-}
 .account_box {
   margin-top: 0.4rem;
   width: 100%;
@@ -213,7 +198,7 @@
 }
 .hasdomain {
   background: rgba(69, 64, 214, 0.1);
-  border-radius: 2px;
+  border-radius: 0.04rem;
 }
 .selectdiv img {
   height: 0.32rem;

@@ -51,7 +51,7 @@
 }
 .connect_list_item_sel {
   box-shadow: 0 0.2rem 0.48rem 0 rgba(16, 38, 92, 0.1);
-  border-radius: 4px;
+  border-radius: 0.08rem;
   border: 0.02rem solid #4540d6;
   background: #f6f6fc;
 }
