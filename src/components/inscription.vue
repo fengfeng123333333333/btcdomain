@@ -66,6 +66,7 @@
 .inscription_search_box img {
   width: 40px;
   height: 40px;
+  cursor: pointer;
 }
 .search_insription {
   flex: 1;
@@ -552,7 +553,7 @@
               <input type="text" @input="isInputFun" v-model="searchText" v-if="type==='Domains'" @keyup.enter="searchFun" placeholder="Search domain name or inscription number" class="search_insription">
               <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Image'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
               <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Other'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
-              <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
+              <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click="searchFun">
             </div>
             <div class="inscription_tab_title" v-if='listShowType===2'>
               <div class="width1">Domain Name</div>
@@ -891,16 +892,37 @@ export default {
       window.open(url, '_blank');
     },
     openStatusFun(item) {
-      this.full_state = parseInt(item.state);
-      this.queryDomainMintFeeFun(item)
+      this.queryDomainFun(item)
     },
     toinscriptionFun(item) {
       let id = item.id.slice(0, item.id.length - 2);
       let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
       window.open(url, '_blank');
     },
-    queryDomainMintFeeFun(item) {
+    queryDomainFun(item) {
       this.spanBoolean = true;
+      let param = {};
+      param.domain = item.domain
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.full_state = res.data.data.dom_state;
+            this.queryDomainMintFeeFun(item)
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    queryDomainMintFeeFun(item) {
       let param = {};
       param.domain = item.domain
       this.$axios({
@@ -1118,7 +1140,9 @@ export default {
         this.send_inscript_boolean = false
       } else if (type === 2) {
         this.inscritpBoolean = false;
-        this.inscritpBooleanLunXun = false
+        this.inscritpBooleanLunXun = false;
+        this.searchText = null;
+        this.addressFun()
       }
     },
     changeGasFun(item) {
