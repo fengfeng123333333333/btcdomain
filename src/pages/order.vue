@@ -1796,12 +1796,12 @@ export default {
         },
       }).then(res => {
         if (res.data.code === 0) {
-          this.inscritpBoolean = true;
-          this.payStatusBoolean = false
-          localStorage.removeItem('cartList');
-          localStorage.removeItem('orderCode');
-          localStorage.removeItem('isPay');
-          this.isPay = 1;
+          // this.inscritpBoolean = true;
+          // this.payStatusBoolean = false
+          // localStorage.removeItem('cartList');
+          // localStorage.removeItem('orderCode');
+          // localStorage.removeItem('isPay');
+          // this.isPay = 1;
         }
       }).catch(err => {
       });
