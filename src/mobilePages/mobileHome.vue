@@ -1347,6 +1347,8 @@ export default {
     },
   },
   mounted() {
+    let test = '{ "aptos": { "isFoxwallet": true, "chain": "APTOS", "connected": false, "connectedAccount": null, "callbacks": {}, "networkChangeCallbacks": [] }, "solana": { "_events": {}, "_eventsCount": 0, "isFoxWallet": true, "chain": "SOL", "callbacks": {}, "publicKey": null, "isConnected": false, "isCloverWallet": true, "isPhantom": true, "isGlow": false }, "suiWallet": { "_events": {}, "_eventsCount": 0, "isDebug": true, "isFoxWallet": true, "chain": "SUI", "version": "1.0.0", "name": "Sui Wallet", "callbacks": {}, "icon": "data:image/svg+xml;base64,mlsbC1ydWxlPSJldmVub2RkIiBMi43MjEiIHkxPSI0Ni4wMzE5IiB4Mj0iMzcuMjg0MyIgeTI9IjMwLjcxNjUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0VDNkYwMCIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNG", "chains": ["sui:devnet"], "innerAccounts": [], "features": { "standard:connect": { "version": "1.0.0" }, "standard:events": { "version": "1.0.0" }, "sui:signTransactionBlock": { "version": "2.0.0" }, "sui:signAndExecuteTransactionBlock": { "version": "1.0.0" }, "suiWallet:stake": { "version": "0.0.1" }, "sui:signMessage": { "version": "1.0.0" } } }, "ethereum": { "_events": {}, "_eventsCount": 0, "isDebug": false, "isFoxWallet": true, "address": "", "ready": true, "networkVersion": "1", "chainId": "0x1", "rpc": { "rpcUrl": "https://mainnet.infura.io/v3/d039103314584a379e33c21fbe89b6cb" }, "chain": "ETH", "idMapping": { "intIds": {} }, "callbacks": {}, "wrapResults": {}, "isMetaMask": true, "_metamask": {} } }'
+    console.log(JSON.parse(test))
     let cartListlocal = localStorage.cartList;
     if (cartListlocal) {
       this.cartListlocal = JSON.parse(cartListlocal)

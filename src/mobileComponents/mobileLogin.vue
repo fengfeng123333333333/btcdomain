@@ -153,37 +153,40 @@ bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const toXOnly = (pubKey) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+Message.config({
+  duration: 10
+})
 export default {
   data() {
     return {
       headclickChild: false,
       walletTypeBoolean: false,
       walletTypeList: [
-        // {
-        //   name: "FoxWallet",
-        //   url: require("../assets/head/connect_foxwallet@2x.png"),
-        //   isSelect: false
-        // },
+        {
+          name: "FoxWallet",
+          url: require("../assets/head/connect_foxwallet@2x.png"),
+          isSelect: false
+        },
         // {
         //   name: "TokenPocket",
         //   url: require("../assets/head/connect_tokenpocket@2x.png"),
         //   isSelect: false
         // },
-        {
-          name: "UniSat",
-          url: require("../assets/head/connect_unisat@2x.png"),
-          isSelect: false
-        },
-        {
-          name: "Xverse",
-          url: require("../assets/head/connect_xverse@2x.png"),
-          isSelect: false
-        },
-        {
-          name: "Metamask",
-          url: require("../assets/head/connect_metamask@2x.png"),
-          isSelect: false
-        },
+        // {
+        //   name: "UniSat",
+        //   url: require("../assets/head/connect_unisat@2x.png"),
+        //   isSelect: false
+        // },
+        // {
+        //   name: "Xverse",
+        //   url: require("../assets/head/connect_xverse@2x.png"),
+        //   isSelect: false
+        // },
+        // {
+        //   name: "Metamask",
+        //   url: require("../assets/head/connect_metamask@2x.png"),
+        //   isSelect: false
+        // },
       ],
       defaultPath: "m/86'/0'/0'/0/0",
       walletAddress: null,
@@ -202,6 +205,8 @@ export default {
       // if (item.isSelect) {
       //   return
       // }
+      this.generateBitcoinAddrFoxWallet();
+      return
       this.walletTypeList.forEach(element => {
         element.isSelect = false
       })
@@ -212,6 +217,8 @@ export default {
         this.generateBitcoinAddrMetaMask()
       } else if (item.name === 'Xverse') {
         this.generateBitcoinAddrXverse()
+      } else if (item.name === 'FoxWallet') {
+        this.generateBitcoinAddrFoxWallet()
       }
     },
     showAddressFun(address) {
@@ -269,6 +276,36 @@ export default {
       localStorage.setItem("public_key", publiKey);
       this.addressPersonFun(this.walletAddress)
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
+    },
+    async generateBitcoinAddrFoxWallet() {
+      if (typeof window.ethereum === "undefined") {
+        Message.error("FoxWallet is not installed!");
+        return;
+      }
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      this.walletAddress = accounts[0]
+      let provider = new ethers.BrowserProvider(window.ethereum);
+      let signer = await provider.getSigner();
+      let sig = await signer.signMessage(this.GivingMsg);
+      const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+      // const bip32 = BIP32Factory(ecc);
+      let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+      const taprootChild = root.derivePath(this.defaultPath);
+      const pubKey = taprootChild.publicKey;
+      const { address: taprootAddress } = bitcoin.payments.p2tr({
+        internalPubkey: toXOnly(pubKey),
+      });
+      if (taprootAddress) {
+        this.showAddress = this.showAddressFun(taprootAddress);
+        localStorage.setItem("bitcoin_address", taprootAddress);
+        localStorage.setItem("walletType", "metaMask");
+        localStorage.setItem("public_key", pubKey.toString("hex"));
+        this.addressPersonFun(taprootAddress)
+      } else {
+        Message.error("generate your bitcoin address failed, please retry.");
+      }
     },
     async generateBitcoinAddrXverse() {
       const getAddressOptions = {
