@@ -232,6 +232,7 @@ onMounted(() => {
         <el-input v-model="state.info.addr" placeholder="Type your address to receive the nft here, like: bc1p..." />
 
       </div>
+
       <!-- STEP 2 -->
       <div class="step-title-view">STEP 2: Register fee</div>
       <div style="margin: 0 auto;">
