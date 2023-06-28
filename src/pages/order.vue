@@ -443,7 +443,6 @@
   border: 1px solid #2e2f3e;
   margin-top: 2.4rem;
   padding-bottom: 20px;
-  cursor: pointer;
 }
 .payment_status_head {
   width: 100%;
@@ -479,6 +478,15 @@
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #090c1d;
+  text-align: center;
+}
+.payment_status_box_title_dec {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
+  margin-top: 10px;
+  text-align: center;
 }
 .payment_status_box_dec {
   margin-top: 10px;
@@ -487,8 +495,17 @@
   font-weight: 400;
   color: #090c1d;
 }
+.payment_status_box_dec_code {
+  margin-top: 40px;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
+  text-align: center;
+}
 .payment_status_box_line {
-  text-decoration: solid;
+  text-decoration: underline;
+  cursor: pointer;
 }
 .payment_status_button {
   margin-top: 50px;
@@ -545,6 +562,14 @@
   font-weight: 400;
   color: #090c1d;
   cursor: pointer;
+}
+
+.payment_result_box_email {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
+  margin-top: 30px;
 }
 .inscript_body {
   margin-top: 20px;
@@ -605,11 +630,19 @@
   align-items: center;
   justify-content: space-between;
 }
+.inscript_step_info_bottom {
+  font-size: 14px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #2e2f3e;
+  margin-top: 30px;
+  padding: 0 20px;
+}
 .inscript_box {
   width: 840px;
-  height: 575px;
   background: #ffffff;
   border: 1px solid #2e2f3e;
+  padding-bottom: 20px;
 }
 .inscript_body_dec {
   margin-top: 10px;
@@ -826,6 +859,18 @@
   line-height: 44px;
   cursor: pointer;
 }
+.order_pay_item_mixpay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order_pay_item_mixpay img {
+  margin-right: 0;
+  width: 99px;
+  height: 42px;
+}
 </style>
 <template>
   <div class="order_app">
@@ -886,7 +931,9 @@
             <div class="order_pay_list">
               <div class="order_pay_item" @click="changePayFun(item)" :class="{order_pay_item_sel:item.isSelect}" v-for="(item,index) in payMethors" :key="index">
                 <img :src="item.url" alt="" v-if="item.name!='MixPay'">
-                <img :src="item.url" alt="" v-else style="width:94px;height:23px">
+                <div class="order_pay_item_mixpay" v-else>
+                  <img :src="item.url" alt="">
+                </div>
                 <span v-if="item.name!='MixPay'">{{item.name}}</span>
               </div>
             </div>
@@ -994,8 +1041,8 @@
           <img src="../assets/order/icon_44px_loading@2x.png" alt="" class="icon_44px_loading demo-spin-icon-load">
           <!-- <div class="payment_status_box_title">Don't close the window until payment is finished. </div> -->
           <div class="payment_status_box_dec">
-            <span>Payment issues? contact us:</span>
-            <span class="payment_status_box_line">contact@btcdomains.io</span>
+            <span>Payment issues?</span>
+            <span class="payment_status_box_line" @click='openUsFun(1)'> contact us</span>
           </div>
           <div class="payment_status_button" @click='iHasPaiFun(3)'>
             <Icon type="ios-loading" v-if='ishasPaiBoolean' size='24' style="margin-right:5px;" color="#ffffff" class='demo-spin-icon-load' />
@@ -1006,18 +1053,37 @@
       </div>
     </div>
     <div class="mask" v-if="payResultBoolean&&full_state===9">
-      <div class="payment_status" style="height:500px;margin-top:1.9rem">
+      <div class="payment_status">
         <div class="displayCom payment_status_head maskheadcom">
-          <span>BTC Payment Results</span>
+          <span>Payment Status</span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(2)">
         </div>
         <div class="payment_status_box">
-          <span class="OOPSTitle">OOPS!</span>
-          <div class="payment_result_box_title">No payment has been detected yet. Please try again later. Or join our Discord. Click on the "Create ticket" button on the open-ticket channel to contact us.</div>
+          <img src="../assets/order/icon_44px_loading@2x.png" alt="" class="icon_44px_loading demo-spin-icon-load">
+          <div class="payment_status_box_title">It may take a long time. You can close the window and check the domain name status on the wallet homepage later. </div>
+          <div class="payment_status_box_title_dec">It may take a long time. You can close the window and check the domain name status on the wallet homepage later.</div>
+          <div class="payment_status_box_dec_code">
+            <span>Payment issues?</span>
+            <span class="payment_status_box_line" @click='openUsFun(2)'> contact us</span>
+          </div>
+          <div class="payment_status_button" @click="choseMaskFun(2)">OK</div>
+        </div>
+      </div>
+    </div>
+    <div class="mask" v-if="payResultTowBoolean&&full_state===9">
+      <div class="payment_status" style="height:500px;margin-top:1.9rem">
+        <div class="displayCom payment_status_head maskheadcom">
+          <span>Contact Us</span>
+          <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(9)">
+        </div>
+        <div class="payment_status_box">
+          <!-- <span class="OOPSTitle">OOPS!</span> -->
+          <div class="payment_result_box_title">Join our Discord. Click on the "Create ticket" button on the open-ticket channel to contact us.</div>
           <img src="../assets/order/discord@2x.png" alt="" class="payment_result_box_code">
           <div class="payment_result_box_name">Join Our Discord</div>
           <div class="payment_result_box_url" @click='todiscordFun'>https://discord.com/invite/btcdomain</div>
-          <div class="payment_status_button" @click="choseMaskFun(2)">OK</div>
+          <div class="payment_result_box_email">Or contact us with email: contact@btcdomains.io</div>
+          <div class="payment_status_button" @click="choseMaskFun(9)">OK</div>
         </div>
       </div>
     </div>
@@ -1097,6 +1163,7 @@
               <span style="margin-left:8px">{{yourRate}} sats/vB</span>
             </div>
           </div>
+          <div class="inscript_step_info_bottom">The domain name transfer may take some time. You can close the window and check the status of the domain transfer on your wallet homepage.</div>
           <div class="inscript_button" @click="toPersonFun" v-if="full_state===4">{{pensonIndex}}(s) Check Wallet Homepage</div>
           <div class="inscript_button" @click="toPersonFun" v-else>Check Wallet Homepage</div>
         </div>
@@ -1158,7 +1225,15 @@ import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
-// import { getAddress, sendBtcTransaction, signMessage } from "sats-connect";
+import { signTransaction, signMessage } from "sats-connect";
+import * as btc from '@scure/btc-signer';
+import { hex, base64 } from '@scure/base'
+const bitcoinTestnet = {
+  bech32: 'tb',
+  pubKeyHash: 0x6f,
+  scriptHash: 0xc4,
+  wif: 0xef,
+}
 const Decimal = require('decimal.js');
 export default {
   components: {
@@ -1166,6 +1241,7 @@ export default {
   },
   data() {
     return {
+      payResultTowBoolean: false,
       GivingMsg: "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk.",
       confirmBoolean: true,
       ishasPaiBoolean: false,
@@ -1197,14 +1273,14 @@ export default {
           url: require("../assets/order/pay_connect_unisat@2x.png"),
           isSelect: false,
         },
-        // {
-        //   name: "Xverse",
-        //   url: require("../assets/head/connect_xverse@2x.png"),
-        //   isSelect: false,
-        // },
+        {
+          name: "Xverse",
+          url: require("../assets/head/connect_xverse@2x.png"),
+          isSelect: false,
+        },
         {
           name: "MixPay",
-          url: require("../assets/order/MixPay@2x.png"),
+          url: require("../assets/order/mixpay.png"),
           isSelect: false,
         },
       ],
@@ -1429,21 +1505,32 @@ export default {
       await signMessage(signMessageOptions);
       const num = new BigNumber(this.feeData.total_fee);
       const weivalue = num.multipliedBy(100000000).toNumber()
+      console.log("33333333333")
+      const recipient = this.monywallet;
+      tx.addOutputAddress(recipient, BigInt(200000), bitcoinTestnet)
+      const psbt = tx.toPSBT(0)
+      const psbtB64 = base64.encode(psbt);
+      console.log(psbtB64)
       const signPsbtOptions = {
         payload: {
           network: {
-            type: "Mainnet",
+            type: 'Mainnet'
           },
-          amountSats: weivalue,
-          recipientAddress: this.GivingMsg,
-          message: this.monywallet,
+          message: this.GivingMsg,
+          psbtBase64: psbtB64,
+          broadcast: false,
+          inputsToSign: [{
+            address: localStorage.getItem("bitcoin_address"),
+            signingIndexes: [0],
+            value: weivalue
+          }],
         },
         onFinish: (response) => {
           // alert(response.psbtBase64);
         },
         onCancel: () => Message.info("Request canceled"),
       };
-      await sendBtcTransaction(signPsbtOptions);
+      await signTransaction(signPsbtOptions);
       // this.statusInfoFun(3)
     },
     recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
@@ -1631,6 +1718,8 @@ export default {
       } else if (index === 5) {
         this.loadingBoolean = false
         this.send_btc_boolean = false
+      } else if (index === 9) {
+        this.payResultTowBoolean = false
       }
     },
     toPersonFun() {
@@ -1726,12 +1815,12 @@ export default {
         },
       }).then(res => {
         if (res.data.code === 0) {
-          this.inscritpBoolean = true;
-          this.payStatusBoolean = false
-          localStorage.removeItem('cartList');
-          localStorage.removeItem('orderCode');
-          localStorage.removeItem('isPay');
-          this.isPay = 1;
+          // this.inscritpBoolean = true;
+          // this.payStatusBoolean = false
+          // localStorage.removeItem('cartList');
+          // localStorage.removeItem('orderCode');
+          // localStorage.removeItem('isPay');
+          // this.isPay = 1;
         }
       }).catch(err => {
       });
@@ -1885,6 +1974,15 @@ export default {
     codePaidFun() {
       this.confirmStatusFun(1)
       this.codePaidBoolean = true;
+    },
+    openUsFun(index) {
+      if (index === 1) {
+        this.payStatusBoolean = false;
+        this.payResultTowBoolean = true;
+      } else if (index === 2) {
+        this.payResultTowBoolean = true;
+        this.payResultBoolean = false
+      }
     },
     balanceFun() {
       this.$axios({

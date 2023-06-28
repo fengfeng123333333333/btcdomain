@@ -146,7 +146,7 @@ import { validate } from 'bitcoin-address-validation';
 import { Message } from 'view-ui-plus'
 const ecc = require('@bitcoinerlab/secp256k1');
 import apis from '../util/apis/apis';
-import { getAddress, signTransaction, signMessage } from "../sats-connect-develop/index.ts";
+import { getAddress, signMessage } from "sats-connect";
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const toXOnly = (pubKey) =>

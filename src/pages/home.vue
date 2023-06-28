@@ -962,6 +962,9 @@ import apis from '../util/apis/apis'
 const moment = require('moment');
 import { copyAction, changeStatusFun } from '../util/func/index'
 import { validate } from 'bitcoin-address-validation';
+Message.config({
+  duration: 10
+})
 export default {
   components: {
     Head, Foot, Tabs, TabPane, Page, Spin
@@ -1470,8 +1473,6 @@ export default {
     }
     this.querySuccessDomainFun()
   },
-  destroyed() {
-  }
 }
 </script>
       

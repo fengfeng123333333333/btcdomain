@@ -194,6 +194,7 @@
   top: 0;
   width: 40px;
   height: 40px;
+  cursor: pointer;
 }
 .set_input {
   width: 100%;
@@ -411,7 +412,7 @@
         <div class="set_prime_boy">
           <div class="set_prime_search">
             <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search  inscription number">
-            <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
+            <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click='searchFun'>
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
             <img src="../assets/order/icon_ok_p@2x.png" alt="" v-if="selectData">
@@ -419,7 +420,7 @@
           </div>
           <div class="set_avatar_table">
             <div class="set_avatar_item" @click='chooseAvatarFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
-              <img :v-lazy="item.detail.content" alt="">
+              <img :src="item.detail.content" alt="">
               <div class="set_avatar_item_dec">
                 <span>{{item.domain}}</span>
                 <span class="set_prime_item_left_dec_inf"> INS #{{item.number}}</span>
@@ -443,7 +444,7 @@
         <div class="set_prime_boy">
           <div class="set_prime_search">
             <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search domain name or inscription number">
-            <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
+            <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click='searchFun'>
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
             <img src="../assets/order/icon_ok_p@2x.png" alt="" v-if="selectData">
@@ -452,7 +453,8 @@
           <div class="set_prime_table">
             <div class="set_prime_item" @click='chooseDomainFun(item)' v-for="(item,index) in domainShowList" :key="index" :class="{set_prime_item_sel:item.isSelect}">
               <div class="set_prime_item_left">
-                <img :src="item.domain_img" alt="">
+                <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
+                <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                 <div class="set_prime_item_left_dec">
                   <span>{{item.domain}}</span>
                   <span class="set_prime_item_left_dec_inf">INS #{{item.number}}</span>
@@ -501,7 +503,6 @@ import {
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 import { copyAction } from '../util/func/index'
-import VueLazyload from 'vue-lazyload'
 export default {
   components: {
     Tabs, TabPane, Page, Spin

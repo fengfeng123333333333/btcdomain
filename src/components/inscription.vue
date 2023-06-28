@@ -66,6 +66,7 @@
 .inscription_search_box img {
   width: 40px;
   height: 40px;
+  cursor: pointer;
 }
 .search_insription {
   flex: 1;
@@ -528,6 +529,14 @@
   justify-content: space-between;
   margin-bottom: 2px;
 }
+.inscript_step_info_bottom {
+  font-size: 14px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #2e2f3e;
+  margin-top: 30px;
+  padding: 0 20px;
+}
 </style>
 <template>
   <div class="inscription_app">
@@ -544,7 +553,7 @@
               <input type="text" @input="isInputFun" v-model="searchText" v-if="type==='Domains'" @keyup.enter="searchFun" placeholder="Search domain name or inscription number" class="search_insription">
               <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Image'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
               <input type="text" @input="isInputFun" v-model="searchText" v-else-if="type==='Other'" @keyup.enter="searchFun" placeholder="Search  inscription number" class="search_insription">
-              <img src="../assets/person/icon_44px_search_gray@2x.png" alt="">
+              <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click="searchFun">
             </div>
             <div class="inscription_tab_title" v-if='listShowType===2'>
               <div class="width1">Domain Name</div>
@@ -744,6 +753,7 @@
               <span style="margin-left:8px">{{yourRate}} sats/vB</span>
             </div>
           </div>
+          <!-- <div class="inscript_step_info_bottom">The domain name transfer may take some time. You can close the window and check the status of the domain transfer on your wallet homepage.</div> -->
           <div class="inscript_button1" @click="choseMaskFun(2)">OK</div>
         </div>
       </div>
@@ -774,6 +784,7 @@ export default {
   },
   data() {
     return {
+      inscritpBooleanLunXun: true,
       yourRate: null,
       networkRate: null,
       loginType: null,
@@ -881,16 +892,37 @@ export default {
       window.open(url, '_blank');
     },
     openStatusFun(item) {
-      this.full_state = parseInt(item.state);
-      this.queryDomainMintFeeFun(item)
+      this.queryDomainFun(item)
     },
     toinscriptionFun(item) {
       let id = item.id.slice(0, item.id.length - 2);
       let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
       window.open(url, '_blank');
     },
-    queryDomainMintFeeFun(item) {
+    queryDomainFun(item) {
       this.spanBoolean = true;
+      let param = {};
+      param.domain = item.domain
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.full_state = res.data.data.dom_state;
+            this.queryDomainMintFeeFun(item)
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    queryDomainMintFeeFun(item) {
       let param = {};
       param.domain = item.domain
       this.$axios({
@@ -1107,7 +1139,10 @@ export default {
         this.loadingBoolean = false
         this.send_inscript_boolean = false
       } else if (type === 2) {
-        this.inscritpBoolean = false
+        this.inscritpBoolean = false;
+        this.inscritpBooleanLunXun = false;
+        this.searchText = null;
+        this.addressFun()
       }
     },
     changeGasFun(item) {
@@ -1187,6 +1222,9 @@ export default {
     },
     async confirmFun() {
       if (this.selectItem.state != '9' && this.selectItem.state != '0' && this.selectItem.state != '5' && this.selectItem.state != '') {
+        return
+      }
+      if (this.loadingBoolean) {
         return
       }
       this.setDomainFun(this.selectItem)
