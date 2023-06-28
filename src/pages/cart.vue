@@ -1142,14 +1142,7 @@ export default {
         Message.error("Receive bitcoin address is not valid")
         return
       }
-      if (this.receiveAddress.indexOf('bc1p') != -1 || this.receiveAddress.indexOf('tb1') != -1) {
-        if (this.receiveAddress.length == 62) {
-          this.createPayOrderFun()
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
-        }
-      }
+      this.createPayOrderFun()
     },
     addDomainFun(value) {
       let cartListlocal = value;
