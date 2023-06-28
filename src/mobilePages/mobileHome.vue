@@ -374,6 +374,7 @@
   position: relative;
   animation: cartItem 1s forwards;
   margin-right: 0.2rem;
+  margin-bottom: 0.1rem;
 }
 @keyframes cartItem {
   from {

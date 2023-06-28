@@ -207,6 +207,7 @@ export default {
   components: {
     MobileLogin
   },
+  props: ["showData", "loginShow", "goTcartpage"],
   watch: {
     showData: {
       immediate: true,
