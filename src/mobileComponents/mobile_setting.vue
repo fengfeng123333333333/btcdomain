@@ -743,7 +743,7 @@ export default {
       });
     },
   },
-  mounted() {
+  created() {
     let walletType = localStorage.walletType
     if (walletType != "metaMask") {
       this.unisatPriver = true;
@@ -752,8 +752,8 @@ export default {
       this.unisatPriver = false;
       this.tabsName = "Profile"
     }
-    console.log(this.tabsName)
-    console.log(this.unisatPriver)
+  },
+  mounted() {
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
     this.addressPersonFun()

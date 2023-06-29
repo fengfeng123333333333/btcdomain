@@ -8,9 +8,12 @@ export default {
   name: 'App',
   mounted() {
     if ((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile |BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i))) {
-      this.$router.push({
-        name: "mobile_home"
-      })
+      let url = window.location.href;
+      if (url.indexOf("mobile_") == -1) {
+        this.$router.push({
+          name: "mobile_home"
+        })
+      }
     }
   }
 }

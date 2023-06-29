@@ -1008,7 +1008,7 @@
       </div>
     </div>
     <div class="mask" v-if="inscritpBoolean">
-      <div class="inscript_box" style="margin-top:1.8rem">
+      <div class="inscript_box" style="margin-top:0.2rem">
         <div class="displayCom payment_status_head maskheadcom">
           <span>Inscribe State</span>
           <img src="../assets/order/icon_close_dialog@2x.png" class="maskheadcomImg" alt="" @click="choseMaskFun(4)">
@@ -1128,6 +1128,7 @@ import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
 // import { getAddress, sendBtcTransaction, signMessage } from "sats-connect";
+import tp from "tp-js-sdk";
 const Decimal = require('decimal.js');
 export default {
   components: {
@@ -1162,11 +1163,21 @@ export default {
           url: require("../assets/order/btc@2x.png"),
           isSelect: true,
         },
-        // {
-        //   name: "UniSat",
-        //   url: require("../assets/order/pay_connect_unisat@2x.png"),
-        //   isSelect: false,
-        // },
+        {
+          name: "UniSat",
+          url: require("../assets/order/pay_connect_unisat@2x.png"),
+          isSelect: false,
+        },
+        {
+          name: "TpWallet",
+          url: require("../assets/order/pay_connect_unisat@2x.png"),
+          isSelect: false,
+        },
+        {
+          name: "FoxWallet",
+          url: require("../assets/head/connect_foxwallet@2x.png"),
+          isSelect: false,
+        },
         // {
         //   name: "Xverse",
         //   url: require("../assets/head/connect_xverse@2x.png"),
@@ -1212,9 +1223,15 @@ export default {
       cartDetailBoolean: false
     }
   },
+  unmounted() {
+    clearInterval(this.timer);
+    clearInterval(this.timerPenson);
+    localStorage.removeItem("mixpay")
+  },
   destroyed() {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("mixpay")
   },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
@@ -1416,6 +1433,43 @@ export default {
       await sendBtcTransaction(signPsbtOptions);
       // this.statusInfoFun(3)
     },
+    async tpWalletAction() {
+      if (!tp.isConnected()) {
+        Message.error("please downLoad TokenPocket App");
+        return
+      }
+      let param = {};
+      param.from = localStorage.bitcoin_address;
+      param.to = this.monywallet;
+      param.amount = this.feeData.total_fee;
+
+      tp.btcTokenTransfer(param).then((res) => {
+        console.log("resultresultresult", res)
+        if (res.result) {
+          localStorage.isPay = 2;
+          this.isPay = 2
+          this.payStatusBoolean = true;
+          Message.info("submit transaction: " + res.data);
+        } else {
+          Message.error(res.mag);
+        }
+      });
+    },
+    async foxWalletAction() {
+      const provider = window.foxwallet && window.foxwallet.bitcoin;
+      if (!provider) {
+        Message.error("FoxWallet is not installed!");
+        return;
+      }
+      const num = new BigNumber(this.feeData.total_fee);
+      const weivalue = num.multipliedBy(100000000).toNumber();
+      const feeRate = this.feeData.rate_fee;
+      const txid = await provider.sendBitcoin(this.monywallet, weivalue, this.feeData.rate_fee);
+      Message.info("submit transaction: " + txid);
+      localStorage.isPay = 2;
+      this.isPay = 2
+      this.payStatusBoolean = true;
+    },
     recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
       let arr = [];
       let temp1 = {};
@@ -1524,17 +1578,10 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
-              if (this.sendRealAddress.length == 62) {
-                if (localStorage.walletType === 'uniSat') {
-                  this.unisatAction()
-                } else {
-                  this.submitBtcTxAction()
-                }
-              } else {
-                Message.error("Check the length of your Ordinals address");
-                return
-              }
+            if (localStorage.walletType === 'uniSat') {
+              this.unisatAction()
+            } else {
+              this.submitBtcTxAction()
             }
           } else {
             Message.error("the address is  error")
@@ -1568,8 +1615,15 @@ export default {
           this.mixPayLoading = false;
           if (res.data.code === 0) {
             let data = res.data.data;
-            window.open(data.pay_code, '_blank');
-            this.payStatusBoolean = true
+            var u = navigator.userAgent;
+            var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1;
+            var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+            if (isAndroid) {
+              window.open(data.pay_code, '_blank');
+            } else if (isiOS) {
+              window.location.href = data.pay_code;
+            }
+            localStorage.mixpay = 2;
           } else {
             Message.error(res.data.message)
           }
@@ -1742,6 +1796,7 @@ export default {
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
               localStorage.removeItem('isPay');
+              localStorage.removeItem('mixpay');
               this.isPay = 1;
               this.timerPenson = setInterval(() => {
                 this.pensonIndex--
@@ -1754,6 +1809,7 @@ export default {
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
               localStorage.removeItem('isPay');
+              localStorage.removeItem('mixpay');
               this.isPay = 1;
               this.toPersonFun()
             } else {
@@ -1761,6 +1817,7 @@ export default {
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
               localStorage.removeItem('isPay');
+              localStorage.removeItem('mixpay');
               this.isPay = 1;
             }
           } else {
@@ -1789,6 +1846,7 @@ export default {
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
               localStorage.removeItem('isPay');
+              localStorage.removeItem('mixpay');
               this.confirmBoolean = false
               this.isPay = 1;
               this.toPersonFun()
@@ -1799,6 +1857,7 @@ export default {
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
               localStorage.removeItem('isPay');
+              localStorage.removeItem('mixpay');
               this.confirmBoolean = false
               this.isPay = 1;
             }
@@ -1842,6 +1901,10 @@ export default {
         this.getRateFeeFun()
       } else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
+      } else if (this.paySelData.name === 'TpWallet') {
+        this.tpWalletAction()
+      } else if (this.paySelData.name === 'FoxWallet') {
+        this.foxWalletAction()
       }
     },
     otherHavePayFun() {
@@ -1900,16 +1963,16 @@ export default {
   },
   mounted() {
     let index = 0
-    // this.timer = setInterval(() => {
-    //   index++;
-    //   this.lunXun();
-    //   if (this.confirmBoolean) {
-    //     this.confirmlunxunFun()
-    //   }
-    //   if (index === 60) {
-    //     this.statusInfoFun(0)
-    //   }
-    // }, 10000);
+    this.timer = setInterval(() => {
+      index++;
+      this.lunXun();
+      if (this.confirmBoolean) {
+        this.confirmlunxunFun()
+      }
+      if (index === 60) {
+        this.statusInfoFun(0)
+      }
+    }, 10000);
     let isPay = localStorage.isPay;
     if (isPay) {
       this.isPay = parseInt(isPay)
@@ -1928,7 +1991,20 @@ export default {
         }
       })
     } else {
-      this.paySelData = this.payMethors[0]
+      let mixpay = localStorage.mixpay;
+      if (mixpay && parseInt(mixpay) === 2) {
+        this.payStatusBoolean = true;
+        this.payMethors.forEach(element => {
+          if (element.name === "MixPay") {
+            element.isSelect = true
+            this.paySelData = element
+          } else {
+            element.isSelect = false
+          }
+        })
+      } else {
+        this.paySelData = this.payMethors[0]
+      }
     }
     if (walletType === "metaMask") {
       let temp = {

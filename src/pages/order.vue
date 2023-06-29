@@ -1314,6 +1314,10 @@ export default {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
   },
+  unmounted() {
+    clearInterval(this.timer);
+    clearInterval(this.timerPenson);
+  },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
@@ -1622,17 +1626,10 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
-              if (this.sendRealAddress.length == 62) {
-                if (localStorage.walletType === 'uniSat') {
-                  this.unisatAction()
-                } else {
-                  this.submitBtcTxAction()
-                }
-              } else {
-                Message.error("Check the length of your Ordinals address");
-                return
-              }
+            if (localStorage.walletType === 'uniSat') {
+              this.unisatAction()
+            } else {
+              this.submitBtcTxAction()
             }
           } else {
             Message.error("the address is  error")
@@ -1937,6 +1934,8 @@ export default {
         this.sendBtcaddress = this.monywallet
         this.sendAmount = this.feeData.total_fee
         this.getRateFeeFun()
+      } else if (this.paySelData.name === 'Xverse') {
+        this.tiggerXverseAction()
       } else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
       }
