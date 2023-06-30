@@ -163,33 +163,7 @@ export default {
     return {
       headclickChild: false,
       walletTypeBoolean: false,
-      walletTypeList: [
-        {
-          name: "FoxWallet",
-          url: require("../assets/head/connect_foxwallet@2x.png"),
-          isSelect: false
-        },
-        {
-          name: "TokenPocket",
-          url: require("../assets/head/connect_tokenpocket@2x.png"),
-          isSelect: false
-        },
-        {
-          name: "UniSat",
-          url: require("../assets/head/connect_unisat@2x.png"),
-          isSelect: false
-        },
-        // {
-        //   name: "Xverse",
-        //   url: require("../assets/head/connect_xverse@2x.png"),
-        //   isSelect: false
-        // },
-        {
-          name: "Metamask",
-          url: require("../assets/head/connect_metamask@2x.png"),
-          isSelect: false
-        },
-      ],
+      walletTypeList: [],
       defaultPath: "m/86'/0'/0'/0/0",
       walletAddress: null,
       showAddress: null,
@@ -293,7 +267,6 @@ export default {
       this.addressPersonFun(this.walletAddress)
     },
     async generateBitcoinAddrTpWallet() {
-      Message.error(JSON.stringify(tp))
       if (!tp.isConnected()) {
         Message.error("please downLoad TokenPocket App");
         return
@@ -303,7 +276,7 @@ export default {
         this.walletAddress = account;
         this.showAddress = this.showAddressFun(this.walletAddress);
         localStorage.setItem("bitcoin_address", this.walletAddress);
-        localStorage.setItem("walletType", "tpWallet");
+        localStorage.setItem("walletType", "tokenPocket");
         this.addressPersonFun(this.walletAddress)
       });
     },
@@ -405,6 +378,33 @@ export default {
     if (localStorage.headclick && localStorage.headclick === '1') {
       this.headclickChild = true
     }
+    let arr = [];
+    if (window.foxwallet && window.foxwallet.bitcoin) {
+      let temp = {
+        name: "FoxWallet",
+        url: require("../assets/head/connect_foxwallet@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+    } else {
+      if (typeof window.ethereum != 'undefined') {
+        let temp = {
+          name: "Metamask",
+          url: require("../assets/head/connect_metamask@2x.png"),
+          isSelect: false
+        }
+        arr.push(temp)
+      }
+    }
+    if (tp.isConnected()) {
+      let temp = {
+        name: "TokenPocket",
+        url: require("../assets/head/connect_tokenpocket@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+    }
+    this.walletTypeList = arr
   }
 }
 </script>

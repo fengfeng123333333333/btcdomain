@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 1.4rem;
 }
 .empty_head_img {
   margin-top: 1.8rem;
@@ -451,7 +452,7 @@
 import apis from '../util/apis/apis'
 import { copyAction, changeStatusFun } from '../util/func/index'
 const moment = require('moment');
-import { showFailToast } from 'vant';
+import { Message } from 'view-ui-plus'
 export default {
   watch: {
     cartList: {
@@ -587,7 +588,7 @@ export default {
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {

@@ -147,6 +147,7 @@ import { Message } from 'view-ui-plus'
 const ecc = require('@bitcoinerlab/secp256k1');
 import apis from '../util/apis/apis';
 import { getAddress, signTransaction, signMessage } from "sats-connect";
+import tp from "tp-js-sdk";
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const toXOnly = (pubKey) =>
@@ -210,6 +211,8 @@ export default {
         this.generateBitcoinAddrMetaMask()
       } else if (item.name === 'Xverse') {
         this.generateBitcoinAddrXverse()
+      } else if (item.name === 'TokenPocket') {
+        this.generateBitcoinAddrTpWallet()
       }
     },
     showAddressFun(address) {
@@ -267,6 +270,20 @@ export default {
       localStorage.setItem("public_key", publiKey);
       this.addressPersonFun(this.walletAddress)
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
+    },
+    async generateBitcoinAddrTpWallet() {
+      if (!tp.isConnected()) {
+        Message.error("please downLoad TokenPocket App");
+        return
+      }
+      tp.getCurrentWallet().then((result) => {
+        const account = result.data.address;
+        this.walletAddress = account;
+        this.showAddress = this.showAddressFun(this.walletAddress);
+        localStorage.setItem("bitcoin_address", this.walletAddress);
+        localStorage.setItem("walletType", "tokenPocket");
+        this.addressPersonFun(this.walletAddress)
+      });
     },
     async generateBitcoinAddrXverse() {
       const getAddressOptions = {

@@ -527,8 +527,7 @@ import { copyAction } from '../util/func/index'
 import BigNumber from "bignumber.js";
 const Decimal = require('decimal.js');
 const moment = require('moment');
-import { showFailToast } from 'vant';
-
+import { Message } from 'view-ui-plus'
 export default {
   components: {
     MobileHead, MobileEmptyCart, MobileFoot, MobileLogin
@@ -776,7 +775,6 @@ export default {
       }
     },
     goToCartFun(type) {
-      console.log("nsdfffffffffffff")
       this.spanBoolean = true
       let param = {};
       let arr = []
@@ -807,7 +805,6 @@ export default {
       // } else {
       //   param.promo_code = this.promo_code
       // }
-      console.log("ddddddddfffffffff")
       param.promo_code = ""
       this.$axios({
         method: "post",
@@ -862,7 +859,7 @@ export default {
             if (res.data.message === 'promo_rate error') {
               this.gasTotalData.total_promcode_fee = 0
             }
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {

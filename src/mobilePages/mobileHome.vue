@@ -74,6 +74,7 @@
   font-weight: 400;
   color: #2e2f3e;
   border-radius: 0.16rem;
+  padding-right: 1.5rem;
 }
 .icon_search {
   position: absolute;
@@ -359,6 +360,12 @@
   flex-wrap: wrap;
   width: 100%;
   margin-bottom: 1.3rem;
+  max-height: 2rem;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.home_cart_list::-webkit-scrollbar {
+  display: none;
 }
 .cart_item {
   height: 0.64rem;
@@ -796,7 +803,7 @@
           </van-tabs>
         </div>
       </div>
-      <div class="home_lun" v-if="selectId===1">
+      <div class="home_lun" v-show="selectId===1">
         <vue-seamless-scroll :data="list" :class-option="classOption" class="seamless1">
           <div class="seamless">
             <div v-for="(item,index) in list" :key="index" class="seamless_item">
@@ -813,7 +820,7 @@
       <div class="mobile_home_cart">
         <div class="mobile_home_cart_title" v-if="cartNum>1">{{cartNum}} Domains</div>
         <div class="mobile_home_cart_title" v-else>{{cartNum}} Domain</div>
-        <div class="home_cart_list">
+        <div class="home_cart_list" ref="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
             <span>{{item.domain}}</span>
             <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
@@ -837,7 +844,7 @@ import apis from '../util/apis/apis'
 import { copyAction, changeStatusFun } from '../util/func/index'
 const moment = require('moment');
 import { validate } from 'bitcoin-address-validation';
-import { showFailToast } from 'vant';
+import { Message } from 'view-ui-plus'
 export default {
   components: {
     MobileHead, MobileFoot
@@ -947,7 +954,7 @@ export default {
           if (res.data.code === 0) {
             this.list = res.data.data;
           } else {
-            // showFailToast(res.data.message)
+            // Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -991,7 +998,7 @@ export default {
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -1036,11 +1043,11 @@ export default {
     addressFun() {
       this.addressSearchShow = true
       if (!this.searchText) {
-        showFailToast("address must not be empty")
+        Message.error("address must not be empty")
         return
       }
       if (!validate(this.searchText)) {
-        showFailToast("bitcoin address is not valid")
+        Message.error("bitcoin address is not valid")
         return
       }
       this.inscrptList = []
@@ -1092,7 +1099,7 @@ export default {
             this.histroyAddressBoolean = false;
           } else {
             this.spanBoolean = false
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -1219,7 +1226,11 @@ export default {
         return
       }
       this.resultData.isSelect = true
-      this.cartList.push(this.resultData)
+      this.cartList.push(this.resultData);
+      this.$nextTick(() => {
+        let scrollElem = this.$refs.home_cart_list;
+        scrollElem.scrollTo({ top: scrollElem.scrollHeight, behavior: 'smooth' });
+      });
     },
     addLinkFun(item) {
       if (item.isSelect) {
@@ -1227,8 +1238,11 @@ export default {
       }
       item.isSelect = true
       item.domain = item.dom_name;
-      console.log(item)
-      this.cartList.push(item)
+      this.cartList.push(item);
+      this.$nextTick(() => {
+        let scrollElem = this.$refs.home_cart_list;
+        scrollElem.scrollTo({ top: scrollElem.scrollHeight, behavior: 'smooth' });
+      });
     },
     showAddressFun(address) {
       if (address) {

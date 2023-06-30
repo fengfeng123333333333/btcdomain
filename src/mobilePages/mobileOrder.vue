@@ -184,9 +184,13 @@
     opacity: 1;
   }
 }
+.paywithmixpay_button {
+  width: 100%;
+  height: 1.64rem;
+}
 .paywithmixpay {
-  width: 2.76rem;
-  height: 0.4rem;
+  width: 100%;
+  height: 1.64rem;
 }
 .order_pay_btc {
   display: flex;
@@ -376,7 +380,7 @@
   background: #ffffff;
   border-radius: 0.08rem;
   border: 0.02rem solid #2e2f3e;
-  margin-top: 1rem;
+  margin-top: 3rem;
   padding-bottom: 0.4rem;
 }
 .payment_status_head {
@@ -781,8 +785,7 @@
 }
 .order_pay_item_mixpay img {
   margin-right: 0;
-  width: 1rem;
-  height: 0.42rem;
+  width: 2rem;
 }
 </style>
 <template>
@@ -872,7 +875,12 @@
               <div class="cart_right_line"></div>
               <div class="cart_fee">
                 <div class="cart_fee_com">
-                  <span>Total Gas Fee</span>
+                  <div>
+                    <span>Total Gas Fee</span>
+                    <Tooltip v-if="paySelData.name=='MixPay'" :max-width="240" content="Mixpay does not charge an additional handling fee, but requires an additional gas fee." placement="right-start">
+                      <img src="../assets/person/icon_16_q@2x.png" alt="" style="width:0.24rem;height:0.24rem;margin-left:0.1rem">
+                    </Tooltip>
+                  </div>
                   <span v-if="paySelData.name!='MixPay'">{{feeData.total_gas_fee}} BTC</span>
                   <span v-else>{{feeData.additional_dec}} BTC</span>
                 </div>
@@ -917,9 +925,8 @@
                 <span> I Have Paid</span>
               </div>
             </div>
-            <div class="cart_order_button" :class="{mixPayLoadingClass:mixPayLoading}" v-else-if="paySelData.name==='MixPay'&&item.isSelect" @click="mixPayOpwnFun">
-              <Icon type="ios-loading" size='24' style="margin-right:0.1rem;" color="#ffffff" class='demo-spin-icon-load' v-if="mixPayLoading" />
-              <img src="../assets/order/paywithmixpay@2x.png" alt="" class="paywithmixpay">
+            <div class="paywithmixpay_button" :class="{mixPayLoadingClass:mixPayLoading}" v-else-if="paySelData.name==='MixPay'&&item.isSelect" @click="mixPayOpwnFun">
+              <img src="../assets/mobileOrder/bottom_mixpay@2x.png" alt="" class="paywithmixpay">
             </div>
             <div v-else-if="item.isSelect">
               <div class="cart_order_button" :class="{cart_order_button_stop:!stop_pay&&paySelData.name==='BTC'}" v-if="isPay===1" @click="otherPayFun">
@@ -1157,38 +1164,7 @@ export default {
       promo_code: "",
       spanBoolean: false,
       cartDetail: [],
-      payMethors: [
-        {
-          name: "BTC",
-          url: require("../assets/order/btc@2x.png"),
-          isSelect: true,
-        },
-        {
-          name: "UniSat",
-          url: require("../assets/order/pay_connect_unisat@2x.png"),
-          isSelect: false,
-        },
-        {
-          name: "TpWallet",
-          url: require("../assets/order/pay_connect_unisat@2x.png"),
-          isSelect: false,
-        },
-        {
-          name: "FoxWallet",
-          url: require("../assets/head/connect_foxwallet@2x.png"),
-          isSelect: false,
-        },
-        // {
-        //   name: "Xverse",
-        //   url: require("../assets/head/connect_xverse@2x.png"),
-        //   isSelect: false,
-        // },
-        {
-          name: "MixPay",
-          url: require("../assets/order/mixpay.png"),
-          isSelect: false,
-        },
-      ],
+      payMethors: [],
       paySelData: {},
       gasTotalData: {},
       btcMethors: [
@@ -1434,6 +1410,8 @@ export default {
       // this.statusInfoFun(3)
     },
     async tpWalletAction() {
+      console.log("tptptp", tp)
+      console.log("tptptp", tp.isConnected)
       if (!tp.isConnected()) {
         Message.error("please downLoad TokenPocket App");
         return
@@ -1441,17 +1419,19 @@ export default {
       let param = {};
       param.from = localStorage.bitcoin_address;
       param.to = this.monywallet;
-      param.amount = this.feeData.total_fee;
-
+      param.amount = this.feeData.total_fee.toString();
+      console.log("paramparamparam", param)
       tp.btcTokenTransfer(param).then((res) => {
-        console.log("resultresultresult", res)
+        console.log("resresres", res)
         if (res.result) {
           localStorage.isPay = 2;
           this.isPay = 2
           this.payStatusBoolean = true;
           Message.info("submit transaction: " + res.data);
         } else {
-          Message.error(res.mag);
+          Message.error(res.msg);
+          Message.error(res.data);
+          Message.error("this.feeData.total_fee", this.feeData.total_fee, typeof (this.feeData.total_fee));
         }
       });
     },
@@ -1663,7 +1643,7 @@ export default {
       clearInterval(this.timer);
       clearInterval(this.timerPenson);
       this.$router.push({
-        name: "person"
+        name: "mobile_person"
       })
     },
     showAddressFun(address) {
@@ -1901,7 +1881,7 @@ export default {
         this.getRateFeeFun()
       } else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
-      } else if (this.paySelData.name === 'TpWallet') {
+      } else if (this.paySelData.name === 'TokenPocket') {
         this.tpWalletAction()
       } else if (this.paySelData.name === 'FoxWallet') {
         this.foxWalletAction()
@@ -1960,6 +1940,45 @@ export default {
       }).catch(err => {
       });
     },
+  },
+  created() {
+    let arr = []
+    if (window.foxwallet && window.foxwallet.bitcoin) {
+      let temp = {
+        name: "FoxWallet",
+        url: require("../assets/head/connect_foxwallet@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+    } else if (typeof window.ethereum != 'undefined') {
+      let temp = {
+        name: "Metamask",
+        url: require("../assets/head/connect_metamask@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+    } else if (tp.isConnected()) {
+      let temp = {
+        name: "TokenPocket",
+        url: require("../assets/head/connect_tokenpocket@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+    } else {
+      this.payMethors = [
+        {
+          name: "BTC",
+          url: require("../assets/order/btc@2x.png"),
+          isSelect: true,
+        },
+        {
+          name: "MixPay",
+          url: require("../assets/order/MixPay@2x.png"),
+          isSelect: false,
+        },
+      ]
+    }
+    this.payMethors = this.payMethors.concat(arr)
   },
   mounted() {
     let index = 0

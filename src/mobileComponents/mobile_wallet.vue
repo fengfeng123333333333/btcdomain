@@ -57,6 +57,7 @@
 }
 .wallet_table_com {
   width: 2.3rem;
+  flex-shrink: 1;
 }
 .wallet_table_head_com {
   font-size: 0.24rem;
@@ -69,12 +70,12 @@
   height: 6rem;
   overflow: hidden;
   overflow-y: auto;
+  overflow-x: auto;
 }
 .wallet_table::-webkit-scrollbar {
   display: none;
 }
 .wallet_table_item {
-  width: 100%;
   height: 1.08rem;
   border-bottom: 0.02rem solid rgba(167, 169, 190, 0.3);
   display: flex;
@@ -307,12 +308,14 @@
           <div class="wallet_table_com wallet_table_head_com" style="width:1.8rem">Date</div>
           <div class="wallet_table_com wallet_table_head_com" style="width:2.5rem">Address</div>
           <div class="wallet_table_com wallet_table_head_com" style="text-align: right;">Amount</div>
+          <!-- <div class="wallet_table_com wallet_table_head_com">TxHash</div> -->
         </div>
         <div class="wallet_table">
           <div class="wallet_table_item" v-for="(item,index) in historyList" :key="index">
             <div class="wallet_table_com wallet_table_item_com" style="width:1.8rem">{{item.date}}</div>
             <div class="wallet_table_com wallet_table_item_com copyclass" style="width:2.4rem" @click="copyActionFun(2,item)">{{item.addressShow}}</div>
             <div class="wallet_table_com wallet_table_item_com" style="text-align: right;">{{item.amount}} {{item.symbol}}</div>
+            <!-- <div class="wallet_table_com wallet_table_item_com copyclass" @click="copyActionFun(3,item)">{{item.tixdShow}}</div> -->
           </div>
         </div>
       </div>
@@ -737,8 +740,8 @@ export default {
     changePageFun() { },
     showAddressFun(address) {
       if (address) {
-        let addressBefor = address.slice(0, 8);
-        let addressBehand = address.slice(address.length - 8)
+        let addressBefor = address.slice(0, 6);
+        let addressBehand = address.slice(address.length - 6)
         let newAddress = addressBefor + "..." + addressBehand
         return newAddress
       } else {
