@@ -1622,17 +1622,10 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
-              if (this.sendRealAddress.length == 62) {
-                if (localStorage.walletType === 'uniSat') {
-                  this.unisatAction()
-                } else {
-                  this.submitBtcTxAction()
-                }
-              } else {
-                Message.error("Check the length of your Ordinals address");
-                return
-              }
+            if (localStorage.walletType === 'uniSat') {
+              this.unisatAction()
+            } else {
+              this.submitBtcTxAction()
             }
           } else {
             Message.error("the address is  error")

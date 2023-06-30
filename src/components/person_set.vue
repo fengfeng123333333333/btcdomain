@@ -731,17 +731,10 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
-              if (this.sendRealAddress.length == 62) {
-                if (localStorage.walletType === 'uniSat') {
-                  this.unisatAction()
-                } else {
-                  this.submitBtcTxAction()
-                }
-              } else {
-                Message.error("Check the length of your Ordinals address");
-                return
-              }
+            if (localStorage.walletType === 'uniSat') {
+              this.unisatAction()
+            } else {
+              this.submitBtcTxAction()
             }
           } else {
             this.jiexiAddress = "the address is  error"
@@ -810,18 +803,11 @@ export default {
           return
         }
       }
-      if (this.sendBtcaddress.indexOf('bc1p') != -1 || this.sendBtcaddress.indexOf('tb1') != -1) {
-        if (this.sendBtcaddress.length == 62) {
-          this.sendRealAddress = this.sendBtcaddress;
-          if (localStorage.walletType === 'uniSat') {
-            this.unisatAction()
-          } else {
-            this.submitBtcTxAction()
-          }
-        } else {
-          Message.error("Check the length of your Ordinals address");
-          return
-        }
+      this.sendRealAddress = this.sendBtcaddress;
+      if (localStorage.walletType === 'uniSat') {
+        this.unisatAction()
+      } else {
+        this.submitBtcTxAction()
       }
     },
     async unisatAction() {
