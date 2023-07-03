@@ -161,6 +161,7 @@ Message.config({
 export default {
   data() {
     return {
+      connetShow: false,
       headclickChild: false,
       walletTypeBoolean: false,
       walletTypeList: [],
@@ -188,6 +189,7 @@ export default {
       if (item.name === 'UniSat') {
         this.generateBitcoinAddrUnisat()
       } else if (item.name === 'Metamask') {
+        console.log("ddddddd")
         this.generateBitcoinAddrMetaMask()
       } else if (item.name === 'Xverse') {
         this.generateBitcoinAddrXverse()
@@ -379,13 +381,15 @@ export default {
       this.headclickChild = true
     }
     let arr = [];
+    let connetShow = false;
     if (window.foxwallet && window.foxwallet.bitcoin) {
       let temp = {
         name: "FoxWallet",
         url: require("../assets/head/connect_foxwallet@2x.png"),
         isSelect: false
       }
-      arr.push(temp)
+      arr.push(temp);
+      connetShow = true
     } else {
       if (typeof window.ethereum != 'undefined') {
         let temp = {
@@ -394,6 +398,7 @@ export default {
           isSelect: false
         }
         arr.push(temp)
+        connetShow = true
       }
     }
     if (tp.isConnected()) {
@@ -403,7 +408,9 @@ export default {
         isSelect: false
       }
       arr.push(temp)
+      connetShow = true
     }
+    this.connetShow = connetShow;
     this.walletTypeList = arr
   }
 }

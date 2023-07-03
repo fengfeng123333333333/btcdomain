@@ -187,6 +187,7 @@
 .paywithmixpay_button {
   width: 100%;
   height: 1.64rem;
+  margin-bottom: 0.2rem;
 }
 .paywithmixpay {
   width: 100%;
@@ -1410,8 +1411,6 @@ export default {
       // this.statusInfoFun(3)
     },
     async tpWalletAction() {
-      console.log("tptptp", tp)
-      console.log("tptptp", tp.isConnected)
       if (!tp.isConnected()) {
         Message.error("please downLoad TokenPocket App");
         return
@@ -1420,9 +1419,7 @@ export default {
       param.from = localStorage.bitcoin_address;
       param.to = this.monywallet;
       param.amount = this.feeData.total_fee.toString();
-      console.log("paramparamparam", param)
       tp.btcTokenTransfer(param).then((res) => {
-        console.log("resresres", res)
         if (res.result) {
           localStorage.isPay = 2;
           this.isPay = 2
@@ -1430,8 +1427,6 @@ export default {
           Message.info("submit transaction: " + res.data);
         } else {
           Message.error(res.msg);
-          Message.error(res.data);
-          Message.error("this.feeData.total_fee", this.feeData.total_fee, typeof (this.feeData.total_fee));
         }
       });
     },
@@ -1869,20 +1864,36 @@ export default {
       this.selectBtcType = item.type;
     },
     otherPayFun() {
-      //   if (!this.stop_pay && this.paySelData.name === "BTC") {
-      //     Message.error("balance in not enough")
-      //     return
-      //   }
+      if (!this.stop_pay && this.paySelData.name === "BTC") {
+        Message.error("balance in not enough")
+        return
+      }
       if (this.paySelData.name === 'UniSat') {
         this.unisatAction()
       } else if (this.paySelData.name === 'BTC') {
         this.sendBtcaddress = this.monywallet
         this.sendAmount = this.feeData.total_fee
         this.getRateFeeFun()
-      } else if (this.paySelData.name === 'Xverse') {
+      } else if (this.paySelData.name === 'Metamask') {
+        this.sendBtcaddress = this.monywallet
+        this.sendAmount = this.feeData.total_fee
+        this.getRateFeeFun()
+      }
+      else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
       } else if (this.paySelData.name === 'TokenPocket') {
-        this.tpWalletAction()
+        tp.getCurrentBalance().then((res) => {
+          if (res.result) {
+            let balance = new Decimal(res.data.balance)
+            let total = new Decimal(this.feeData.total_fee)
+            let cha = balance.minus(total_promo_service_fee).minus(total);
+            if (cha < 0) {
+              Message.error("balance in not enough");
+            } else {
+              this.tpWalletAction()
+            }
+          }
+        });
       } else if (this.paySelData.name === 'FoxWallet') {
         this.foxWalletAction()
       }

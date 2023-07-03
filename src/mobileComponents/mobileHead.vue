@@ -166,7 +166,7 @@
       <img src="../assets/mobileHead/logo_nav_white@2x.png" alt="" class="mobile_logo" @click='toHomeFun'>
     </div>
     <div class="mobile_head_app_right">
-      <div class="mobile_connet" v-if="!showAddress" @click='collectFun'>Wallet</div>
+      <div class="mobile_connet" v-if="!showAddress&&connetShow" @click='collectFun'>Wallet</div>
       <img :src="avaterImg" alt="" class="out_login_avater" v-if="avaterImg&&showAddress" @click='toPersonFun'>
       <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater" v-else-if="!avaterImg&&showAddress" @click='toPersonFun'>
       <img src="../assets/mobileHead/icon_cart@2x.png" alt="" class="mobile_cart" @click='toCartPageFun'>
@@ -180,8 +180,8 @@
         <a class="mobile_menu_item" href="https://docs.btcdomains.io" target="_blank">Document</a>
         <a class="mobile_menu_item" href="https://linktr.ee/btcdomain_btc" target="_blank">Linktree</a>
         <div class="mobile_menu_item" style="border-bottom: 0.02rem solid rgba(167, 169, 190, 0.4);" @click='toCartPageFun'>Cart</div>
-        <div class="mobile_menu_connect" @click='collectFun' v-if="!showAddress">Collect Wallet</div>
-        <div class="mobile_login_box" v-else>
+        <div class="mobile_menu_connect" @click='collectFun' v-if="!showAddress&&connetShow">Collect Wallet</div>
+        <div class="mobile_login_box" v-else-if='showAddress&&connetShow'>
           <div class="mobile_login_avtar">
             <img :src="avaterImg" alt="" v-if="avaterImg">
             <img src="../assets/head/avater_def@2x.png" alt="" v-else>
@@ -238,6 +238,7 @@ export default {
   },
   data() {
     return {
+      connetShow: false,
       menuBoolean: false,
       walletTypeBoolean: false,
       showAddress: null,
@@ -364,6 +365,37 @@ export default {
       this.showAddress = this.showAddressFun(localStorage.bitcoin_address)
       this.addressPersonFun(localStorage.bitcoin_address)
     }
+    let arr = [];
+    let connetShow = false;
+    if (window.foxwallet && window.foxwallet.bitcoin) {
+      let temp = {
+        name: "FoxWallet",
+        url: require("../assets/head/connect_foxwallet@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp);
+      connetShow = true
+    } else {
+      if (typeof window.ethereum != 'undefined') {
+        let temp = {
+          name: "Metamask",
+          url: require("../assets/head/connect_metamask@2x.png"),
+          isSelect: false
+        }
+        arr.push(temp)
+        connetShow = true
+      }
+    }
+    if (tp.isConnected()) {
+      let temp = {
+        name: "TokenPocket",
+        url: require("../assets/head/connect_tokenpocket@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+      connetShow = true
+    }
+    this.connetShow = connetShow;
   }
 }
 </script>

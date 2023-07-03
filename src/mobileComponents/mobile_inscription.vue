@@ -486,6 +486,14 @@
                 </div>
                 <div class="inscription_tab_item_box">
                   <div class="inscription_tab_item_box_item">
+                    <span>Create Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
+                    <span>Registration Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
                     <span>Expiration Date</span>
                     <span>{{itemInscript.expire_date_show}}</span>
                   </div>
@@ -534,6 +542,14 @@
                   </div>
                 </div>
                 <div class="inscription_tab_item_box">
+                  <div class="inscription_tab_item_box_item">
+                    <span>Create Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
+                    <span>Registration Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
                   <div class="inscription_tab_item_box_item">
                     <span>Expiration Date</span>
                     <span>{{itemInscript.expire_date_show}}</span>

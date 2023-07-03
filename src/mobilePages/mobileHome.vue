@@ -124,12 +124,7 @@
   display: flex;
   align-items: center;
   font-size: 0.24rem;
-  font-family: AppleColorEmoji;
   color: #ffffff;
-}
-.seamless_item_status img {
-  width: 0.34rem;
-  height: 0.34rem;
 }
 .mobile_home_body {
   padding: 0 0.2rem;
@@ -484,10 +479,11 @@
   margin: 0.2rem 0;
   display: flex;
   justify-content: flex-end;
+  padding-right: 0.2rem;
 }
 .inscription_showtype img {
-  width: 0.64rem;
-  height: 0.64rem;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
 }
 .inscription_tab_item {
@@ -807,10 +803,7 @@
         <vue-seamless-scroll :data="list" :class-option="classOption" class="seamless1">
           <div class="seamless">
             <div v-for="(item,index) in list" :key="index" class="seamless_item">
-              <div class="seamless_item_status">
-                <span>🎉Registered: </span>
-              </div>
-              <span> {{ item.dom_name }}</span>
+                <span>Registered: {{ item.dom_name }}</span>
             </div>
           </div>
         </vue-seamless-scroll>
@@ -873,7 +866,11 @@ export default {
         limitMoveNum: 6,
         direction: 2
       },
-      list: [],
+      list: [
+        {
+          dom_name: "8888"
+        }
+      ],
       searchText: "",
       searchTabList: [
         {
