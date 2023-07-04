@@ -113,10 +113,12 @@
   <div class="mask" @click="closeMaskFun">
     <div class="maskBox" style="margin-top:1.8rem" @click.stop>
       <div class="maskhead displayCom">
-        <span>Connect Wallet</span>
+        <span v-if="typeChildclick===1">Connect Wallet</span>
+        <span v-else>Receive Address</span>
         <img src="../assets/head/icon_close_dialog@2x.png" alt="" @click="closeMaskFun">
       </div>
-      <div class="connect_dec">Choose how you want to connect. If you don't have a wallet, you can select a provider and create one.</div>
+      <div class="connect_dec" v-if="typeChildclick===1">Choose how you want to connect. If you don't have a wallet, you can select a provider and create one.</div>
+      <div class="connect_dec" v-else>Please select a receiving wallet address, or fill in a receiving address without connecting to the wallet.</div>
       <div class="connect_list">
         <div class="connect_list_item" @click="selectWalletFun(item)" :class="{connect_list_item_sel:item.isSelect}" v-for="(item,index) in walletTypeList" :key="index">
           <img :src="item.url" alt="">
@@ -124,7 +126,7 @@
         </div>
       </div>
       <div v-if="!headclickChild">
-        <div class="connect_other displayCom">
+        <div class="connect_other displayCom" v-if="typeChildclick===1">
           <div class="connect_other_line"></div>
           <span>or</span>
           <div class="connect_other_line"></div>
@@ -159,8 +161,10 @@ Message.config({
   duration: 5
 })
 export default {
+  props: ["typeclick"],
   data() {
     return {
+      typeChildclick: this.typeclick,
       connetShow: false,
       headclickChild: false,
       walletTypeBoolean: false,
@@ -189,7 +193,6 @@ export default {
       if (item.name === 'UniSat') {
         this.generateBitcoinAddrUnisat()
       } else if (item.name === 'Metamask') {
-        console.log("ddddddd")
         this.generateBitcoinAddrMetaMask()
       } else if (item.name === 'Xverse') {
         this.generateBitcoinAddrXverse()

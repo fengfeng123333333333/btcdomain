@@ -21,8 +21,8 @@ const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.netw
 function toXOnly(pubKey) {
   return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 }
-export async function generateBitcoinAddr(type) {
-  if (type === 'metaMask') {
+export async function generateBitcoinAddr(type,deviceType) {
+  if (type === 'metaMask'||deviceType==='mobile') {
     if (typeof window.ethereum === 'undefined') {
       alert("Metamask is not installed!")
       return

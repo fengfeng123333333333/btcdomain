@@ -1125,7 +1125,7 @@ export default {
           this.loadingBoolean = false;
           if (res.data.message === 'OK') {
             this.send_inscript_boolean = false
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }

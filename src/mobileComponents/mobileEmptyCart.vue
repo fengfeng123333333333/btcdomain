@@ -461,7 +461,6 @@ export default {
         if (this.cartNum > 0) {
           this.cartBoolean = true
         }
-        console.log(this.cartNum)
       },
       deep: true
     }
@@ -537,7 +536,6 @@ export default {
       }
       item.isSelect = true
       item.domain = item.dom_name;
-      console.log(item)
       this.cartList.push(item)
     },
     showAddressFun(address) {

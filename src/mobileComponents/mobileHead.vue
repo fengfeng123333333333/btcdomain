@@ -174,7 +174,7 @@
     <div class="mobile_menu_box" v-if="menuBoolean">
       <div class="mobile_menu_box_head">
         <img src="../assets/mobileHead/icon_close_nav@2x.png" alt="" class="mobile_menu_box_close" @click="closeFun">
-        <img src="../assets/mobileHead/logo_nav_black@2x.png" alt="" class="mobile_logo_black">
+        <img src="../assets/mobileHead/logo_nav_black@2x.png" alt="" class="mobile_logo_black" @click='toHomeFun'>
       </div>
       <div class="mobile_menu_body">
         <a class="mobile_menu_item" href="https://docs.btcdomains.io" target="_blank">Document</a>
@@ -194,7 +194,7 @@
         </div>
       </div>
     </div>
-    <MobileLogin v-if="walletTypeBoolean" @loginEnd="loginEndFun" @avater="avaterFun" @closemask="closeMaskFun">
+    <MobileLogin v-if="walletTypeBoolean" @loginEnd="loginEndFun" @avater="avaterFun" @closemask="closeMaskFun" :typeclick="typeclick">
     </MobileLogin>
   </div>
 </template>
@@ -232,12 +232,14 @@ export default {
       handler(val) {
         if (val) {
           this.walletTypeBoolean = true;
+          this.typeclick = 2
         }
       }
     },
   },
   data() {
     return {
+      typeclick: 1,
       connetShow: false,
       menuBoolean: false,
       walletTypeBoolean: false,
@@ -256,6 +258,7 @@ export default {
     },
     collectFun() {
       localStorage.headclick = 1;
+      this.typeclick = 1;
       this.walletTypeBoolean = true
     },
     closeMaskFun() {
@@ -277,6 +280,7 @@ export default {
       })
     },
     openFun() {
+      this.typeclick = 1;
       this.menuBoolean = true;
     },
     closeFun() {
@@ -289,6 +293,7 @@ export default {
           name: "mobile_cart"
         })
       } else {
+        this.typeclick = 2;
         this.typePage = true
         this.walletTypeBoolean = true
       }

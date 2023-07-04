@@ -47,45 +47,51 @@
 .wallet_content {
   width: 100%;
   margin-top: 0.8rem;
+  overflow-x: auto;
+}
+.wallet_content::-webkit-scrollbar {
+  display: none;
 }
 .wallet_table_head {
   width: 100%;
   height: 0.5rem;
   display: flex;
   align-items: center;
-  border-bottom: 0.02rem solid #2e2f3e;
 }
 .wallet_table_com {
   width: 2.3rem;
-  flex-shrink: 1;
+  flex-shrink: 0;
 }
 .wallet_table_head_com {
+  height: 100%;
   font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #a7a9be;
+  border-bottom: 0.02rem solid #2e2f3e;
+  display: flex;
+  align-items: center;
 }
 .wallet_table {
   width: 100%;
   height: 6rem;
-  overflow: hidden;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-.wallet_table::-webkit-scrollbar {
-  display: none;
 }
 .wallet_table_item {
   height: 1.08rem;
-  border-bottom: 0.02rem solid rgba(167, 169, 190, 0.3);
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
 }
 .wallet_table_item_com {
+  height: 100%;
   font-size: 0.24rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
+  flex-shrink: 0;
+  border-bottom: 0.02rem solid rgba(167, 169, 190, 0.3);
+  display: flex;
+  align-items: center;
 }
 .copyclass {
   cursor: pointer;
@@ -307,15 +313,15 @@
         <div class="wallet_table_head">
           <div class="wallet_table_com wallet_table_head_com" style="width:1.8rem">Date</div>
           <div class="wallet_table_com wallet_table_head_com" style="width:2.5rem">Address</div>
-          <div class="wallet_table_com wallet_table_head_com" style="text-align: right;">Amount</div>
-          <!-- <div class="wallet_table_com wallet_table_head_com">TxHash</div> -->
+          <div class="wallet_table_com wallet_table_head_com">Amount</div>
+          <div class="wallet_table_com wallet_table_head_com" style="width:2rem;text-align: right;">TxHash</div>
         </div>
         <div class="wallet_table">
           <div class="wallet_table_item" v-for="(item,index) in historyList" :key="index">
             <div class="wallet_table_com wallet_table_item_com" style="width:1.8rem">{{item.date}}</div>
             <div class="wallet_table_com wallet_table_item_com copyclass" style="width:2.4rem" @click="copyActionFun(2,item)">{{item.addressShow}}</div>
-            <div class="wallet_table_com wallet_table_item_com" style="text-align: right;">{{item.amount}} {{item.symbol}}</div>
-            <!-- <div class="wallet_table_com wallet_table_item_com copyclass" @click="copyActionFun(3,item)">{{item.tixdShow}}</div> -->
+            <div class="wallet_table_com wallet_table_item_com">{{item.amount}} {{item.symbol}}</div>
+            <div class="wallet_table_com wallet_table_item_com copyclass" style="width:2rem;" @click="copyActionFun(3,item)">{{item.tixdShow}}</div>
           </div>
         </div>
       </div>
@@ -489,7 +495,6 @@ export default {
         this.goToCartFun()
       } else {
         var canvas = document.getElementById("canvas")
-        console.log(canvas)
         VueQrcode.toCanvas(canvas, this.wallet)
         this.receive_btc_boolean = true;
       }
@@ -718,7 +723,7 @@ export default {
           this.loadingBoolean = false;
           if (res.data.message === 'OK') {
             this.send_btc_boolean = false
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }

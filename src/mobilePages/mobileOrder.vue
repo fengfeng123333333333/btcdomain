@@ -33,6 +33,7 @@
   width: 100%;
   padding: 0 0.2rem;
   margin-top: 0.2rem;
+  margin-bottom: 1.4rem;
 }
 .cart_step {
   width: 100%;
@@ -373,7 +374,7 @@
     height: 0;
   }
   to {
-    height: 7rem;
+    height: 5rem;
   }
 }
 .payment_status {
@@ -1292,7 +1293,7 @@ export default {
       }
       const walletType = localStorage.walletType;
       this.loadingBoolean = true;
-      const privKey = await generateBitcoinAddr(walletType);
+      const privKey = await generateBitcoinAddr(walletType, 'mobile');
       if (!privKey) {
         Message.warning("private key must not be empty");
         this.loadingBoolean = false;
@@ -1349,7 +1350,7 @@ export default {
             this.payStatusBoolean = true;
             localStorage.isPay = 2;
             this.isPay = 2
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }
@@ -1410,13 +1411,17 @@ export default {
       await sendBtcTransaction(signPsbtOptions);
       // this.statusInfoFun(3)
     },
-    async tpWalletAction() {
+    async tpWalletAction(fromaddress) {
       if (!tp.isConnected()) {
         Message.error("please downLoad TokenPocket App");
         return
       }
       let param = {};
-      param.from = localStorage.bitcoin_address;
+      if (fromaddress) {
+        param.from = fromaddress;
+      } else {
+        param.from = localStorage.bitcoin_address;
+      }
       param.to = this.monywallet;
       param.amount = this.feeData.total_fee.toString();
       tp.btcTokenTransfer(param).then((res) => {
@@ -1691,7 +1696,6 @@ export default {
             this.usd_value = res.data.data.total_fee_usd;
             this.balanceFun();
             this.spanBoolean = false;
-            console.log("this", this.paySelData)
           } else {
             this.spanBoolean = false
             Message.error(res.data.message)
@@ -1882,18 +1886,24 @@ export default {
       else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
       } else if (this.paySelData.name === 'TokenPocket') {
-        tp.getCurrentBalance().then((res) => {
-          if (res.result) {
-            let balance = new Decimal(res.data.balance)
-            let total = new Decimal(this.feeData.total_fee)
-            let cha = balance.minus(total_promo_service_fee).minus(total);
-            if (cha < 0) {
-              Message.error("balance in not enough");
-            } else {
-              this.tpWalletAction()
+        if (localStorage.walletType === 'custom') {
+          tp.getCurrentWallet().then((result) => {
+            this.tpWalletAction(result.data.address)
+          });
+        } else {
+          tp.getCurrentBalance().then((res) => {
+            if (res.result) {
+              let balance = new Decimal(res.data.balance)
+              let total = new Decimal(this.feeData.total_fee)
+              let cha = balance.minus(total);
+              if (cha < 0) {
+                Message.error("balance in not enough");
+              } else {
+                this.tpWalletAction()
+              }
             }
-          }
-        });
+          });
+        }
       } else if (this.paySelData.name === 'FoxWallet') {
         this.foxWalletAction()
       }
@@ -1958,21 +1968,21 @@ export default {
       let temp = {
         name: "FoxWallet",
         url: require("../assets/head/connect_foxwallet@2x.png"),
-        isSelect: false
+        isSelect: true
       }
       arr.push(temp)
     } else if (typeof window.ethereum != 'undefined') {
       let temp = {
         name: "Metamask",
         url: require("../assets/head/connect_metamask@2x.png"),
-        isSelect: false
+        isSelect: true
       }
       arr.push(temp)
     } else if (tp.isConnected()) {
       let temp = {
         name: "TokenPocket",
         url: require("../assets/head/connect_tokenpocket@2x.png"),
-        isSelect: false
+        isSelect: true
       }
       arr.push(temp)
     } else {

@@ -1457,7 +1457,7 @@ export default {
             this.payStatusBoolean = true;
             localStorage.isPay = 2;
             this.isPay = 2
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }

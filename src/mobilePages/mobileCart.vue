@@ -366,7 +366,7 @@
 </style>
 <template>
   <div class="mobile_cart_app" :class='{mobile_cart_app_kong:cartNum===0}'>
-    <MobileHead showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></MobileHead>
+    <MobileHead :showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></MobileHead>
     <div v-if="cartNum>0">
       <div class="cart_head">Your Cart</div>
       <div class="cart_body">
@@ -603,7 +603,6 @@ export default {
       this.createPayOrderFun()
     },
     changeYearFun(value) {
-      console.log(value)
       if (!value) {
         return
       }
