@@ -3,7 +3,7 @@ let baseUrl = "";
 if (url.indexOf("prod.btcwallet") != -1) {
     baseUrl="https://btcdomains.io";
 } else {
-    // baseUrl="https://www.btcwallet.network"
+    // baseUrl="http://btcdomain-pri.valuechain.group:18880"
     baseUrl="https://btcdomains.io";
 }
 
@@ -18,10 +18,9 @@ let locationUrl="https://app.btcdomains.io/mobile/#"
 //   locationUrl="https://app.btcdomains.io/mobile/#"
 // }
 
-let baseAppUrl = "https://btcdomains.io";
 let unisatUrl = "https://unisat.io"
 let coinApi = "https://rest.coinapi.io"
 let generativeApi="https://devnet.generative.xyz/generative"
 export default {
-    baseUrl, baseAppUrl, unisatUrl, coinApi,generativeApi,locationUrl
+    baseUrl, unisatUrl, coinApi,generativeApi,locationUrl
 }

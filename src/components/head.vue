@@ -192,7 +192,6 @@
 <script>
 import Login from './login.vue'
 import { copyAction } from '../util/func/index'
-import { address } from 'bitcoinjs-lib';
 import apis from '../util/apis/apis'
 export default {
   components: {

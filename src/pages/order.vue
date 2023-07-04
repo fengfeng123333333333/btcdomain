@@ -1225,7 +1225,9 @@ import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
-// import { getAddress, sendBtcTransaction, signMessage } from "sats-connect";
+import { signTransaction } from "sats-connect";
+import * as btc from '@scure/btc-signer';
+import { hex, base64 } from '@scure/base'
 const Decimal = require('decimal.js');
 export default {
   components: {
@@ -1314,6 +1316,10 @@ export default {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
   },
+  unmounted() {
+    clearInterval(this.timer);
+    clearInterval(this.timerPenson);
+  },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
@@ -1379,10 +1385,10 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      // let avail = new BigNumber(this.sendAmount);
+      // let avail = new BigNumber(this.balance);
       // if (one.gte(avail)) {
       //   Message.warning(
-      //     "max value you must transfer is " + this.sendAmount + "btc"
+      //     "max value you must transfer is " + this.balance + "btc"
       //   );
       //   return;
       // }
@@ -1426,7 +1432,7 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "sendBtc");
           // submit
           this.pushTx(txHex);
         }
@@ -1453,7 +1459,7 @@ export default {
             this.payStatusBoolean = true;
             localStorage.isPay = 2;
             this.isPay = 2
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }
@@ -1480,38 +1486,80 @@ export default {
       this.payStatusBoolean = true;
       Message.info("submit transaction: " + txid);
     },
+    async getUnspent(address) {
+      const url = `https://mempool.space/api/address/${address}/utxo`
+      const response = await fetch(url)
+      return response.json()
+    },
     async tiggerXverseAction() {
-      const signMessageOptions = {
-        payload: {
-          network: {
-            type: "Mainnet",
-          },
-          address: localStorage.getItem("bitcoin_address"),
-          message: this.GivingMsg,
-        },
-        onFinish: (response) => {
-          // alert(response);
-        },
-        // onCancel: () => Message.info("Request canceled"),
-      };
-      await signMessage(signMessageOptions);
+      const bitcoinTestnet = {
+        bech32: 'bc',
+        pubKeyHash: 0x00,
+        scriptHash: 0x05,
+        wif: 0x80,
+      }
+      const unspentOutputs = await this.getUnspent(localStorage.paymentAddress)
+      const output = unspentOutputs[0];
+      console.log(output)
       const num = new BigNumber(this.feeData.total_fee);
       const weivalue = num.multipliedBy(100000000).toNumber()
+
+      const rate_fee = new BigNumber(this.feeData.rate_fee);
+      const weirate_fee = rate_fee.multipliedBy(100000000).toNumber()
+
+      const recipient = this.monywallet;
+      const tx = new btc.Transaction();
+      console.log(localStorage.public_key)
+      const publicKey = hex.decode(localStorage.public_key)
+      const p2wpkh2 = btc.p2wpkh(publicKey, bitcoinTestnet);
+      const p2sh = btc.p2sh(p2wpkh2, bitcoinTestnet);
+      tx.addInput({
+        txid: output.txid,
+        index: output.vout,
+        witnessUtxo: {
+          script: p2sh.script ? p2sh.script : Buffer.alloc(0),
+          amount: BigInt(weivalue),
+        },
+        redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
+        witnessScript: p2sh.witnessScript,
+        sighashType: 131
+      })
+      console.log("BigInt(weirate_fee)", BigInt(weirate_fee))
+      console.log("weirate_fee", weirate_fee)
+      console.log("this.feeData.rate_fee", this.feeData.rate_fee)
+
+      console.log("BigInt(weivalue)", BigInt(weivalue))
+      console.log("weivalue", weivalue)
+      console.log("this.feeData.total_fee", this.feeData.total_fee)
+      let outValue = BigInt(weivalue)
+      tx.addOutputAddress(recipient, outValue, bitcoinTestnet)
+      const psbt = tx.toPSBT(0)
+      const psbtB64 = base64.encode(psbt)
+      console.log(psbtB64)
       const signPsbtOptions = {
         payload: {
           network: {
-            type: "Mainnet",
+            type: 'Mainnet'
           },
-          amountSats: weivalue,
-          recipientAddress: this.GivingMsg,
-          message: this.monywallet,
+          message: this.GivingMsg,
+          psbtBase64: psbtB64,
+          broadcast: true,
+          inputsToSign: [{
+            address: localStorage.getItem("paymentAddress"),
+            signingIndexes: [0],
+            sigHash: 131
+          }],
         },
         onFinish: (response) => {
-          // alert(response.psbtBase64);
+          localStorage.isPay = 2;
+          this.isPay = 2
+          this.payStatusBoolean = true;
+          Message.info("submit transaction: " + response.txid);
+          console.log(response)
         },
         onCancel: () => Message.info("Request canceled"),
       };
-      await sendBtcTransaction(signPsbtOptions);
+      await signTransaction(signPsbtOptions);
       // this.statusInfoFun(3)
     },
     recommendedFeeFun(fastestFee, halfHourFee, hourFee, type) {
@@ -1930,6 +1978,8 @@ export default {
         this.sendBtcaddress = this.monywallet
         this.sendAmount = this.feeData.total_fee
         this.getRateFeeFun()
+      } else if (this.paySelData.name === 'Xverse') {
+        this.tiggerXverseAction()
       } else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
       }

@@ -1125,7 +1125,7 @@ export default {
           this.loadingBoolean = false;
           if (res.data.message === 'OK') {
             this.send_inscript_boolean = false
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }
@@ -1222,6 +1222,9 @@ export default {
     },
     async confirmFun() {
       if (this.selectItem.state != '9' && this.selectItem.state != '0' && this.selectItem.state != '5' && this.selectItem.state != '') {
+        return
+      }
+      if (this.loadingBoolean) {
         return
       }
       this.setDomainFun(this.selectItem)
