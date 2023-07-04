@@ -173,11 +173,11 @@ export default {
           url: require("../assets/head/connect_unisat@2x.png"),
           isSelect: false
         },
-        {
-          name: "Xverse",
-          url: require("../assets/head/connect_xverse@2x.png"),
-          isSelect: false
-        },
+        // {
+        //   name: "Xverse",
+        //   url: require("../assets/head/connect_xverse@2x.png"),
+        //   isSelect: false
+        // },
         {
           name: "Metamask",
           url: require("../assets/head/connect_metamask@2x.png"),

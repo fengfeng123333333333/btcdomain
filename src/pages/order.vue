@@ -1267,11 +1267,11 @@ export default {
           url: require("../assets/order/pay_connect_unisat@2x.png"),
           isSelect: false,
         },
-        {
-          name: "Xverse",
-          url: require("../assets/head/connect_xverse@2x.png"),
-          isSelect: false,
-        },
+        // {
+        //   name: "Xverse",
+        //   url: require("../assets/head/connect_xverse@2x.png"),
+        //   isSelect: false,
+        // },
         {
           name: "MixPay",
           url: require("../assets/order/mixpay.png"),
@@ -1385,15 +1385,15 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      // let avail = new BigNumber(this.sendAmount);
-      // if (one.gte(avail)) {
-      //   Message.warning(
-      //     "max value you must transfer is " + this.sendAmount + "btc"
-      //   );
-      //   return;
-      // }
+      let avail = new BigNumber(this.sendAmount);
+      if (one.gte(avail)) {
+        Message.warning(
+          "max value you must transfer is " + this.sendAmount + "btc"
+        );
+        return;
+      }
       // feeRate
-      // this.spanBoolean = true
+      this.spanBoolean = true
       let feeRate = "";
       if (this.gasSelectData.name === "Custom") {
         feeRate = this.gasSelectData.customValue
@@ -1432,7 +1432,7 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "sendBtc");
           // submit
           this.pushTx(txHex);
         }
