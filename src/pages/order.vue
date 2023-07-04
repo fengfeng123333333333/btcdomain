@@ -1385,15 +1385,15 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      let avail = new BigNumber(this.sendAmount);
-      if (one.gte(avail)) {
-        Message.warning(
-          "max value you must transfer is " + this.sendAmount + "btc"
-        );
-        return;
-      }
+      // let avail = new BigNumber(this.balance);
+      // if (one.gte(avail)) {
+      //   Message.warning(
+      //     "max value you must transfer is " + this.balance + "btc"
+      //   );
+      //   return;
+      // }
       // feeRate
-      this.spanBoolean = true
+      // this.spanBoolean = true
       let feeRate = "";
       if (this.gasSelectData.name === "Custom") {
         feeRate = this.gasSelectData.customValue

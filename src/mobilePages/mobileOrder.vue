@@ -1128,6 +1128,10 @@
 <script>
 import MobileHead from '@/mobileComponents/mobileHead.vue'
 import MobileFoot from '@/mobileComponents/mobileFoot.vue'
+import BIP32Factory from "bip32";
+const ecc = require('@bitcoinerlab/secp256k1');
+import { Buffer } from "buffer";
+import * as bitcoin from "bitcoinjs-lib";
 import { InputNumber, Icon, Message, Spin, Tooltip } from 'view-ui-plus'
 import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun } from '../util/func/index'
 import VueQrcode from '@chenfengyuan/vue-qrcode';
@@ -1139,6 +1143,9 @@ import { validate } from "bitcoin-address-validation";
 // import { getAddress, sendBtcTransaction, signMessage } from "sats-connect";
 import tp from "tp-js-sdk";
 const Decimal = require('decimal.js');
+const bip32 = BIP32Factory(ecc);
+const toXOnly = (pubKey) =>
+  pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 export default {
   components: {
     MobileHead, MobileFoot, InputNumber, VueQrcode, Icon, Spin, Tooltip
@@ -1254,7 +1261,26 @@ export default {
       this.submitBtcTxAction()
     },
     async submitBtcTxAction() {
-      let addr = localStorage.getItem("bitcoin_address");
+      let addr = "";
+      if (localStorage.walletType === 'custom') {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        let provider = new ethers.BrowserProvider(window.ethereum);
+        let signer = await provider.getSigner();
+        let sig = await signer.signMessage(this.GivingMsg);
+        const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+        let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
+        const taprootChild = root.derivePath("m/86'/0'/0'/0/0");
+        const pubKey = taprootChild.publicKey;
+        const { address: taprootAddress } = bitcoin.payments.p2tr({
+          internalPubkey: toXOnly(pubKey),
+        });
+        addr = taprootAddress
+      } else {
+        addr = localStorage.getItem("bitcoin_address");
+      }
+      // addr = localStorage.getItem("bitcoin_address");
       if (!addr) {
         Message.warning("from address must not be empty");
         return;
@@ -1276,10 +1302,10 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      // let avail = new BigNumber(this.sendAmount);
+      // let avail = new BigNumber(this.balance);
       // if (one.gte(avail)) {
       //   Message.warning(
-      //     "max value you must transfer is " + this.sendAmount + "btc"
+      //     "max value you must transfer is " + this.balance + "btc"
       //   );
       //   return;
       // }
