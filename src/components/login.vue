@@ -296,9 +296,10 @@ export default {
         },
         onFinish: async (response) => {
           this.walletAddress = response.addresses[0].address;
-          let publiKey = response.addresses[0].publicKey;
+          let publiKey = response.addresses[1].publicKey;
           this.showAddress = this.showAddressFun(this.walletAddress);
           localStorage.setItem("bitcoin_address", this.walletAddress);
+          localStorage.setItem("paymentAddress", response.addresses[1].address);
           localStorage.setItem("public_key", publiKey);
           localStorage.setItem("walletType", "Xverse");
 
