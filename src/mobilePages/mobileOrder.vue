@@ -1094,7 +1094,7 @@
           <div>{{jiexiAddress}}</div>
           <div class="send_btc_title">
             <span>Amount</span>
-            <span class="send_btc_title_balance">Balance：{{balance}} BTC</span>
+            <span class="send_btc_title_balance" v-if="walletType != 'custom'">Balance：{{balance}} BTC</span>
           </div>
           <input disabled v-model="sendAmount" type="text" class="set_input" placeholder="Amount">
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
@@ -1152,6 +1152,7 @@ export default {
   },
   data() {
     return {
+      walletType: "metaMask",
       payResultTowBoolean: false,
       GivingMsg: "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk.",
       confirmBoolean: true,
@@ -1821,9 +1822,9 @@ export default {
               this.inscritpBoolean = true;
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              localStorage.removeItem('isPay');
+              // localStorage.removeItem('isPay');
               localStorage.removeItem('mixpay');
-              this.isPay = 1;
+              // this.isPay = 1;
             }
           } else {
             Message.error(res.data.message)
@@ -1858,13 +1859,13 @@ export default {
             } else if (this.full_state === 9) {
               this.confirmBoolean = true
             } else {
-              // this.inscritpBoolean = true;
+              this.inscritpBoolean = true;
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              localStorage.removeItem('isPay');
+              // localStorage.removeItem('isPay');
               localStorage.removeItem('mixpay');
               this.confirmBoolean = false
-              this.isPay = 1;
+              // this.isPay = 1;
             }
           } else {
             // Message.error(res.data.message)
@@ -2045,6 +2046,7 @@ export default {
     }
     this.order_code = this.$route.query.orderCode;
     let walletType = localStorage.walletType;
+    this.walletType = localStorage.walletType;
     this.urlType = this.$route.query.type;
     if (this.urlType) {
       this.payStatusBoolean = true;

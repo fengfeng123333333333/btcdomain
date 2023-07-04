@@ -1518,7 +1518,7 @@ export default {
         index: output.vout,
         witnessUtxo: {
           script: p2sh.script ? p2sh.script : Buffer.alloc(0),
-          amount: BigInt(1000),
+          amount: BigInt(weivalue),
         },
         redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
         witnessScript: p2sh.witnessScript,
@@ -1531,7 +1531,7 @@ export default {
       console.log("BigInt(weivalue)", BigInt(weivalue))
       console.log("weivalue", weivalue)
       console.log("this.feeData.total_fee", this.feeData.total_fee)
-      let outValue = BigInt(1000)
+      let outValue = BigInt(weivalue)
       tx.addOutputAddress(recipient, outValue, bitcoinTestnet)
       const psbt = tx.toPSBT(0)
       const psbtB64 = base64.encode(psbt)
