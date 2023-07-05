@@ -368,7 +368,7 @@ export default {
               let personData = res.data.data[0];
               if (personData.content_url && personData.content_url.length > 0) {
                 localStorage.setItem("bitcoin_avater", personData.content_url);
-                this.$emit("avater", personData.content_ur)
+                this.$emit("avater", personData.content_url)
               }
             }
           } else {
