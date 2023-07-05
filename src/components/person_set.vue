@@ -901,13 +901,14 @@ export default {
             let amount_sat = amout_tmp.multipliedBy(100000000);
             let available_sat = amount_sat.minus(totalSatoshi);
 
+            let balance = available_sat.div(100000000).toPrecision(8).toString();
 
-            this.sendAmount = available_sat.div(100000000).toPrecision(8).toString();;
-            this.personBalanceData.amount = available_sat.div(100000000).toPrecision(8).toString();;
+            this.sendAmount = parseFloat(balance).toFixed(8);
+            this.personBalanceData.amount = parseFloat(balance).toFixed(8);
             if (this.sendAmount && parseFloat(this.sendAmount) > 0) {
               this.icons[0].isHeight = true
             }
-            localStorage.balance = available_sat.div(100000000).toPrecision(8).toString();;
+            localStorage.balance = parseFloat(balance).toFixed(8);
           } else {
             Message.error(res.data.message)
           }
