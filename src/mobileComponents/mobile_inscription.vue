@@ -51,6 +51,7 @@
   font-weight: 400;
   color: #a7a9be;
   width: 100%;
+  padding-right: 0.8rem;
 }
 .inscription_tab_list {
   width: 100%;
@@ -126,11 +127,9 @@
 }
 .inscription_tab_item_card_head {
   width: 100%;
-  height: 5.9rem;
 }
 .inscription_tab_item_card_head img {
   width: 100%;
-  height: 100%;
   margin-bottom: 0.2rem;
 }
 .maskheadcom {
@@ -433,7 +432,7 @@
   color: #a7a9be;
 }
 </style>
-    <template>
+<template>
   <div class="inscription_app">
     <div class="inscription_tab">
       <van-tabs @click-tab="changeAddressTypefun" v-model:active="type">
@@ -485,6 +484,14 @@
                 </div>
                 <div class="inscription_tab_item_box">
                   <div class="inscription_tab_item_box_item">
+                    <span>Create Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
+                    <span>Registration Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
                     <span>Expiration Date</span>
                     <span>{{itemInscript.expire_date_show}}</span>
                   </div>
@@ -533,6 +540,14 @@
                   </div>
                 </div>
                 <div class="inscription_tab_item_box">
+                  <div class="inscription_tab_item_box_item">
+                    <span>Create Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
+                  <div class="inscription_tab_item_box_item">
+                    <span>Registration Date</span>
+                    <span>{{itemInscript.register_date_show}}</span>
+                  </div>
                   <div class="inscription_tab_item_box_item">
                     <span>Expiration Date</span>
                     <span>{{itemInscript.expire_date_show}}</span>
@@ -661,7 +676,7 @@
 </template>
       
     <script>
-import { Tabs, TabPane, Page, InputNumber, Message, Spin, Icon } from 'view-ui-plus'
+import { Message, Spin } from 'view-ui-plus'
 import { ethers } from "ethers";
 import { Buffer } from "buffer";
 import BIP32Factory from "bip32";
@@ -678,7 +693,7 @@ const defaultPath = "m/86'/0'/0'/0/0";
 const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
 export default {
   components: {
-    Tabs, TabPane, Page, InputNumber, Spin, Icon
+    Spin
   },
   data() {
     return {
@@ -790,13 +805,35 @@ export default {
       window.open(url, '_blank');
     },
     openStatusFun(item) {
-      this.full_state = parseInt(item.state);
-      this.queryDomainMintFeeFun(item)
+      this.queryDomainFun(item)
     },
     toinscriptionFun(item) {
       let id = item.id.slice(0, item.id.length - 2);
       let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
       window.open(url, '_blank');
+    },
+    queryDomainFun(item) {
+      this.spanBoolean = true;
+      let param = {};
+      param.domain = item.domain
+      this.$axios({
+        method: "post",
+        data: param,
+        url: apis.queryDomainApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) {
+            this.full_state = res.data.data.dom_state;
+            this.queryDomainMintFeeFun(item)
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
     },
     queryDomainMintFeeFun(item) {
       this.spanBoolean = true;
@@ -1002,7 +1039,7 @@ export default {
           this.loadingBoolean = false;
           if (res.data.message === 'OK') {
             this.send_inscript_boolean = false
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }
@@ -1017,7 +1054,9 @@ export default {
         this.send_inscript_boolean = false
       } else if (type === 2) {
         this.inscritpBoolean = false;
-        this.inscritpBooleanLunXun = false
+        this.inscritpBooleanLunXun = false;
+        this.searchText = null;
+        this.addressFun()
       }
     },
     changeGasFun(item) {

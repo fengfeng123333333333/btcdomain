@@ -113,10 +113,12 @@
   <div class="mask" @click="closeMaskFun">
     <div class="maskBox" style="margin-top:1.8rem" @click.stop>
       <div class="maskhead displayCom">
-        <span>Connect Wallet</span>
+        <span v-if="typeChildclick===1">Connect Wallet</span>
+        <span v-else>Receive Address</span>
         <img src="../assets/head/icon_close_dialog@2x.png" alt="" @click="closeMaskFun">
       </div>
-      <div class="connect_dec">Choose how you want to connect. If you don't have a wallet, you can select a provider and create one.</div>
+      <div class="connect_dec" v-if="typeChildclick===1">Choose how you want to connect. If you don't have a wallet, you can select a provider and create one.</div>
+      <div class="connect_dec" v-else>Please select a receiving wallet address, or fill in a receiving address without connecting to the wallet.</div>
       <div class="connect_list">
         <div class="connect_list_item" @click="selectWalletFun(item)" :class="{connect_list_item_sel:item.isSelect}" v-for="(item,index) in walletTypeList" :key="index">
           <img :src="item.url" alt="">
@@ -124,7 +126,7 @@
         </div>
       </div>
       <div v-if="!headclickChild">
-        <div class="connect_other displayCom">
+        <div class="connect_other displayCom" v-if="typeChildclick===1">
           <div class="connect_other_line"></div>
           <span>or</span>
           <div class="connect_other_line"></div>
@@ -149,45 +151,24 @@ import { Message } from 'view-ui-plus'
 const ecc = require('@bitcoinerlab/secp256k1');
 import apis from '../util/apis/apis';
 import { getAddress, signTransaction, signMessage } from "sats-connect";
+import tp from "tp-js-sdk";
+
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const toXOnly = (pubKey) =>
   pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 Message.config({
-  duration: 10
+  duration: 5
 })
 export default {
+  props: ["typeclick"],
   data() {
     return {
+      typeChildclick: this.typeclick,
+      connetShow: false,
       headclickChild: false,
       walletTypeBoolean: false,
-      walletTypeList: [
-        {
-          name: "FoxWallet",
-          url: require("../assets/head/connect_foxwallet@2x.png"),
-          isSelect: false
-        },
-        // {
-        //   name: "TokenPocket",
-        //   url: require("../assets/head/connect_tokenpocket@2x.png"),
-        //   isSelect: false
-        // },
-        // {
-        //   name: "UniSat",
-        //   url: require("../assets/head/connect_unisat@2x.png"),
-        //   isSelect: false
-        // },
-        // {
-        //   name: "Xverse",
-        //   url: require("../assets/head/connect_xverse@2x.png"),
-        //   isSelect: false
-        // },
-        // {
-        //   name: "Metamask",
-        //   url: require("../assets/head/connect_metamask@2x.png"),
-        //   isSelect: false
-        // },
-      ],
+      walletTypeList: [],
       defaultPath: "m/86'/0'/0'/0/0",
       walletAddress: null,
       showAddress: null,
@@ -205,8 +186,6 @@ export default {
       // if (item.isSelect) {
       //   return
       // }
-      this.generateBitcoinAddrFoxWallet();
-      return
       this.walletTypeList.forEach(element => {
         element.isSelect = false
       })
@@ -219,6 +198,8 @@ export default {
         this.generateBitcoinAddrXverse()
       } else if (item.name === 'FoxWallet') {
         this.generateBitcoinAddrFoxWallet()
+      } else if (item.name === 'TokenPocket') {
+        this.generateBitcoinAddrTpWallet()
       }
     },
     showAddressFun(address) {
@@ -278,34 +259,31 @@ export default {
       window.unisat.on("accountsChanged", this.handleAccountsChanged);
     },
     async generateBitcoinAddrFoxWallet() {
-      if (typeof window.ethereum === "undefined") {
+      const provider = window.foxwallet && window.foxwallet.bitcoin;
+      if (!provider) {
         Message.error("FoxWallet is not installed!");
         return;
       }
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      this.walletAddress = accounts[0]
-      let provider = new ethers.BrowserProvider(window.ethereum);
-      let signer = await provider.getSigner();
-      let sig = await signer.signMessage(this.GivingMsg);
-      const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
-      // const bip32 = BIP32Factory(ecc);
-      let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
-      const taprootChild = root.derivePath(this.defaultPath);
-      const pubKey = taprootChild.publicKey;
-      const { address: taprootAddress } = bitcoin.payments.p2tr({
-        internalPubkey: toXOnly(pubKey),
-      });
-      if (taprootAddress) {
-        this.showAddress = this.showAddressFun(taprootAddress);
-        localStorage.setItem("bitcoin_address", taprootAddress);
-        localStorage.setItem("walletType", "metaMask");
-        localStorage.setItem("public_key", pubKey.toString("hex"));
-        this.addressPersonFun(taprootAddress)
-      } else {
-        Message.error("generate your bitcoin address failed, please retry.");
+      let accounts = await provider.requestAccounts();
+      this.walletAddress = accounts[0];
+      this.showAddress = this.showAddressFun(this.walletAddress);
+      localStorage.setItem("bitcoin_address", this.walletAddress);
+      localStorage.setItem("walletType", "FoxWallet");
+      this.addressPersonFun(this.walletAddress)
+    },
+    async generateBitcoinAddrTpWallet() {
+      if (!tp.isConnected()) {
+        Message.error("please downLoad TokenPocket App");
+        return
       }
+      tp.getCurrentWallet().then((result) => {
+        const account = result.data.address;
+        this.walletAddress = account;
+        this.showAddress = this.showAddressFun(this.walletAddress);
+        localStorage.setItem("bitcoin_address", this.walletAddress);
+        localStorage.setItem("walletType", "tokenPocket");
+        this.addressPersonFun(this.walletAddress)
+      });
     },
     async generateBitcoinAddrXverse() {
       const getAddressOptions = {
@@ -405,6 +383,38 @@ export default {
     if (localStorage.headclick && localStorage.headclick === '1') {
       this.headclickChild = true
     }
+    let arr = [];
+    let connetShow = false;
+    if (window.foxwallet && window.foxwallet.bitcoin) {
+      let temp = {
+        name: "FoxWallet",
+        url: require("../assets/head/connect_foxwallet@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp);
+      connetShow = true
+    } else {
+      if (typeof window.ethereum != 'undefined') {
+        let temp = {
+          name: "Metamask",
+          url: require("../assets/head/connect_metamask@2x.png"),
+          isSelect: false
+        }
+        arr.push(temp)
+        connetShow = true
+      }
+    }
+    if (tp.isConnected()) {
+      let temp = {
+        name: "TokenPocket",
+        url: require("../assets/head/connect_tokenpocket@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+      connetShow = true
+    }
+    this.connetShow = connetShow;
+    this.walletTypeList = arr
   }
 }
 </script>

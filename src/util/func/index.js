@@ -21,8 +21,8 @@ const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.netw
 function toXOnly(pubKey) {
   return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 }
-export async function generateBitcoinAddr(type) {
-  if (type === 'metaMask') {
+export async function generateBitcoinAddr(type,deviceType) {
+  if (type === 'metaMask'||deviceType==='mobile') {
     if (typeof window.ethereum === 'undefined') {
       alert("Metamask is not installed!")
       return
@@ -98,7 +98,9 @@ export function sendBTCTransFun(payload,type) {
   const sendAmount = new BigNumber(payload.amount || '0');
   const utxos = formatUTXOs(payload.utxos);
   const inscriptions = formatInscriptions(payload.inscriptions);
+  console.log(payload)
   if (type === "sendBtc") {
+    console.log("sendBtc")
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,
@@ -110,6 +112,7 @@ export function sendBTCTransFun(payload,type) {
       true
     );
   } else {
+    console.log("Inscriptions")
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,

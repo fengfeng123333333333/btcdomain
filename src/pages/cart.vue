@@ -1445,6 +1445,10 @@ export default {
     }
     document.addEventListener("click", this.outClick);
   },
+  unmounted() {
+    document.removeEventListener("click", this.outClick)
+
+  },
   destroyed() {
     document.removeEventListener("click", this.outClick)
   }

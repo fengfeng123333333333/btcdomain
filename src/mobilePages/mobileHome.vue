@@ -74,6 +74,7 @@
   font-weight: 400;
   color: #2e2f3e;
   border-radius: 0.16rem;
+  padding-right: 1.5rem;
 }
 .icon_search {
   position: absolute;
@@ -95,40 +96,39 @@
   width: 100%;
   margin-top: 1.62rem;
   height: 0.68rem;
-  overflow: hidden;
   padding: 0 0.2rem;
+}
+.seamlessBox {
+  width: 100%;
+  height: 0.68rem;
+  overflow-x: auto;
+}
+.seamlessBox::-webkit-scrollbar {
+  display: none;
 }
 .seamless {
   width: 100%;
   height: 0.68rem;
-  overflow: hidden;
   display: flex;
-  align-items: center;
 }
 .seamless_item {
   height: 0.68rem;
   background: rgba(99, 106, 224, 0.5);
   border-radius: 0.34rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 0 0.3rem;
   font-size: 0.28rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #ffffff;
   margin-right: 0.2rem;
+  white-space: nowrap;
+  line-height: 0.68rem;
 }
 .seamless_item_status {
   display: flex;
   align-items: center;
   font-size: 0.24rem;
-  font-family: AppleColorEmoji;
   color: #ffffff;
-}
-.seamless_item_status img {
-  width: 0.34rem;
-  height: 0.34rem;
 }
 .mobile_home_body {
   padding: 0 0.2rem;
@@ -359,6 +359,12 @@
   flex-wrap: wrap;
   width: 100%;
   margin-bottom: 1.3rem;
+  max-height: 2rem;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.home_cart_list::-webkit-scrollbar {
+  display: none;
 }
 .cart_item {
   height: 0.64rem;
@@ -477,10 +483,11 @@
   margin: 0.2rem 0;
   display: flex;
   justify-content: flex-end;
+  padding-right: 0.2rem;
 }
 .inscription_showtype img {
-  width: 0.64rem;
-  height: 0.64rem;
+  width: 0.48rem;
+  height: 0.48rem;
   cursor: pointer;
 }
 .inscription_tab_item {
@@ -796,15 +803,10 @@
           </van-tabs>
         </div>
       </div>
-      <div class="home_lun" v-if="selectId===1">
-        <vue-seamless-scroll :data="list" :class-option="classOption" class="seamless1">
+      <div class="home_lun" v-show="selectId===1">
+        <vue-seamless-scroll :data="list" :class-option="classOption" class="seamlessBox">
           <div class="seamless">
-            <div v-for="(item,index) in list" :key="index" class="seamless_item">
-              <div class="seamless_item_status">
-                <span>🎉Registered: </span>
-              </div>
-              <span> {{ item.dom_name }}</span>
-            </div>
+            <div v-for="(item,index) in list" :key="index" class="seamless_item">Registered: {{ item.dom_name }}</div>
           </div>
         </vue-seamless-scroll>
       </div>
@@ -813,7 +815,7 @@
       <div class="mobile_home_cart">
         <div class="mobile_home_cart_title" v-if="cartNum>1">{{cartNum}} Domains</div>
         <div class="mobile_home_cart_title" v-else>{{cartNum}} Domain</div>
-        <div class="home_cart_list">
+        <div class="home_cart_list" ref="home_cart_list">
           <div class="cart_item" v-for="(item,index) in cartList" :key="index">
             <span>{{item.domain}}</span>
             <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
@@ -829,7 +831,7 @@
     <MobileFoot></MobileFoot>
   </div>
 </template>
-  
+
 <script>
 import MobileHead from '@/mobileComponents/mobileHead.vue'
 import MobileFoot from '@/mobileComponents/mobileFoot.vue'
@@ -837,7 +839,7 @@ import apis from '../util/apis/apis'
 import { copyAction, changeStatusFun } from '../util/func/index'
 const moment = require('moment');
 import { validate } from 'bitcoin-address-validation';
-import { showFailToast } from 'vant';
+import { Message } from 'view-ui-plus'
 export default {
   components: {
     MobileHead, MobileFoot
@@ -848,6 +850,8 @@ export default {
         this.cartNum = newValue.length;
         if (this.cartNum > 0) {
           this.cartBoolean = true
+        } else {
+          this.cartBoolean = false
         }
       },
       deep: true
@@ -866,7 +870,11 @@ export default {
         limitMoveNum: 6,
         direction: 2
       },
-      list: [],
+      list: [
+        {
+          dom_name: "8888"
+        }
+      ],
       searchText: "",
       searchTabList: [
         {
@@ -947,7 +955,7 @@ export default {
           if (res.data.code === 0) {
             this.list = res.data.data;
           } else {
-            // showFailToast(res.data.message)
+            // Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -991,7 +999,7 @@ export default {
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -1036,11 +1044,11 @@ export default {
     addressFun() {
       this.addressSearchShow = true
       if (!this.searchText) {
-        showFailToast("address must not be empty")
+        Message.error("address must not be empty")
         return
       }
       if (!validate(this.searchText)) {
-        showFailToast("bitcoin address is not valid")
+        Message.error("bitcoin address is not valid")
         return
       }
       this.inscrptList = []
@@ -1059,7 +1067,6 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
-            console.log("1111111111")
             res.data.data.result.forEach(element => {
               this.inscriptionstype(element)
               if (element.register_date) {
@@ -1092,7 +1099,7 @@ export default {
             this.histroyAddressBoolean = false;
           } else {
             this.spanBoolean = false
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {
@@ -1219,7 +1226,11 @@ export default {
         return
       }
       this.resultData.isSelect = true
-      this.cartList.push(this.resultData)
+      this.cartList.push(this.resultData);
+      this.$nextTick(() => {
+        let scrollElem = this.$refs.home_cart_list;
+        scrollElem.scrollTo({ top: scrollElem.scrollHeight, behavior: 'smooth' });
+      });
     },
     addLinkFun(item) {
       if (item.isSelect) {
@@ -1227,8 +1238,11 @@ export default {
       }
       item.isSelect = true
       item.domain = item.dom_name;
-      console.log(item)
-      this.cartList.push(item)
+      this.cartList.push(item);
+      this.$nextTick(() => {
+        let scrollElem = this.$refs.home_cart_list;
+        scrollElem.scrollTo({ top: scrollElem.scrollHeight, behavior: 'smooth' });
+      });
     },
     showAddressFun(address) {
       if (address) {
@@ -1272,7 +1286,6 @@ export default {
       }
     },
     changeAddressTypefun(value) {
-      console.log(value)
       this.type = value.name
       if (this.searchText) {
         this.addressFun()
@@ -1347,8 +1360,6 @@ export default {
     },
   },
   mounted() {
-    let test = '{ "aptos": { "isFoxwallet": true, "chain": "APTOS", "connected": false, "connectedAccount": null, "callbacks": {}, "networkChangeCallbacks": [] }, "solana": { "_events": {}, "_eventsCount": 0, "isFoxWallet": true, "chain": "SOL", "callbacks": {}, "publicKey": null, "isConnected": false, "isCloverWallet": true, "isPhantom": true, "isGlow": false }, "suiWallet": { "_events": {}, "_eventsCount": 0, "isDebug": true, "isFoxWallet": true, "chain": "SUI", "version": "1.0.0", "name": "Sui Wallet", "callbacks": {}, "icon": "data:image/svg+xml;base64,mlsbC1ydWxlPSJldmVub2RkIiBMi43MjEiIHkxPSI0Ni4wMzE5IiB4Mj0iMzcuMjg0MyIgeTI9IjMwLjcxNjUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0VDNkYwMCIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNG", "chains": ["sui:devnet"], "innerAccounts": [], "features": { "standard:connect": { "version": "1.0.0" }, "standard:events": { "version": "1.0.0" }, "sui:signTransactionBlock": { "version": "2.0.0" }, "sui:signAndExecuteTransactionBlock": { "version": "1.0.0" }, "suiWallet:stake": { "version": "0.0.1" }, "sui:signMessage": { "version": "1.0.0" } } }, "ethereum": { "_events": {}, "_eventsCount": 0, "isDebug": false, "isFoxWallet": true, "address": "", "ready": true, "networkVersion": "1", "chainId": "0x1", "rpc": { "rpcUrl": "https://mainnet.infura.io/v3/d039103314584a379e33c21fbe89b6cb" }, "chain": "ETH", "idMapping": { "intIds": {} }, "callbacks": {}, "wrapResults": {}, "isMetaMask": true, "_metamask": {} } }'
-    console.log(JSON.parse(test))
     let cartListlocal = localStorage.cartList;
     if (cartListlocal) {
       this.cartListlocal = JSON.parse(cartListlocal)

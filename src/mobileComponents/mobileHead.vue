@@ -166,7 +166,7 @@
       <img src="../assets/mobileHead/logo_nav_white@2x.png" alt="" class="mobile_logo" @click='toHomeFun'>
     </div>
     <div class="mobile_head_app_right">
-      <div class="mobile_connet" v-if="!showAddress">Wallet</div>
+      <div class="mobile_connet" v-if="!showAddress&&connetShow" @click='collectFun'>Wallet</div>
       <img :src="avaterImg" alt="" class="out_login_avater" v-if="avaterImg&&showAddress" @click='toPersonFun'>
       <img src="../assets/head/avater_def@2x.png" alt="" class="out_login_avater" v-else-if="!avaterImg&&showAddress" @click='toPersonFun'>
       <img src="../assets/mobileHead/icon_cart@2x.png" alt="" class="mobile_cart" @click='toCartPageFun'>
@@ -174,14 +174,14 @@
     <div class="mobile_menu_box" v-if="menuBoolean">
       <div class="mobile_menu_box_head">
         <img src="../assets/mobileHead/icon_close_nav@2x.png" alt="" class="mobile_menu_box_close" @click="closeFun">
-        <img src="../assets/mobileHead/logo_nav_black@2x.png" alt="" class="mobile_logo_black">
+        <img src="../assets/mobileHead/logo_nav_black@2x.png" alt="" class="mobile_logo_black" @click='toHomeFun'>
       </div>
       <div class="mobile_menu_body">
         <a class="mobile_menu_item" href="https://docs.btcdomains.io" target="_blank">Document</a>
         <a class="mobile_menu_item" href="https://linktr.ee/btcdomain_btc" target="_blank">Linktree</a>
         <div class="mobile_menu_item" style="border-bottom: 0.02rem solid rgba(167, 169, 190, 0.4);" @click='toCartPageFun'>Cart</div>
-        <div class="mobile_menu_connect" @click='collectFun' v-if="!showAddress">Collect Wallet</div>
-        <div class="mobile_login_box" v-else>
+        <div class="mobile_menu_connect" @click='collectFun' v-if="!showAddress&&connetShow">Collect Wallet</div>
+        <div class="mobile_login_box" v-else-if='showAddress&&connetShow'>
           <div class="mobile_login_avtar">
             <img :src="avaterImg" alt="" v-if="avaterImg">
             <img src="../assets/head/avater_def@2x.png" alt="" v-else>
@@ -194,7 +194,7 @@
         </div>
       </div>
     </div>
-    <MobileLogin v-if="walletTypeBoolean" @loginEnd="loginEndFun" @avater="avaterFun" @closemask="closeMaskFun">
+    <MobileLogin v-if="walletTypeBoolean" @loginEnd="loginEndFun" @avater="avaterFun" @closemask="closeMaskFun" :typeclick="typeclick">
     </MobileLogin>
   </div>
 </template>
@@ -217,6 +217,7 @@ export default {
         } else {
           this.showAddress = null
         }
+        console.log("showData", val)
       }
     },
     goTcartpage: {
@@ -232,12 +233,15 @@ export default {
       handler(val) {
         if (val) {
           this.walletTypeBoolean = true;
+          this.typeclick = 2
         }
       }
     },
   },
   data() {
     return {
+      typeclick: 1,
+      connetShow: false,
       menuBoolean: false,
       walletTypeBoolean: false,
       showAddress: null,
@@ -255,6 +259,7 @@ export default {
     },
     collectFun() {
       localStorage.headclick = 1;
+      this.typeclick = 1;
       this.walletTypeBoolean = true
     },
     closeMaskFun() {
@@ -276,6 +281,7 @@ export default {
       })
     },
     openFun() {
+      this.typeclick = 1;
       this.menuBoolean = true;
     },
     closeFun() {
@@ -288,6 +294,7 @@ export default {
           name: "mobile_cart"
         })
       } else {
+        this.typeclick = 2;
         this.typePage = true
         this.walletTypeBoolean = true
       }
@@ -315,6 +322,7 @@ export default {
       if (value) {
         this.avaterImg = value;
       }
+      console.log("avaterFun", value)
     },
     toHomeFun() {
       this.$router.push({
@@ -347,6 +355,7 @@ export default {
           if (res.data.code === 0) {
             if (res.data.data.length > 0) {
               this.avaterImg = res.data.data[0].content_url;
+              console.log("this.avaterImg", this.avaterImg)
             }
             this.spanBoolean = false;
           } else {
@@ -364,6 +373,37 @@ export default {
       this.showAddress = this.showAddressFun(localStorage.bitcoin_address)
       this.addressPersonFun(localStorage.bitcoin_address)
     }
+    let arr = [];
+    let connetShow = false;
+    if (window.foxwallet && window.foxwallet.bitcoin) {
+      let temp = {
+        name: "FoxWallet",
+        url: require("../assets/head/connect_foxwallet@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp);
+      connetShow = true
+    } else {
+      if (typeof window.ethereum != 'undefined') {
+        let temp = {
+          name: "Metamask",
+          url: require("../assets/head/connect_metamask@2x.png"),
+          isSelect: false
+        }
+        arr.push(temp)
+        connetShow = true
+      }
+    }
+    if (tp.isConnected()) {
+      let temp = {
+        name: "TokenPocket",
+        url: require("../assets/head/connect_tokenpocket@2x.png"),
+        isSelect: false
+      }
+      arr.push(temp)
+      connetShow = true
+    }
+    this.connetShow = connetShow;
   }
 }
 </script>

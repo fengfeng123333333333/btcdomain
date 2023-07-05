@@ -1225,7 +1225,7 @@ import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
-import { signTransaction, signMessage } from "sats-connect";
+import { signTransaction } from "sats-connect";
 import * as btc from '@scure/btc-signer';
 import { hex, base64 } from '@scure/base'
 const Decimal = require('decimal.js');
@@ -1316,6 +1316,10 @@ export default {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
   },
+  unmounted() {
+    clearInterval(this.timer);
+    clearInterval(this.timerPenson);
+  },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
@@ -1381,10 +1385,10 @@ export default {
         Message.warning("min sat you must transfer is" + 1000);
         return;
       }
-      // let avail = new BigNumber(this.sendAmount);
+      // let avail = new BigNumber(this.balance);
       // if (one.gte(avail)) {
       //   Message.warning(
-      //     "max value you must transfer is " + this.sendAmount + "btc"
+      //     "max value you must transfer is " + this.balance + "btc"
       //   );
       //   return;
       // }
@@ -1428,7 +1432,7 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "sendBtc");
           // submit
           this.pushTx(txHex);
         }
@@ -1455,7 +1459,7 @@ export default {
             this.payStatusBoolean = true;
             localStorage.isPay = 2;
             this.isPay = 2
-            Message.success("tx: " + res.data.result + " has been publiced");
+            Message.success("tx: " + res.data.result + " has been published");
           } else {
             Message.info(res.data.message);
           }
@@ -1505,18 +1509,21 @@ export default {
       const publicKey = hex.decode(localStorage.public_key)
       const p2wpkh2 = btc.p2wpkh(publicKey, bitcoinTestnet);
       const p2sh = btc.p2sh(p2wpkh2, bitcoinTestnet);
+      console.log("p2sh.script", p2sh.script)
+      console.log("p2sh.redeemScript", p2sh.redeemScript)
       tx.addInput({
         txid: output.txid,
         index: output.vout,
         witnessUtxo: {
-          script: p2sh.script ? p2sh.script : Buffer.alloc(0),
+          script: p2sh.script,
           amount: BigInt(weivalue),
         },
-        redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
-        witnessScript: p2sh.witnessScript,
-        sighashType: 131
+        redeemScript: p2sh.redeemScript,
+        // witnessScript: p2sh.witnessScript,
+        sighashType: btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY
       })
-      tx.addOutputAddress(recipient, BigInt(weivalue), bitcoinTestnet)
+      let outValue = BigInt(weivalue) - 6n
+      tx.addOutputAddress(recipient, outValue, bitcoinTestnet)
       const psbt = tx.toPSBT(0)
       const psbtB64 = base64.encode(psbt)
       console.log(psbtB64)
@@ -1527,7 +1534,7 @@ export default {
           },
           message: this.GivingMsg,
           psbtBase64: psbtB64,
-          broadcast: false,
+          broadcast: true,
           inputsToSign: [{
             address: localStorage.getItem("paymentAddress"),
             signingIndexes: [0],
@@ -1538,7 +1545,6 @@ export default {
         onFinish: (response) => {
           console.log(response)
         },
-        onCancel: () => Message.info("Request canceled"),
       };
       await signTransaction(signPsbtOptions);
       // this.statusInfoFun(3)
@@ -1651,17 +1657,10 @@ export default {
               Message.warning("to address is not valid");
               return;
             }
-            if (this.sendRealAddress.indexOf('bc1p') != -1 || this.sendRealAddress.indexOf('tb1') != -1) {
-              if (this.sendRealAddress.length == 62) {
-                if (localStorage.walletType === 'uniSat') {
-                  this.unisatAction()
-                } else {
-                  this.submitBtcTxAction()
-                }
-              } else {
-                Message.error("Check the length of your Ordinals address");
-                return
-              }
+            if (localStorage.walletType === 'uniSat') {
+              this.unisatAction()
+            } else {
+              this.submitBtcTxAction()
             }
           } else {
             Message.error("the address is  error")

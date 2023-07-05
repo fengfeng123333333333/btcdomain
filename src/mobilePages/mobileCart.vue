@@ -61,6 +61,9 @@
   margin-top: 2.82rem;
   padding-bottom: 0.6rem;
 }
+.cart_receive_box {
+  padding: 0 0.2rem;
+}
 .cart_receive {
   width: 100%;
   height: 1.68rem;
@@ -363,7 +366,7 @@
 </style>
 <template>
   <div class="mobile_cart_app" :class='{mobile_cart_app_kong:cartNum===0}'>
-    <MobileHead showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></MobileHead>
+    <MobileHead :showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></MobileHead>
     <div v-if="cartNum>0">
       <div class="cart_head">Your Cart</div>
       <div class="cart_body">
@@ -377,12 +380,14 @@
             <span style="color:#A7A9BE">Place Order</span>
           </div>
         </div>
-        <div class="cart_receive">
-          <div class="cart_receive_address">
-            <span>Receive Address</span>
-            <span class="address">{{showAddress}}</span>
+        <div class="cart_receive_box">
+          <div class="cart_receive">
+            <div class="cart_receive_address">
+              <span>Receive Address</span>
+              <span class="address">{{showAddress}}</span>
+            </div>
+            <div class="cart_change" @click="changeWalletFun">Change</div>
           </div>
-          <div class="cart_change" @click="changeWalletFun">Change</div>
         </div>
         <div class="cart_list" ref="cart_list">
           <div class="cart_list_item" @click.stop v-for="(item,index) in cartList" :key="index">
@@ -522,8 +527,7 @@ import { copyAction } from '../util/func/index'
 import BigNumber from "bignumber.js";
 const Decimal = require('decimal.js');
 const moment = require('moment');
-import { showFailToast } from 'vant';
-
+import { Message } from 'view-ui-plus'
 export default {
   components: {
     MobileHead, MobileEmptyCart, MobileFoot, MobileLogin
@@ -599,7 +603,6 @@ export default {
       this.createPayOrderFun()
     },
     changeYearFun(value) {
-      console.log(value)
       if (!value) {
         return
       }
@@ -771,7 +774,6 @@ export default {
       }
     },
     goToCartFun(type) {
-      console.log("nsdfffffffffffff")
       this.spanBoolean = true
       let param = {};
       let arr = []
@@ -802,7 +804,6 @@ export default {
       // } else {
       //   param.promo_code = this.promo_code
       // }
-      console.log("ddddddddfffffffff")
       param.promo_code = ""
       this.$axios({
         method: "post",
@@ -857,7 +858,7 @@ export default {
             if (res.data.message === 'promo_rate error') {
               this.gasTotalData.total_promcode_fee = 0
             }
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {

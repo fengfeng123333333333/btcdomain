@@ -963,7 +963,7 @@ const moment = require('moment');
 import { copyAction, changeStatusFun } from '../util/func/index'
 import { validate } from 'bitcoin-address-validation';
 Message.config({
-  duration: 10
+  duration: 5
 })
 export default {
   components: {

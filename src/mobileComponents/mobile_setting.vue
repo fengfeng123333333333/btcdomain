@@ -176,6 +176,7 @@
   border: 0.02rem solid #d5d6e0;
   outline: none;
   padding: 0 0.2rem;
+  padding-right: 0.8rem;
   font-size: 0.28rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
@@ -183,6 +184,10 @@
 }
 .set_input:focus {
   border: 0.02rem solid #4540d6;
+}
+.set_input::placeholder {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .selectdiv {
   width: 100%;
@@ -416,7 +421,7 @@
         <div class="set_prime_boy">
           <div class="set_dec">You can choose one of your domain names as your main domain name</div>
           <div class="set_prime_search">
-            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="Search domain name or inscription number">
+            <input @keyup.enter="searchFun" @input="isInputFun" v-model="searchText" type="text" class="set_input" placeholder="domain name or inscription number">
             <img src="../assets/person/icon_44px_search_gray@2x.png" alt="" @click='searchFun'>
           </div>
           <div class="selectdiv" :class="{hasdomain:selectData}">
@@ -743,7 +748,7 @@ export default {
       });
     },
   },
-  mounted() {
+  created() {
     let walletType = localStorage.walletType
     if (walletType != "metaMask") {
       this.unisatPriver = true;
@@ -752,8 +757,8 @@ export default {
       this.unisatPriver = false;
       this.tabsName = "Profile"
     }
-    console.log(this.tabsName)
-    console.log(this.unisatPriver)
+  },
+  mounted() {
     this.monywallet = localStorage.bitcoin_address;
     this.public_key = localStorage.public_key;
     this.addressPersonFun()

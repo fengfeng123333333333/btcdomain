@@ -3,19 +3,12 @@ import App from './App.vue'
 import router from './router'
 import './util/css/font.css'
 import axios from 'axios'
-import { Loading ,Button ,ActionSheet,Tab, Tabs,Stepper} from 'vant';
 import 'vant/lib/index.css';
 import 'view-ui-plus/dist/styles/viewuiplus.css'
 import vueSeamless from 'vue-seamless-scroll/src'
 let app = createApp(App)
-app.use(vueSeamless)
 app.use(router)
-app.use(Loading)
-app.use(Button)
-app.use(ActionSheet)
-app.use(Tab)
-app.use(Tabs)
-app.use(Stepper)
+app.use(vueSeamless)
 app.config.globalProperties.$axios = axios;
 if ((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile |BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i))) {
   // localStorage.setItem("showTypeDeviec", "mobile");

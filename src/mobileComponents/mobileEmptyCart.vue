@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 1.4rem;
 }
 .empty_head_img {
   margin-top: 1.8rem;
@@ -451,7 +452,7 @@
 import apis from '../util/apis/apis'
 import { copyAction, changeStatusFun } from '../util/func/index'
 const moment = require('moment');
-import { showFailToast } from 'vant';
+import { Message } from 'view-ui-plus'
 export default {
   watch: {
     cartList: {
@@ -460,7 +461,6 @@ export default {
         if (this.cartNum > 0) {
           this.cartBoolean = true
         }
-        console.log(this.cartNum)
       },
       deep: true
     }
@@ -536,7 +536,6 @@ export default {
       }
       item.isSelect = true
       item.domain = item.dom_name;
-      console.log(item)
       this.cartList.push(item)
     },
     showAddressFun(address) {
@@ -587,7 +586,7 @@ export default {
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
-            showFailToast(res.data.message)
+            Message.error(res.data.message)
           }
         }
       }).catch(err => {

@@ -84,7 +84,7 @@ const router = createRouter({
           title: 'domain-mobile_person'
         },
     }
-    ],
+  ],
   scrollBehavior(to, from, savedPosition) {
        return { x: 0, y: 0 };
     }
