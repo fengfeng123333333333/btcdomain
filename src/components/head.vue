@@ -298,8 +298,10 @@ export default {
       }
     },
     avaterFun(value) {
+      console.log("value", value)
       if (value) {
         this.avaterImg = value;
+        console.log("this.avaterImg", value)
       }
     },
     showAddressFun(address) {

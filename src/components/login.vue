@@ -289,7 +289,7 @@ export default {
       const getAddressOptions = {
         payload: {
           purposes: ["ordinals", "payment"],
-          message: "Address for receiving Ordinals",
+          message: this.GivingMsg,
           network: {
             type: "Mainnet",
           },
@@ -302,7 +302,7 @@ export default {
           localStorage.setItem("paymentAddress", response.addresses[1].address);
           localStorage.setItem("public_key", publiKey);
           localStorage.setItem("walletType", "Xverse");
-
+          console.log(response)
           const signMessageOptions = {
             payload: {
               network: {
@@ -369,7 +369,7 @@ export default {
               let personData = res.data.data[0];
               if (personData.content_url && personData.content_url.length > 0) {
                 localStorage.setItem("bitcoin_avater", personData.content_url);
-                this.$emit("avater", personData.content_ur)
+                this.$emit("avater", personData.content_url)
               }
             }
           } else {

@@ -1498,7 +1498,7 @@ export default {
         scriptHash: 0x05,
         wif: 0x80,
       }
-      const unspentOutputs = await this.getUnspent(localStorage.paymentAddress)
+      const unspentOutputs = await this.getUnspent(localStorage.bitcoin_address)
       const output = unspentOutputs[0];
       console.log(output)
       const num = new BigNumber(this.feeData.total_fee);
@@ -1506,11 +1506,9 @@ export default {
       const recipient = this.monywallet;
       const tx = new btc.Transaction();
       console.log(localStorage.public_key)
-      const publicKey = hex.decode(localStorage.public_key)
+      const publicKey = hex.decode(localStorage.public_key);
       const p2wpkh2 = btc.p2wpkh(publicKey, bitcoinTestnet);
       const p2sh = btc.p2sh(p2wpkh2, bitcoinTestnet);
-      console.log("p2sh.script", p2sh.script)
-      console.log("p2sh.redeemScript", p2sh.redeemScript)
       tx.addInput({
         txid: output.txid,
         index: output.vout,
@@ -1519,10 +1517,10 @@ export default {
           amount: BigInt(weivalue),
         },
         redeemScript: p2sh.redeemScript,
-        // witnessScript: p2sh.witnessScript,
+        witnessScript: p2sh.witnessScript,
         sighashType: btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY
       })
-      let outValue = BigInt(weivalue) - 6n
+      let outValue = BigInt(weivalue)
       tx.addOutputAddress(recipient, outValue, bitcoinTestnet)
       const psbt = tx.toPSBT(0)
       const psbtB64 = base64.encode(psbt)
@@ -1540,7 +1538,8 @@ export default {
             signingIndexes: [0],
             // value: weivalue,
             sigHash: 131
-          }],
+          },
+          ],
         },
         onFinish: (response) => {
           console.log(response)
