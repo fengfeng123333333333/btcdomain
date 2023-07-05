@@ -254,7 +254,8 @@ export default {
             let amout_tmp = new BigNumber(confirm_amount);
             let amount_sat = amout_tmp.multipliedBy(100000000);
             let available_sat = amount_sat.minus(totalSatoshi);
-            localStorage.balance = available_sat.div(100000000).toPrecision(8).toString();;
+            let balance = available_sat.div(100000000).toPrecision(8).toString();
+            localStorage.balance = parseFloat(balance).toFixed(8);
           } else {
             Message.error(res.data.message)
           }
