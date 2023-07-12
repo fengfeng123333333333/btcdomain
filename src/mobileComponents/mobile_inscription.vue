@@ -1235,6 +1235,13 @@ export default {
         this.spanBoolean = false
       });
     },
+    sorts_fun(arr) {
+      return function (a, b) {
+        var v1 = a[arr];
+        var v2 = b[arr];
+        return v2 - v1;
+      };
+    }
   },
   mounted() {
     if (localStorage.walletType != "metaMask") {
