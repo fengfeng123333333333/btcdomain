@@ -579,7 +579,8 @@
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div :class="{jiexiError:!jiexiType}">{{ showAddressFun(jiexiAddress)}}</div>
+          <div v-if="jiexiType">{{ showAddressFun(jiexiAddress)}}</div>
+          <div class="jiexiError" v-else>{{ jiexiAddress}}</div>
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
