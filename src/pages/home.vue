@@ -695,264 +695,266 @@
   <div class="home_app" :class="{test:selectId===2}" @click="histroycloseFun">
 
     <Head :loginShow="loginShow" :goTcartpage="goTcartpage" @loginShow="loginShowFun"></Head>
-    <div class="home_body">
-      <div :class="{home_head_animal:contentShow||selectId===2}">
-        <div class="home_head">
-          <span>Get Your First</span>
-          <img src="../assets/home/btc.png" alt="">
-          <span>Domain on Bitcoin Mainnet</span>
+    <div @click="histroycloseFun">
+      <div class="home_body">
+        <div :class="{home_head_animal:contentShow||selectId===2}">
+          <div class="home_head">
+            <span>Get Your First</span>
+            <img src="../assets/home/btc.png" alt="">
+            <span>Domain on Bitcoin Mainnet</span>
+          </div>
+          <div class="home_dec">Bitcoin native domain system empowered by Ordinals and ZK-STARK</div>
         </div>
-        <div class="home_dec">Bitcoin native domain system empowered by Ordinals and ZK-STARK</div>
-      </div>
-      <div class="home_lun">
-        <vue-seamless-scroll :data="list" :class-option="classOption" class="seamless1">
-          <div class="seamless">
-            <div v-for="(item,index) in list" :key="index" class="seamless_item">
-              <div class="seamless_item_status">
-                <span>🎉Registered: </span>
-              </div>
-              <span> {{ item.dom_name }}</span>
-            </div>
-          </div>
-        </vue-seamless-scroll>
-      </div>
-      <div class="home_search">
-        <div class="search_tab">
-          <div class="search_tab_item" :class="{isSelectClass:item.isSelect}" v-for="(item,index) in searchTabList" :key="index" @click="changeSearchTypeFun(item)">
-            {{item.text}}
-          </div>
-        </div>
-        <div class="search_box" @click.stop>
-          <input type="text" v-if="selectId===1" @focus.stop='onfucusDomainFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Your name / product / brand / company / industry…"
-            class="searchInput">
-          <input type="text" v-else @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Enter a BTC address." class="searchInput"
-            :class='{searchInputSelect:selectId===2}'>
-          <img src="../assets/home/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
-          <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
-          <div class="search_box_history" @click.stop v-if="histroyBoolean">
-            <div class="search_box_history_head">
-              <div class="search_box_history_head_item">
-                <img src="../assets/home/icon_timehistory@2x.png" alt="">
-                <span>Histroy</span>
-              </div>
-              <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryFun">
-                <img src="../assets/home/icon_clear@2x.png" alt="">
-                <span>Clear</span>
-              </div>
-            </div>
-            <div class="historyItem">
-              <div class="cart_item history_item" v-for="(item,index) in historyList" :key="index" @click="historyseachFun(item)">
-                <span>{{item.domain}}</span>
-                <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyFun(index)">
-              </div>
-            </div>
-          </div>
-          <div class="search_box_history" v-if="histroyAddressBoolean">
-            <div class="search_box_history_head">
-              <div class="search_box_history_head_item">
-                <img src="../assets/home/icon_timehistory@2x.png" alt="">
-                <span>Histroy</span>
-              </div>
-              <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryAddressFun">
-                <img src="../assets/home/icon_clear@2x.png" alt="">
-                <span>Clear</span>
-              </div>
-            </div>
-            <div class="historyItem">
-              <div class="cart_item history_item" v-for="(item,index) in historyAddressList" :key="index" @click="historyseachAddressFun(item)">
-                <span>{{item.domain}}</span>
-                <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyAddressFun(index)">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-if="selectId===1">
-        <div class="home_content" @click="histroycloseFun" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
-          <div class="home_content_result">
-            <div class="result_left">
-              <span>{{resultData.dom_name}}</span>
-              <div class="result_left_bottom">
-                <div v-if="resultData.dom_state===9">
-                  <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+        <div class="home_lun">
+          <vue-seamless-scroll :data="list" :class-option="classOption" class="seamless1">
+            <div class="seamless">
+              <div v-for="(item,index) in list" :key="index" class="seamless_item">
+                <div class="seamless_item_status">
+                  <span>🎉Registered: </span>
                 </div>
-                <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
-                  <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">
-                    <span>Owner:{{resultData.showAddress}}</span>
-                    <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                <span> {{ item.dom_name }}</span>
+              </div>
+            </div>
+          </vue-seamless-scroll>
+        </div>
+        <div class="home_search">
+          <div class="search_tab">
+            <div class="search_tab_item" :class="{isSelectClass:item.isSelect}" v-for="(item,index) in searchTabList" :key="index" @click="changeSearchTypeFun(item)">
+              {{item.text}}
+            </div>
+          </div>
+          <div class="search_box" @click.stop>
+            <input type="text" v-if="selectId===1" @focus.stop='onfucusDomainFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Your name / product / brand / company / industry…"
+              class="searchInput">
+            <input type="text" v-else @focus.stop='onfucusFun' @input="isInputFun" v-model="searchText" @keyup.enter="searchFun" placeholder="Enter a BTC address." class="searchInput"
+              :class='{searchInputSelect:selectId===2}'>
+            <img src="../assets/home/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
+            <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
+            <div class="search_box_history" @click.stop v-if="histroyBoolean">
+              <div class="search_box_history_head">
+                <div class="search_box_history_head_item">
+                  <img src="../assets/home/icon_timehistory@2x.png" alt="">
+                  <span>Histroy</span>
+                </div>
+                <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryFun">
+                  <img src="../assets/home/icon_clear@2x.png" alt="">
+                  <span>Clear</span>
+                </div>
+              </div>
+              <div class="historyItem">
+                <div class="cart_item history_item" v-for="(item,index) in historyList" :key="index" @click="historyseachFun(item)">
+                  <span>{{item.domain}}</span>
+                  <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyFun(index)">
+                </div>
+              </div>
+            </div>
+            <div class="search_box_history" v-if="histroyAddressBoolean">
+              <div class="search_box_history_head">
+                <div class="search_box_history_head_item">
+                  <img src="../assets/home/icon_timehistory@2x.png" alt="">
+                  <span>Histroy</span>
+                </div>
+                <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryAddressFun">
+                  <img src="../assets/home/icon_clear@2x.png" alt="">
+                  <span>Clear</span>
+                </div>
+              </div>
+              <div class="historyItem">
+                <div class="cart_item history_item" v-for="(item,index) in historyAddressList" :key="index" @click="historyseachAddressFun(item)">
+                  <span>{{item.domain}}</span>
+                  <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyAddressFun(index)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="selectId===1">
+          <div class="home_content" @click="histroycloseFun" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
+            <div class="home_content_result">
+              <div class="result_left">
+                <span>{{resultData.dom_name}}</span>
+                <div class="result_left_bottom">
+                  <div v-if="resultData.dom_state===9">
+                    <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
                   </div>
-                  <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
-                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
-                </div>
-                <div v-else>
-                  <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering...</div>
-                </div>
-                <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.total_fee}} BTC/yr</div>
-              </div>
-            </div>
-            <div class="result_right" v-if="resultData.dom_state===9&&!resultData.isSelect" @click="addResultFun">
-              <img src="../assets/home/icon_add_white@2x.png" alt="">
-              <span>Add To Cart</span>
-            </div>
-            <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
-            <Spin size="large" fix :show="spanResultBoolean"></Spin>
-          </div>
-          <div class="home_content_link">
-            <div class="link_head">More Domains</div>
-            <div class="link_box">
-              <div class="link_item" v-for="(item,index) in linkList" :key="index">
-                <div class="result_left">
-                  <span style="font-size: 16px;">{{item.dom_name}}</span>
-                  <div class="result_left_bottom">
-                    <div v-if="item.dom_state===9">
-                      <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
+                  <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
+                    <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                    <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">
+                      <span>Owner:{{resultData.showAddress}}</span>
+                      <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
                     </div>
-                    <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
-                      <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">
-                        <span>Owner:{{item.showAddress}}</span>
-                        <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                    <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
+                    <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
+                  </div>
+                  <div v-else>
+                    <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering...</div>
+                  </div>
+                  <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="resultData.dom_state===9">{{resultData.fee.total_fee}} BTC/yr</div>
+                </div>
+              </div>
+              <div class="result_right" v-if="resultData.dom_state===9&&!resultData.isSelect" @click="addResultFun">
+                <img src="../assets/home/icon_add_white@2x.png" alt="">
+                <span>Add To Cart</span>
+              </div>
+              <img src="../assets/home/icon_ok_p@2x.png" alt="" v-if="resultData.dom_state===9&&resultData.isSelect" class="link_item_add">
+              <Spin size="large" fix :show="spanResultBoolean"></Spin>
+            </div>
+            <div class="home_content_link">
+              <div class="link_head">More Domains</div>
+              <div class="link_box">
+                <div class="link_item" v-for="(item,index) in linkList" :key="index">
+                  <div class="result_left">
+                    <span style="font-size: 16px;">{{item.dom_name}}</span>
+                    <div class="result_left_bottom">
+                      <div v-if="item.dom_state===9">
+                        <div class="result_left_bottom_item" style="color:#4540D6;background:rgba(69,64,214,0.1)">Available</div>
                       </div>
-                      <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
-                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
+                      <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
+                        <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
+                        <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">
+                          <span>Owner:{{item.showAddress}}</span>
+                          <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                        </div>
+                        <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
+                        <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
+                      </div>
+                      <div v-else>
+                        <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
+                      </div>
+                      <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="item.dom_state===9">{{item.fee.total_fee}} BTC/yr</div>
                     </div>
-                    <div v-else>
-                      <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
-                    </div>
-                    <div class="result_left_bottom_item" style="color:#2E2F3E;background:rgba(83,85,112,0.1)" v-if="item.dom_state===9">{{item.fee.total_fee}} BTC/yr</div>
+                  </div>
+                  <div class="link_item_right" v-if="item.dom_state==9">
+                    <img src="../assets/home/icon_add_black@2x.png" alt="" v-if="!item.isSelect" class="link_item_add" @click="addLinkFun(item)">
+                    <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
                   </div>
                 </div>
-                <div class="link_item_right" v-if="item.dom_state==9">
-                  <img src="../assets/home/icon_add_black@2x.png" alt="" v-if="!item.isSelect" class="link_item_add" @click="addLinkFun(item)">
-                  <img src="../assets/home/icon_ok_p@2x.png" alt="" v-else class="link_item_add">
-                </div>
+                <Spin size="large" fix :show="spanMoreBoolean"></Spin>
               </div>
-              <Spin size="large" fix :show="spanMoreBoolean"></Spin>
+              <!-- <div class="link_more">More…</div> -->
             </div>
-            <!-- <div class="link_more">More…</div> -->
           </div>
+          <div class="home_kongbai" v-show="!contentShow"></div>
         </div>
-        <div class="home_kongbai" v-show="!contentShow"></div>
-      </div>
-      <div v-if="selectId===2">
-        <div class="inscription_tab">
-          <div v-if="addressSearchShow">
-            <Tabs @on-click="changeAddressTypefun" :value="type">
-              <TabPane :label="item.name" :name="item.type" v-for="(item,index) in tabList" :key="index">
-                <div class="inscription_tab_box" v-if="inscrptList.length>0">
-                  <div class="inscription_tab_list" v-if="listShowType===2">
-                    <div class="inscription_tab_title">
-                      <div class="width1">Domain Name</div>
-                      <div class="width2" style="margin-left:120px">Create Date</div>
-                      <div class="width3" style="margin-left:80px">Registration Date</div>
-                      <div class="width4">Expiration Date</div>
-                      <div class="width5">Inscription ID</div>
+        <div v-if="selectId===2">
+          <div class="inscription_tab">
+            <div v-if="addressSearchShow">
+              <Tabs @on-click="changeAddressTypefun" :value="type">
+                <TabPane :label="item.name" :name="item.type" v-for="(item,index) in tabList" :key="index">
+                  <div class="inscription_tab_box" v-if="inscrptList.length>0">
+                    <div class="inscription_tab_list" v-if="listShowType===2">
+                      <div class="inscription_tab_title">
+                        <div class="width1">Domain Name</div>
+                        <div class="width2" style="margin-left:120px">Create Date</div>
+                        <div class="width3" style="margin-left:80px">Registration Date</div>
+                        <div class="width4">Expiration Date</div>
+                        <div class="width5">Inscription ID</div>
+                      </div>
+                      <div class="inscription_tab_item" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
+                        <div class="tab_item_left width1">
+                          <div v-if="type==='Domains'">
+                            <img :src="itemInscript.domain_img" alt="" v-if="itemInscript.domain_img.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                            <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
+                          </div>
+                          <div v-else-if="type==='Image'">
+                            <img :src="itemInscript.detail.content" alt="" v-if="itemInscript.detail.content.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                            <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
+                          </div>
+                          <div v-else-if="type==='Other'">
+                            <img v-if="itemInscript.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                            <img v-if="itemInscript.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                            <img v-if="itemInscript.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                            <img v-if="itemInscript.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
+                          </div>
+                          <div class="tab_item_left_dec">
+                            <span v-if="type==='Domains'">{{itemInscript.domain}}</span>
+                            <span class="tab_item_left_dec_type" v-if="itemInscript.number&&itemInscript.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(itemInscript.id)">INS
+                              #{{itemInscript.number}}</span>
+                            <span class="tab_item_left_dec_type" v-else>INS -</span>
+                          </div>
+                        </div>
+                        <div class="width2" style="margin-left:120px">{{itemInscript.register_date_show}}</div>
+                        <div class="width3" style="margin-left:80px">{{itemInscript.register_date_show}}</div>
+                        <div class="width4">{{itemInscript.expire_date_show}}</div>
+                        <div class="width5 inscriptin_id_class" @click="toinscriptionFun(itemInscript)">{{itemInscript.id_show}}</div>
+                      </div>
                     </div>
-                    <div class="inscription_tab_item" v-for="(itemInscript,indexInscript) in inscrptList" :key="indexInscript">
-                      <div class="tab_item_left width1">
+                    <div class="inscription_tab_list_card" v-if="listShowType===1">
+                      <div class="inscription_tab_item_card" v-for="(item,index) in inscrptList" :key="index">
                         <div v-if="type==='Domains'">
-                          <img :src="itemInscript.domain_img" alt="" v-if="itemInscript.domain_img.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                          <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                           <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                         </div>
                         <div v-else-if="type==='Image'">
-                          <img :src="itemInscript.detail.content" alt="" v-if="itemInscript.detail.content.length>3&&itemInscript.state=='9'||itemInscript.state=='0'||itemInscript.state=='5'||itemInscript.state==''">
+                          <img :src="item.detail.content" alt="" v-if="item.detail.content.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
                           <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
                         </div>
                         <div v-else-if="type==='Other'">
-                          <img v-if="itemInscript.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
-                          <img v-if="itemInscript.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
-                          <img v-if="itemInscript.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
-                          <img v-if="itemInscript.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
+                          <img v-if="item.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
+                          <img v-if="item.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
+                          <img v-if="item.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
+                          <img v-if="item.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
                         </div>
-                        <div class="tab_item_left_dec">
-                          <span v-if="type==='Domains'">{{itemInscript.domain}}</span>
-                          <span class="tab_item_left_dec_type" v-if="itemInscript.number&&itemInscript.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(itemInscript.id)">INS
-                            #{{itemInscript.number}}</span>
-                          <span class="tab_item_left_dec_type" v-else>INS -</span>
+                        <div class="tab_item_card">
+                          <span v-if="type==='Domains'">{{item.domain}}</span>
+                          <span class="tab_item_card_dec" v-if="item.number&&item.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(item.id)">INS #{{item.number}}</span>
+                          <span class="tab_item_card_dec" v-else>INS -</span>
                         </div>
-                      </div>
-                      <div class="width2" style="margin-left:120px">{{itemInscript.register_date_show}}</div>
-                      <div class="width3" style="margin-left:80px">{{itemInscript.register_date_show}}</div>
-                      <div class="width4">{{itemInscript.expire_date_show}}</div>
-                      <div class="width5 inscriptin_id_class" @click="toinscriptionFun(itemInscript)">{{itemInscript.id_show}}</div>
-                    </div>
-                  </div>
-                  <div class="inscription_tab_list_card" v-if="listShowType===1">
-                    <div class="inscription_tab_item_card" v-for="(item,index) in inscrptList" :key="index">
-                      <div v-if="type==='Domains'">
-                        <img :src="item.domain_img" alt="" v-if="item.domain_img.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
-                        <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
-                      </div>
-                      <div v-else-if="type==='Image'">
-                        <img :src="item.detail.content" alt="" v-if="item.detail.content.length>3&&item.state=='9'||item.state=='0'||item.state=='5'||item.state==''">
-                        <img src="../assets/person/img_registering_44px@2x.png" alt="" v-else>
-                      </div>
-                      <div v-else-if="type==='Other'">
-                        <img v-if="item.type==='HTML'" src="../assets/person/pic_html@2x.png" alt="">
-                        <img v-if="item.type==='TEXT'" src="../assets/person/pic_txt@2x.png" alt="">
-                        <img v-if="item.type==='AUDIO'" src="../assets/person/pic_mp3@2x.png" alt="">
-                        <img v-if="item.type==='VIDEO'" src="../assets/person/pic_mp4@2x.png" alt="">
-                      </div>
-                      <div class="tab_item_card">
-                        <span v-if="type==='Domains'">{{item.domain}}</span>
-                        <span class="tab_item_card_dec" v-if="item.number&&item.number>0" style="text-decoration: underline;cursor: pointer;" @click="toINSFun(item.id)">INS #{{item.number}}</span>
-                        <span class="tab_item_card_dec" v-else>INS -</span>
-                      </div>
-                      <div class="inscription_tab_item_card_option_senf" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''">
-                        <div class="tab_item_right_status" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;">Registering...
+                        <div class="inscription_tab_item_card_option_senf" v-if="item.state!='9'&&item.state!='0'&&item.state!='5'&&item.state!=''">
+                          <div class="tab_item_right_status" style="color:#EEA119;background:rgba(238,161,25,0.1);cursor: pointer;">Registering...
+                          </div>
                         </div>
-                      </div>
-                      <div class="tab_item_card" v-else>
-                        <span class="tab_item_card_dec">Inscription ID</span>
-                        <span class="tab_item_card_dec" @click="toinscriptionFun(item)" style="text-decoration: underline;cursor: pointer;">{{item.id_show}}</span>
-                      </div>
-                      <div class="tab_item_card_time">
-                        <div class="tab_item_card_time_item">
-                          <span>Create Date</span>
-                          <span>{{item.register_date_show}}</span>
+                        <div class="tab_item_card" v-else>
+                          <span class="tab_item_card_dec">Inscription ID</span>
+                          <span class="tab_item_card_dec" @click="toinscriptionFun(item)" style="text-decoration: underline;cursor: pointer;">{{item.id_show}}</span>
                         </div>
-                        <div class="tab_item_card_time_item">
-                          <span>Registration Date</span>
-                          <span>{{item.register_date_show}}</span>
-                        </div>
-                        <div class="tab_item_card_time_item">
-                          <span>Expiration Date</span>
-                          <span>{{item.expire_date_show}}</span>
+                        <div class="tab_item_card_time">
+                          <div class="tab_item_card_time_item">
+                            <span>Create Date</span>
+                            <span>{{item.register_date_show}}</span>
+                          </div>
+                          <div class="tab_item_card_time_item">
+                            <span>Registration Date</span>
+                            <span>{{item.register_date_show}}</span>
+                          </div>
+                          <div class="tab_item_card_time_item">
+                            <span>Expiration Date</span>
+                            <span>{{item.expire_date_show}}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <!-- <div class="pageBox">
+                    <!-- <div class="pageBox">
                   <Page :total="40" size="small" @on-change="changePageFun" />
                 </div> -->
-                </div>
-                <div class="inscription_tab_box_kong" v-else>No data yet...</div>
-              </TabPane>
-            </Tabs>
-            <div class="inscription_showtype">
-              <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
-              <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+                  </div>
+                  <div class="inscription_tab_box_kong" v-else>No data yet...</div>
+                </TabPane>
+              </Tabs>
+              <div class="inscription_showtype">
+                <img src="../assets/person/icon_24px_card@2x.png" alt="" @click="changeShowFun(1)">
+                <img src="../assets/person/icon_24px_list@2x.png" alt="" @click="changeShowFun(2)" style="margin-left: 10px;">
+              </div>
+            </div>
+            <Spin size="large" fix :show="spanBoolean"></Spin>
+          </div>
+          <div class="home_kongbai" v-show="!addressSearchShow"></div>
+        </div>
+      </div>
+      <div class="home_foot_cart" v-show="cartNum>0">
+        <div class="home_cart">
+          <div class="home_cart_num" v-if="cartNum>1">{{cartNum}} Domains</div>
+          <div class="home_cart_num" v-else>{{cartNum}} Domain</div>
+          <div class="home_cart_list">
+            <div class="cart_item" v-for="(item,index) in cartList" :key="index">
+              <span>{{item.domain}}</span>
+              <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
             </div>
           </div>
-          <Spin size="large" fix :show="spanBoolean"></Spin>
-        </div>
-        <div class="home_kongbai" v-show="!addressSearchShow"></div>
-      </div>
-    </div>
-    <div class="home_foot_cart" v-show="cartNum>0">
-      <div class="home_cart">
-        <div class="home_cart_num" v-if="cartNum>1">{{cartNum}} Domains</div>
-        <div class="home_cart_num" v-else>{{cartNum}} Domain</div>
-        <div class="home_cart_list">
-          <div class="cart_item" v-for="(item,index) in cartList" :key="index">
-            <span>{{item.domain}}</span>
-            <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectcartFun(item,index)">
+          <div class="home_cart_button" @click.stop="topCartPageFun">
+            <img src="../assets/home/icon_cart.png" alt="">
+            <span>Continue To Cart</span>
           </div>
-        </div>
-        <div class="home_cart_button" @click.stop="topCartPageFun">
-          <img src="../assets/home/icon_cart.png" alt="">
-          <span>Continue To Cart</span>
         </div>
       </div>
     </div>
@@ -1194,7 +1196,17 @@ export default {
               } else {
                 element.id_show = "-"
               }
+              if (element.number && parseInt(element.number === 0)) {
+                element.numberSort = 999999999999999;
+                arrZero.push(element)
+              } else if (element.number) {
+                element.numberSort = element.number
+              } else if (!element.number) {
+                element.number = 0;
+                element.numberSort = 999999999999999
+              }
             })
+            res.data.data.result = res.data.data.result.sort(this.sorts_fun('numberSort'));
             this.inscrptList = res.data.data.result;
             this.addressSearchShow = true;
             this.spanBoolean = false;
@@ -1212,6 +1224,13 @@ export default {
       }).catch(err => {
         this.spanBoolean = false
       });
+    },
+    sorts_fun(arr) {
+      return function (a, b) {
+        var v1 = a[arr];
+        var v2 = b[arr];
+        return v2 - v1;
+      };
     },
     querySuccessDomainFun() {
       let param = {};

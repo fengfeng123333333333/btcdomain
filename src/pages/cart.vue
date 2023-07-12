@@ -905,7 +905,7 @@
           </div>
         </div>
       </div>
-      <div class="cart_body">
+      <div class="cart_body" @click="histroycloseFun">
         <div class="cart_step">
           <div class="cart_step_one">
             <div class="cart_step_one_num">1</div>
