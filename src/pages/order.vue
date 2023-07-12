@@ -302,11 +302,7 @@
 }
 .cart_fee {
   margin-top: 8px;
-  height: 0;
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  overflow: hidden;
   background: #f9f9fc;
   border-radius: 4px;
 }
@@ -871,6 +867,35 @@
   width: 99px;
   height: 42px;
 }
+.cart_fee_item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.cart_fee_item_main_title {
+  font-size: 12px;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #2e2f3e;
+}
+.cart_fee_item_main_value {
+  font-size: 12px;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #2e2f3e;
+}
+.cart_fee_item_chaild_title {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.cart_fee_child_box {
+  margin-top: 6px;
+  padding-left: 5px;
+  border-left: 1px solid #d5d6e0;
+  margin-left: 5px;
+}
 </style>
 <template>
   <div class="order_app">
@@ -939,7 +964,7 @@
             </div>
             <div v-if="paySelData.name==='BTC'" class="order_pay_btc_div">
               <div class="order_pay_line"></div>
-              <div class="order_pay_currency">Select Currency</div>
+              <div class="order_pay_currency">Method</div>
               <div class="order_pay_btc">
                 <div class="order_pay_btc_item" @click="changebtcFun(item)" :class="{order_pay_btc_item_sel:item.isSelect}" v-for="(item,index) in btcMethors" :key="index">
                   <span>{{item.name}}</span>
@@ -964,30 +989,34 @@
           </div>
           <div class="cart_right_line"></div>
           <div class="cart_fee cart_fee_gas">
-            <div class="cart_fee_left">
+            <div class="cart_fee_item">
               <div class="cart_fee_left_gas_fee">
-                <span>Total Gas Fee</span>
+                <span class="cart_fee_item_main_title">Total Gas Fee</span>
                 <Tooltip v-if="paySelData.name=='MixPay'" :max-width="240" content="Mixpay does not charge an additional handling fee, but requires an additional gas fee." placement="right-start">
                   <img src="../assets/person/icon_16_q@2x.png" alt="">
                 </Tooltip>
               </div>
-              <div style="margin-top:8px">
-                <span>Total Service Fee</span>
-                <div class="service_code">Service Fee Basic Discount</div>
-                <div class="service_code" v-if="feeData.total_promcode_fee>0">Service Fee Promotion Discount</div>
-              </div>
-              <div style="margin-top:8px">Payable Service Fee</div>
+              <span class="cart_fee_item_main_value" v-if="paySelData.name!='MixPay'">{{feeData.total_gas_fee}} BTC</span>
+              <span class="cart_fee_item_main_value" v-else>{{feeData.additional_dec}} BTC</span>
             </div>
-            <div>
-              <span v-if="paySelData.name!='MixPay'">{{feeData.total_gas_fee}} BTC</span>
-              <span v-else>{{feeData.additional_dec}} BTC</span>
-              <div class="cart_fee_gas_right">
-                <div class="cart_fee_gas_right_com">
-                  <span class="cart_fee_right_ze">{{feeData.total_origin_service_fee}} BTC</span>
-                  <div class="service_code">- {{feeData.total_promo_service_fee}} BTC</div>
-                  <div class="service_code" v-if="feeData.total_promcode_fee>0">- {{feeData.total_promcode_fee}} BTC</div>
-                </div>
-                <div>{{feeData.total_service_fee}} BTC</div>
+            <div class="cart_fee_item">
+              <span class="cart_fee_item_chaild_title">The gas fee fluctuates and is updated every 10 seconds</span>
+            </div>
+            <div class="cart_fee_item" style="margin-top:8px">
+              <span class="cart_fee_item_main_title">Total Service Fee</span>
+              <div>
+                <span class="cart_fee_right_ze cart_fee_item_chaild_title">{{feeData.total_origin_service_fee}} BTC</span>
+                <span class="cart_fee_item_main_value">&nbsp;&nbsp;&nbsp;{{feeData.total_service_fee}} BTC</span>
+              </div>
+            </div>
+            <div class="cart_fee_child_box">
+              <div class="cart_fee_item">
+                <span class="cart_fee_item_chaild_title">Basic Discount</span>
+                <span class="cart_fee_item_chaild_title">- {{feeData.total_promo_service_fee}} BTC</span>
+              </div>
+              <div class="cart_fee_item" v-if="feeData.total_promcode_fee>0">
+                <span class="cart_fee_item_chaild_title">Promotion Discount</span>
+                <span class="cart_fee_item_chaild_title">- {{feeData.total_promcode_fee}} BTC</span>
               </div>
             </div>
           </div>
@@ -1222,7 +1251,6 @@ import { generateBitcoinAddr, formatUTXOs, formatInscriptions, sendBTCTransFun }
 import VueQrcode from '@chenfengyuan/vue-qrcode';
 import apis from '../util/apis/apis'
 import BigNumber from "bignumber.js";
-import { ethers } from "ethers";
 import { copyAction } from '../util/func/index'
 import { validate } from "bitcoin-address-validation";
 import { signTransaction } from "sats-connect";
@@ -1309,20 +1337,24 @@ export default {
       networkRate: null,
       yourRate: null,
       timerPenson: null,
-      cartDetailBoolean: false
+      cartDetailBoolean: false,
+      inscriptionsShowBoolean: true
     }
   },
   destroyed() {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("isPay")
   },
   unmounted() {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("isPay")
   },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("isPay")
     next()
   },
   methods: {
@@ -1388,7 +1420,7 @@ export default {
       // let avail = new BigNumber(this.balance);
       // if (one.gte(avail)) {
       //   Message.warning(
-      //     "max value you must transfer is " + this.balance + "btc"
+      //     "mThe maximum transfer amount cannot exceed  " + this.balance + "btc"
       //   );
       //   return;
       // }
@@ -1432,9 +1464,13 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "sendBtc");
-          // submit
-          this.pushTx(txHex);
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq, "sendBtc");
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
         }
       }).catch(err => {
         this.loadingBoolean = false;
@@ -1500,13 +1536,8 @@ export default {
       }
       const unspentOutputs = await this.getUnspent(localStorage.paymentAddress)
       const output = unspentOutputs[0];
-      console.log(output)
       const num = new BigNumber(this.feeData.total_fee);
       const weivalue = num.multipliedBy(100000000).toNumber()
-
-      const rate_fee = new BigNumber(this.feeData.rate_fee);
-      const weirate_fee = rate_fee.multipliedBy(100000000).toNumber()
-
       const recipient = this.monywallet;
       const tx = new btc.Transaction();
       console.log(localStorage.public_key)
@@ -1524,18 +1555,10 @@ export default {
         witnessScript: p2sh.witnessScript,
         sighashType: 131
       })
-      console.log("BigInt(weirate_fee)", BigInt(weirate_fee))
-      console.log("weirate_fee", weirate_fee)
-      console.log("this.feeData.rate_fee", this.feeData.rate_fee)
-
-      console.log("BigInt(weivalue)", BigInt(weivalue))
-      console.log("weivalue", weivalue)
-      console.log("this.feeData.total_fee", this.feeData.total_fee)
       let outValue = BigInt(weivalue)
       tx.addOutputAddress(recipient, outValue, bitcoinTestnet)
       const psbt = tx.toPSBT(0)
       const psbtB64 = base64.encode(psbt)
-      console.log(psbtB64)
       const signPsbtOptions = {
         payload: {
           network: {
@@ -1735,7 +1758,8 @@ export default {
       } else if (index === 3) {
         this.payIssueBoolean = false
       } else if (index === 4) {
-        this.inscritpBoolean = false
+        this.inscritpBoolean = false;
+        this.inscriptionsShowBoolean = false;
         clearInterval(this.timerPenson);
       } else if (index === 5) {
         this.loadingBoolean = false
@@ -1837,12 +1861,6 @@ export default {
         },
       }).then(res => {
         if (res.data.code === 0) {
-          // this.inscritpBoolean = true;
-          // this.payStatusBoolean = false
-          // localStorage.removeItem('cartList');
-          // localStorage.removeItem('orderCode');
-          // localStorage.removeItem('isPay');
-          // this.isPay = 1;
         }
       }).catch(err => {
       });
@@ -1895,11 +1913,9 @@ export default {
               this.isPay = 1;
               this.toPersonFun()
             } else {
-              this.inscritpBoolean = true;
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              localStorage.removeItem('isPay');
-              this.isPay = 1;
+              this.inscritpBoolean = true;
             }
           } else {
             Message.error(res.data.message)
@@ -1933,12 +1949,12 @@ export default {
             } else if (this.full_state === 9) {
               this.confirmBoolean = true
             } else {
-              // this.inscritpBoolean = true;
+              if (this.inscriptionsShowBoolean) {
+                this.inscritpBoolean = true;
+              }
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              localStorage.removeItem('isPay');
               this.confirmBoolean = false
-              this.isPay = 1;
             }
           } else {
             // Message.error(res.data.message)
@@ -1978,8 +1994,6 @@ export default {
         this.sendBtcaddress = this.monywallet
         this.sendAmount = this.feeData.total_fee
         this.getRateFeeFun()
-      } else if (this.paySelData.name === 'Xverse') {
-        this.tiggerXverseAction()
       } else if (this.paySelData.name === 'Xverse') {
         this.tiggerXverseAction()
       }

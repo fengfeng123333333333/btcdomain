@@ -212,63 +212,11 @@ export default {
       }).catch(err => {
       });
     },
-    balanceFun() {
-      this.$axios({
-        method: "get",
-        url: apis.oldBalanceApi + "?address=" + this.monywallet,
-        headers: {
-          "Content-Type": "application/json",
-          'X-Client': 'UniSat Wallet'
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let balance = res.data.result
-            this.inscriptionsFun(balance.confirm_amount)
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
-    inscriptionsFun(confirm_amount) {
-      this.$axios({
-        method: "get",
-        url: apis.inscriptionsApi + "?address=" + this.monywallet,
-        headers: {
-          "Content-Type": "application/json",
-          'X-Client': 'UniSat Wallet'
-        },
-      }).then(res => {
-        if (res.status == "200") {
-          if (res.data.message === "OK") {
-            let inscriptions = res.data.result;
-            let totalSatoshi = new BigNumber(0);
-            inscriptions.forEach(element => {
-              if (element.detail) {
-                let tmp = new BigNumber(element.detail.output_value)
-                totalSatoshi = totalSatoshi.plus(tmp)
-              }
-            });
-            let amout_tmp = new BigNumber(confirm_amount);
-            let amount_sat = amout_tmp.multipliedBy(100000000);
-            let available_sat = amount_sat.minus(totalSatoshi);
-            let balance = available_sat.div(100000000).toPrecision(8).toString();
-            localStorage.balance = parseFloat(balance).toFixed(8);
-          } else {
-            Message.error(res.data.message)
-          }
-        }
-      }).catch(err => {
-      });
-    },
   },
   mounted() {
     this.clientHeight = document.documentElement.clientHeight - 70;
     this.monywallet = localStorage.bitcoin_address;
     this.addressPersonFun();
-    this.balanceFun()
     let name = localStorage.optionName;
     if (name) {
       this.optionsList.forEach(element => {

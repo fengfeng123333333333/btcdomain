@@ -747,19 +747,20 @@ export default {
         },
       }).then(res => {
         if (res.status == "200") {
+          let arr = []
+          res.data.data.result.forEach(element => {
+            element.isSelect = false
+            arr.push(element)
+            // if (element.dom_state === 0 || element.dom_statedom_state === 5) {
+            //   element.isSelect = false
+            //   arr.push(element)
+            // }
+          })
+          this.domainList = arr;
+          this.domainShowList = arr;
           if (type === 'Domains') {
-            res.data.data.result.forEach(element => {
-              element.isSelect = false
-            })
-            this.domainList = res.data.data.result;
-            this.domainShowList = res.data.data.result;
             this.set_prime_boolean = true;
           } else {
-            res.data.data.result.forEach(element => {
-              element.isSelect = false
-            })
-            this.domainList = res.data.data.result;
-            this.domainShowList = res.data.data.result;
             this.set_avatar_boolean = true;
           }
           this.spanBoolean = false

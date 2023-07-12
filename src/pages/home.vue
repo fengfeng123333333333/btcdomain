@@ -729,7 +729,7 @@
             :class='{searchInputSelect:selectId===2}'>
           <img src="../assets/home/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
           <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
-          <div class="search_box_history" @click.stop="histroyBoolean=!histroyBoolean" v-if="histroyBoolean">
+          <div class="search_box_history" @click.stop v-if="histroyBoolean">
             <div class="search_box_history_head">
               <div class="search_box_history_head_item">
                 <img src="../assets/home/icon_timehistory@2x.png" alt="">
@@ -747,7 +747,7 @@
               </div>
             </div>
           </div>
-          <div class="search_box_history" @click.stop="histroyAddressBoolean=!histroyAddressBoolean" v-if="histroyAddressBoolean">
+          <div class="search_box_history" v-if="histroyAddressBoolean">
             <div class="search_box_history_head">
               <div class="search_box_history_head_item">
                 <img src="../assets/home/icon_timehistory@2x.png" alt="">
@@ -768,7 +768,7 @@
         </div>
       </div>
       <div v-if="selectId===1">
-        <div class="home_content" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
+        <div class="home_content" @click="histroycloseFun" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
           <div class="home_content_result">
             <div class="result_left">
               <span>{{resultData.dom_name}}</span>
@@ -778,7 +778,10 @@
                 </div>
                 <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
                   <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">
+                    <span>Owner:{{resultData.showAddress}}</span>
+                    <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                  </div>
                   <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
                   <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
                 </div>
@@ -807,7 +810,10 @@
                     </div>
                     <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
                       <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">
+                        <span>Owner:{{item.showAddress}}</span>
+                        <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                      </div>
                       <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
                       <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
                     </div>
@@ -986,7 +992,7 @@ export default {
       spanBoolean: false,
       classOption: {
         step: 0.5,
-        limitMoveNum: 6,
+        limitMoveNum: 8,
         direction: 2
       },
       list: [],
@@ -1144,6 +1150,7 @@ export default {
       return element
     },
     addressFun() {
+      this.histroyAddressBoolean = false
       if (!this.searchText) {
         Message.error("address must not be empty")
         return
@@ -1228,6 +1235,7 @@ export default {
       });
     },
     queryDomainFun() {
+      this.histroyBoolean = false
       this.spanResultBoolean = true;
       let param = {};
       param.domain = this.searchText + ".btc"

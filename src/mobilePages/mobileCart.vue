@@ -363,6 +363,52 @@
   font-weight: 600;
   color: #ffffff;
 }
+.promoDiv {
+  margin-top: 0.2rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.codeInput {
+  width: 5rem;
+  height: 0.88rem;
+  background: #ffffff;
+  border-radius: 0.08rem;
+  border: 0.02rem solid #d5d6e0;
+  outline: none;
+  padding: 0.2rem;
+  font-size: 0.28rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #2e2f3e;
+}
+.codeInput:focus {
+  border: 0.02rem solid #4540d6;
+}
+.promoDivButton {
+  width: 2rem;
+  height: 0.88rem;
+  background: rgba(69, 64, 214, 0.06);
+  box-shadow: 0px -0.08rem 0.16rem 0px rgba(82, 82, 102, 0.08);
+  border-radius: 0.08rem;
+  text-align: center;
+  line-height: 0.88rem;
+  font-size: 0.28rem;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #4540d6;
+  cursor: pointer;
+}
+.cart_fee_right_ze {
+  text-decoration: line-through;
+}
+.cart_fee_child_box {
+  margin-top: 0.12rem;
+  padding-left: 0.1rem;
+  border-left: 0.02rem solid #d5d6e0;
+  margin-left: 0.1rem;
+}
 </style>
 <template>
   <div class="mobile_cart_app" :class='{mobile_cart_app_kong:cartNum===0}'>
@@ -422,19 +468,20 @@
               </div>
               <div class="cart_fee_com" style="margin-top:0.16rem">
                 <span>Service Fee</span>
-                <div>{{item.fee.origin_service_fee}} BTC</div>
+                <div>
+                  <span class="cart_fee_right_ze cart_fee_com_sel">{{item.fee.origin_service_fee}} BTC</span>
+                  <span>&nbsp;&nbsp;&nbsp;{{item.fee.service_fee}} BTC</span>
+                </div>
               </div>
-              <div class="cart_fee_com">
-                <span class="cart_fee_com_sel">Service Fee Basic Discount</span>
-                <div class="cart_fee_com_sel">- {{item.fee.promo_service_fee}} BTC</div>
-              </div>
-              <!-- <div class="cart_fee_com">
-                <span>Service Fee Promotion Discount</span>
-                <div>- {{item.promcode_fee}} BTC</div>
-              </div> -->
-              <div class="cart_fee_com" style="margin-top:0.16rem">
-                <span>Payable Service Fee</span>
-                <div>{{item.fee.service_fee}} BTC</div>
+              <div class="cart_fee_child_box">
+                <div class="cart_fee_com">
+                  <span class="cart_fee_com_sel"> Basic Discount</span>
+                  <div class="cart_fee_com_sel">- {{item.fee.promo_service_fee}} BTC</div>
+                </div>
+                <div class="cart_fee_com" v-if="item.promcode_fee>0">
+                  <span class="cart_fee_com_sel"> Promotion Discount</span>
+                  <div class="cart_fee_com_sel">- {{item.promcode_fee}} BTC</div>
+                </div>
               </div>
             </div>
           </div>
@@ -471,6 +518,14 @@
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="cart_right_line"></div>
+          <div class="cart_right_gas">
+            <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
+            <span>Promo Code</span>
+          </div>
+          <div class="promoDiv">
+            <input v-model="promo_code_input" placeholder="Enter Promo Code" class="codeInput" />
+            <div class="promoDivButton" :class='{unisatGray:!promo_code_input}' @click="confirmCodeFun">Confirm</div>
+          </div>
         </div>
         <div class="cart_fee_total">
           <div class="cart_fee_com">
@@ -479,19 +534,20 @@
           </div>
           <div class="cart_fee_com" style="margin-top:0.16rem">
             <span>Total Service Fee</span>
-            <div>{{gasTotalData.total_origin_service_fee}} BTC</div>
+            <div>
+              <span class="cart_fee_right_ze cart_fee_com_sel">{{gasTotalData.total_origin_service_fee}} BTC</span>
+              <span>&nbsp;&nbsp;&nbsp;{{gasTotalData.total_service_fee}} BTC</span>
+            </div>
           </div>
-          <div class="cart_fee_com">
-            <span class="cart_fee_com_sel">Service Fee Basic Discount</span>
-            <div class="cart_fee_com_sel">- {{gasTotalData.total_promo_service_fee}} BTC</div>
-          </div>
-          <!-- <div class="cart_fee_com">
-                <span>Service Fee Promotion Discount</span>
-                <div>- {{item.promcode_fee}} BTC</div>
-              </div> -->
-          <div class="cart_fee_com" style="margin-top:0.16rem">
-            <span>Payable Service Fee</span>
-            <div>{{gasTotalData.total_service_fee}} BTC</div>
+          <div class="cart_fee_child_box">
+            <div class="cart_fee_com">
+              <span class="cart_fee_com_sel">Basic Discount</span>
+              <div class="cart_fee_com_sel">- {{gasTotalData.total_promo_service_fee}} BTC</div>
+            </div>
+            <div class="cart_fee_com" v-if="gasTotalData.total_promcode_fee>0">
+              <span class="cart_fee_com_sel">Promotion Discount</span>
+              <div class="cart_fee_com_sel">- {{gasTotalData.total_promcode_fee}} BTC</div>
+            </div>
           </div>
           <div class="cart_right_line" style="background:#D5D6E0"></div>
           <div class="cart_totle_value">
@@ -591,6 +647,12 @@ export default {
     }
   },
   methods: {
+    confirmCodeFun() {
+      if (!this.promo_code_input) {
+        return
+      }
+      this.goToCartFun(1)
+    },
     topayPageFun() {
       if (!this.receiveAddress) {
         Message.error("Receive address must not be empty")
@@ -689,8 +751,7 @@ export default {
       param.out_wallet = this.receiveAddress;
       param.rate_fee = Number(value);
       param.source = "btc_domain";
-      // param.promo_code = this.promo_code;
-      param.promo_code = "";
+      param.promo_code = this.promo_code;
       this.$axios({
         method: "post",
         data: param,
@@ -711,14 +772,14 @@ export default {
             this.spanBoolean = false
           } else {
             this.orderCode = "";
-            // localStorage.removeItem(promo_code)
+            localStorage.removeItem('promo_code')
             this.spanBoolean = false
             Message.error(res.data.message)
           }
         }
       }).catch(err => {
         this.orderCode = "";
-        // localStorage.removeItem(promo_code)
+        localStorage.removeItem('promo_code')
         this.spanBoolean = false
       });
     },
@@ -774,6 +835,7 @@ export default {
       }
     },
     goToCartFun(type) {
+      this.gasTotalData.total_promcode_fee = 0
       this.spanBoolean = true
       let param = {};
       let arr = []
@@ -799,12 +861,11 @@ export default {
       } else {
         param.rate_fee = this.gasSelectData.value;
       }
-      // if (type === 1) {
-      //   param.promo_code = this.promo_code_input
-      // } else {
-      //   param.promo_code = this.promo_code
-      // }
-      param.promo_code = ""
+      if (type === 1) {
+        param.promo_code = this.promo_code_input
+      } else {
+        param.promo_code = this.promo_code
+      }
       this.$axios({
         method: "post",
         data: param,
@@ -846,10 +907,10 @@ export default {
             this.gasTotalData.total_promcode_fee = Number(total_promcode_fee.toString());
             this.gasTotalData.usd_value = data.total_fee_usd;
             this.spanBoolean = false;
-            // if (this.promo_code_input) {
-            //   this.promo_code = this.promo_code_input;
-            //   localStorage.promo_code = this.promo_code;
-            // }
+            if (type === 1) {
+              this.promo_code = this.promo_code_input;
+              localStorage.promo_code = this.promo_code;
+            }
           } else {
             this.spanBoolean = false
             if (res.data.code === 500) {
@@ -857,6 +918,9 @@ export default {
             }
             if (res.data.message === 'promo_rate error') {
               this.gasTotalData.total_promcode_fee = 0
+              this.promo_code = "";
+              localStorage.removeItem('promo_code')
+              this.goToCartFun();
             }
             Message.error(res.data.message)
           }
@@ -892,9 +956,9 @@ export default {
   },
   mounted() {
     let cartListlocal = localStorage.cartList;
-    // if (localStorage.promo_code) {
-    //   this.promo_code = localStorage.promo_code;
-    // }
+    if (localStorage.promo_code) {
+      this.promo_code = localStorage.promo_code;
+    }
     if (cartListlocal) {
       this.cartNum = JSON.parse(cartListlocal).length
     }

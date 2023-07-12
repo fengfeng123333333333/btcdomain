@@ -382,7 +382,10 @@
         </div>
         <div class="mobile_result_noAvalibable" v-else-if="resultData.dom_state===0||resultData.dom_state===5">
           <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-          <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+          <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">
+            <span>Owner:{{resultData.showAddress}}</span>
+            <img class="copy_moobile_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+          </div>
           <div class="result_left_bottom_item" style="background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
           <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
         </div>
@@ -409,7 +412,10 @@
             </div>
             <div class="mobile_result_noAvalibable" v-else-if="item.dom_state===0||item.dom_state===5">
               <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-              <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{item.showAddress}}</div>
+              <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="copyFun(item)">
+                <span>Owner:{{item.showAddress}}</span>
+                <img class="copy_moobile_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+              </div>
               <div class="result_left_bottom_item" style="background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
               <div class="result_left_bottom_item xiahua" style="background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
             </div>
@@ -549,6 +555,7 @@ export default {
       }
     },
     queryDomainFun() {
+      this.histroyBoolean = false;
       this.spanResultBoolean = true;
       let param = {};
       param.domain = this.searchText + ".btc"

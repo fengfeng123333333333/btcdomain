@@ -314,7 +314,7 @@ export default {
             onFinish: (response) => {
               this.addressPersonFun(this.walletAddress)
             },
-            onCancel: () => Message.info("Request canceled"),
+            // onCancel: () => Message.info("Request canceled"),
           };
           await signMessage(signMessageOptions);
         },

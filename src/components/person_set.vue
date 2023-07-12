@@ -437,7 +437,8 @@
             <span>Amount</span>
             <span class="send_btc_title_balance">Balance：{{personBalanceData.amount}} BTC</span>
           </div>
-          <input v-model="sendAmount" type="text" class="set_input" placeholder="Amount">
+          <input v-model="sendAmount" @input="isnumberFun" type="text" class="set_input" placeholder="Amount">
+          <div class="jiexiError" v-if="isnumber">Please input number in Amount</div>
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
@@ -640,7 +641,8 @@ export default {
       showAddress: null,
       sendAmount: null,
       loginType: null,
-      sendRealAddress: null
+      sendRealAddress: null,
+      isnumber: false
     }
   },
   methods: {
@@ -700,12 +702,24 @@ export default {
       }
       return new Blob([u8arr], { type: mime })
     },
+    isnumberFun(e) {
+      let isnumber = isNaN(e.target.value)
+      this.isnumber = isnumber
+    },
     jiexiFun(e) {
-      if (this.sendBtcaddress.endsWith(".btc")) {
-        this.domainChangeFun(1)
-      }
       if (!e.target.value) {
         this.jiexiAddress = null;
+      } else {
+        if (this.sendBtcaddress.endsWith(".btc")) {
+          this.domainChangeFun(1)
+        } else {
+          if (!validate(e.target.value)) {
+            this.jiexiAddress = "the address is error"
+            this.jiexiType = false;
+          } else {
+            this.jiexiAddress = null;
+          }
+        }
       }
     },
     domainChangeFun(type) {
@@ -787,6 +801,11 @@ export default {
     },
     confirmFun() {
       if (this.loadingBoolean) {
+        return
+      }
+      let isnumber = isNaN(this.sendAmount)
+      if (isnumber) {
+        Message.error("Please input number in Amount")
         return
       }
       if (!this.sendBtcaddress) {
@@ -1032,7 +1051,7 @@ export default {
       let avail = new BigNumber(this.personBalanceData.amount);
       if (one.gte(avail)) {
         Message.warning(
-          "max value you must transfer is " + this.personBalanceData.amount + "btc"
+          "The maximum transfer amount cannot exceed " + this.personBalanceData.amount + "btc"
         );
         return;
       }
@@ -1074,9 +1093,13 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
-          // submit
-          this.pushTx(txHex);
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
         }
       }).catch(err => {
         this.loadingBoolean = false;

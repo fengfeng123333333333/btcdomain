@@ -773,7 +773,9 @@ export default {
         case 'text/plain;charset=utf-8':
           element.type = "TEXT"
           break;
-
+        case 'text/plain':
+          element.type = "TEXT"
+          break;
         case 'text/html':
           element.type = "HTML"
           break;
@@ -892,9 +894,20 @@ export default {
       }).catch(err => {
       });
     },
-    jiexiFun(value) {
-      if (this.sendBtcaddress.endsWith(".btc")) {
-        this.domainChangeFun()
+    jiexiFun(e) {
+      if (!e.target.value) {
+        this.jiexiAddress = null;
+      } else {
+        if (this.sendBtcaddress.endsWith(".btc")) {
+          this.domainChangeFun()
+        } else {
+          if (!validate(e.target.value)) {
+            this.jiexiAddress = "the address is error"
+            this.jiexiType = false;
+          } else {
+            this.jiexiAddress = null;
+          }
+        }
       }
     },
     domainChangeFun() {
@@ -1015,9 +1028,13 @@ export default {
             receiver: tempAddr,
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "inscription");
-          // submit
-          this.pushTx(txHex);
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq, "inscription");
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
         }
       }).catch(err => {
         this.loadingBoolean = false;
@@ -1040,6 +1057,7 @@ export default {
           if (res.data.message === 'OK') {
             this.send_inscript_boolean = false
             Message.success("tx: " + res.data.result + " has been published");
+            this.addressFun();
           } else {
             Message.info(res.data.message);
           }
@@ -1192,7 +1210,17 @@ export default {
               } else {
                 element.id_show = "-"
               }
+              if (element.number && parseInt(element.number === 0)) {
+                element.numberSort = 999999999999999;
+                arrZero.push(element)
+              } else if (element.number) {
+                element.numberSort = element.number
+              } else if (!element.number) {
+                element.number = 0;
+                element.numberSort = 999999999999999
+              }
             })
+            res.data.data.result = res.data.data.result.sort(this.sorts_fun('numberSort'));
             this.inscrptList = res.data.data.result;
             this.showInscrptList = res.data.data.result;
             this.$emit('imgNum', res.data.data.total)

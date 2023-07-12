@@ -789,6 +789,15 @@
   margin-right: 0;
   width: 2rem;
 }
+.cart_fee_right_ze {
+  text-decoration: line-through;
+}
+.cart_fee_child_box {
+  margin-top: 0.12rem;
+  padding-left: 0.1rem;
+  border-left: 0.02rem solid #d5d6e0;
+  margin-left: 0.1rem;
+}
 </style>
 <template>
   <div class="order_app">
@@ -888,19 +897,20 @@
                 </div>
                 <div class="cart_fee_com">
                   <span>Total Service Fee</span>
-                  <span style=" text-decoration: line-through;">{{feeData.total_origin_service_fee}} BTC</span>
+                  <div>
+                    <span class="cart_fee_right_ze cart_fee_com_sel">{{feeData.total_origin_service_fee}} BTC</span>
+                    <span>&nbsp;&nbsp;&nbsp;{{feeData.total_service_fee}} BTC</span>
+                  </div>
                 </div>
-                <div class="cart_fee_com">
-                  <span class="cart_fee_com_sel">Service Fee Basic Discount</span>
-                  <div class="cart_fee_com_sel">- {{feeData.total_promo_service_fee}} BTC</div>
-                </div>
-                <div class="cart_fee_com" v-if="feeData.total_promcode_fee>0">
-                  <span class="cart_fee_com_sel">Service Fee Promotion Discount</span>
-                  <div class="cart_fee_com_sel">- {{feeData.total_promcode_fee}} BTC</div>
-                </div>
-                <div class="cart_fee_com">
-                  <span>Payable Service Fee</span>
-                  <span>{{feeData.total_service_fee}} BTC</span>
+                <div class="cart_fee_child_box">
+                  <div class="cart_fee_com">
+                    <span class="cart_fee_com_sel">Basic Discount</span>
+                    <div class="cart_fee_com_sel">- {{feeData.total_promo_service_fee}} BTC</div>
+                  </div>
+                  <div class="cart_fee_com" v-if="feeData.total_promcode_fee>0">
+                    <span class="cart_fee_com_sel"> Promotion Discount</span>
+                    <div class="cart_fee_com_sel">- {{feeData.total_promcode_fee}} BTC</div>
+                  </div>
                 </div>
               </div>
               <div class="cart_right_line_tow"></div>
@@ -1206,22 +1216,26 @@ export default {
       networkRate: null,
       yourRate: null,
       timerPenson: null,
-      cartDetailBoolean: false
+      cartDetailBoolean: false,
+      inscriptionsShowBoolean: true
     }
   },
   unmounted() {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("isPay")
     localStorage.removeItem("mixpay")
   },
   destroyed() {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
     localStorage.removeItem("mixpay")
+    localStorage.removeItem("isPay")
   },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.timer);
     clearInterval(this.timerPenson);
+    localStorage.removeItem("isPay")
     next()
   },
   methods: {
@@ -1306,7 +1320,7 @@ export default {
       // let avail = new BigNumber(this.balance);
       // if (one.gte(avail)) {
       //   Message.warning(
-      //     "max value you must transfer is " + this.balance + "btc"
+      //     "The maximum transfer amount cannot exceed  " + this.balance + "btc"
       //   );
       //   return;
       // }
@@ -1350,9 +1364,13 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
-          // submit
-          this.pushTx(txHex);
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
         }
       }).catch(err => {
         this.loadingBoolean = false;
@@ -1457,8 +1475,10 @@ export default {
           this.isPay = 2
           this.payStatusBoolean = true;
           Message.info("submit transaction: " + res.data);
+          console.log(res)
         } else {
           Message.error(res.msg);
+          console.log("error", res)
         }
       });
     },
@@ -1471,7 +1491,7 @@ export default {
       const num = new BigNumber(this.feeData.total_fee);
       const weivalue = num.multipliedBy(100000000).toNumber();
       const feeRate = this.feeData.rate_fee;
-      const txid = await provider.sendBitcoin(this.monywallet, weivalue, this.feeData.rate_fee);
+      const txid = await provider.sendBitcoin(this.monywallet, weivalue, { feeRate: feeRate });
       Message.info("submit transaction: " + txid);
       localStorage.isPay = 2;
       this.isPay = 2
@@ -1657,7 +1677,8 @@ export default {
       } else if (index === 3) {
         this.payIssueBoolean = false
       } else if (index === 4) {
-        this.inscritpBoolean = false
+        this.inscritpBoolean = false;
+        this.inscriptionsShowBoolean = false;
         clearInterval(this.timerPenson);
       } else if (index === 5) {
         this.loadingBoolean = false
@@ -1759,12 +1780,6 @@ export default {
         },
       }).then(res => {
         if (res.data.code === 0) {
-          // this.inscritpBoolean = true;
-          // this.payStatusBoolean = false
-          // localStorage.removeItem('cartList');
-          // localStorage.removeItem('orderCode');
-          // localStorage.removeItem('isPay');
-          // this.isPay = 1;
         }
       }).catch(err => {
       });
@@ -1822,9 +1837,7 @@ export default {
               this.inscritpBoolean = true;
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              // localStorage.removeItem('isPay');
               localStorage.removeItem('mixpay');
-              // this.isPay = 1;
             }
           } else {
             Message.error(res.data.message)
@@ -1859,13 +1872,13 @@ export default {
             } else if (this.full_state === 9) {
               this.confirmBoolean = true
             } else {
-              this.inscritpBoolean = true;
+              if (this.inscriptionsShowBoolean) {
+                this.inscritpBoolean = true;
+              }
               localStorage.removeItem('cartList');
               localStorage.removeItem('orderCode');
-              // localStorage.removeItem('isPay');
               localStorage.removeItem('mixpay');
               this.confirmBoolean = false
-              // this.isPay = 1;
             }
           } else {
             // Message.error(res.data.message)

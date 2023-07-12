@@ -5,6 +5,7 @@ if (url.indexOf("prod.btcwallet") != -1) {
 } else {
     // baseUrl="http://btcdomain-pri.valuechain.group:18880"
     baseUrl="https://btcdomains.io";
+    // baseUrl="http://btcdomain-test.valuechain.group:18880";
 }
 
 let locationUrl="https://app.btcdomains.io/mobile/#"

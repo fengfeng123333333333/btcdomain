@@ -776,8 +776,9 @@ import { number } from 'bitcoinjs-lib/src/script';
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const moment = require('moment');
-const defaultPath = "m/86'/0'/0'/0/0";
-const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.network! Please ensure you are visiting the correct URLs: btcdomains.io and btcwallet.network. Engaging in transactions or signing activities outside of these official sites may expose your private key and put your security at risk."
+Message.config({
+  duration: 10
+})
 export default {
   components: {
     Tabs, TabPane, Page, InputNumber, Spin, Icon
@@ -978,9 +979,20 @@ export default {
       }).catch(err => {
       });
     },
-    jiexiFun(value) {
-      if (this.sendBtcaddress.endsWith(".btc")) {
-        this.domainChangeFun()
+    jiexiFun(e) {
+      if (!e.target.value) {
+        this.jiexiAddress = null;
+      } else {
+        if (this.sendBtcaddress.endsWith(".btc")) {
+          this.domainChangeFun()
+        } else {
+          if (!validate(e.target.value)) {
+            this.jiexiAddress = "the address is error"
+            this.jiexiType = false;
+          } else {
+            this.jiexiAddress = null;
+          }
+        }
       }
     },
     domainChangeFun() {
@@ -1101,9 +1113,14 @@ export default {
             receiver: tempAddr,
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq, "inscription");
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq, "inscription");
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
           // submit
-          this.pushTx(txHex);
         }
       }).catch(err => {
         this.loadingBoolean = false;
@@ -1126,6 +1143,7 @@ export default {
           if (res.data.message === 'OK') {
             this.send_inscript_boolean = false
             Message.success("tx: " + res.data.result + " has been published");
+            this.addressFun();
           } else {
             Message.info(res.data.message);
           }
@@ -1278,7 +1296,17 @@ export default {
               } else {
                 element.id_show = "-"
               }
+              if (element.number && parseInt(element.number === 0)) {
+                element.numberSort = 999999999999999;
+                arrZero.push(element)
+              } else if (element.number) {
+                element.numberSort = element.number
+              } else if (!element.number) {
+                element.number = 0;
+                element.numberSort = 999999999999999
+              }
             })
+            res.data.data.result = res.data.data.result.sort(this.sorts_fun('numberSort'));
             this.inscrptList = res.data.data.result;
             this.showInscrptList = res.data.data.result;
             this.$emit('imgNum', res.data.data.total)
@@ -1293,6 +1321,13 @@ export default {
         this.spanBoolean = false
       });
     },
+    sorts_fun(arr) {
+      return function (a, b) {
+        var v1 = a[arr];
+        var v2 = b[arr];
+        return v2 - v1;
+      };
+    }
   },
   mounted() {
     if (localStorage.walletType != "metaMask") {

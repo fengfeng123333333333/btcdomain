@@ -401,8 +401,6 @@
   margin-top: 8px;
   height: 0;
   width: 100%;
-  display: flex;
-  justify-content: space-between;
   overflow: hidden;
   background: #f9f9fc;
   border-radius: 4px;
@@ -687,9 +685,129 @@
   display: flex;
   align-items: center;
 }
+.search_box_history {
+  width: 100%;
+  height: 0;
+  background: #ffffff;
+  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
+  border-radius: 16px;
+  position: absolute;
+  left: 0;
+  top: 62px;
+  padding: 0 10px;
+  animation: search_box_history 0.5s forwards;
+  overflow: hidden;
+  overflow-y: auto;
+  z-index: 9;
+}
+.search_box_history::-webkit-scrollbar {
+  display: none;
+}
+@keyframes search_box_history {
+  from {
+    height: 0px;
+  }
+  to {
+    height: 200px;
+  }
+}
+.search_box_history_head {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.search_box_history_head_item {
+  display: flex;
+  align-items: center;
+}
+.search_box_history_head_item img {
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
+}
+.history_item {
+  cursor: pointer;
+  margin-top: 5px;
+}
+.cart_item {
+  height: 32px;
+  background: rgba(235, 236, 243, 0.5);
+  border-radius: 17px;
+  font-size: 14px;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #2e2f3e;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  animation: cartItem 1s forwards;
+  margin-right: 10px;
+}
+@keyframes cartItem {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.cart_item img {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+.historyItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.result_left_bottom_item_copy {
+  cursor: pointer;
+}
+.cart_fee_item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.cart_fee_item_main_title {
+  font-size: 12px;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #2e2f3e;
+}
+.cart_fee_item_main_value {
+  font-size: 12px;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #2e2f3e;
+}
+.cart_fee_item_chaild_title {
+  font-size: 12px;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #a7a9be;
+}
+.cart_fee_child_box {
+  margin-top: 6px;
+  padding-left: 5px;
+  border-left: 1px solid #d5d6e0;
+  margin-left: 5px;
+}
+
+.cart_total_fee {
+}
 </style>
     <template>
-  <div class="cart_app">
+  <div class="cart_app" @click="histroycloseFun">
 
     <Head :showData="receiveAddressHeadShow" @cartChange="cartChangeFun"></Head>
     <div v-if="cartNum>0">
@@ -701,9 +819,27 @@
               placeholder="Your name / product / brand / company / industry…" class="searchInput">
             <img src="../assets/cart/icon_search@2x.png" alt="" class="icon_search" @click="searchFun">
             <img src="../assets/home/icon_close_search@2x.png" alt="" v-show="searchStutas" class="icon_clear" @click="clearSearchFun">
+            <div class="search_box_history" v-if="histroyBoolean">
+              <div class="search_box_history_head">
+                <div class="search_box_history_head_item">
+                  <img src="../assets/home/icon_timehistory@2x.png" alt="">
+                  <span>Histroy</span>
+                </div>
+                <div class="search_box_history_head_item" style="cursor: pointer;" @click.stop="clearHistoryFun">
+                  <img src="../assets/home/icon_clear@2x.png" alt="">
+                  <span>Clear</span>
+                </div>
+              </div>
+              <div class="historyItem">
+                <div class="cart_item history_item" v-for="(item,index) in historyList" :key="index" @click="historyseachFun(item)">
+                  <span>{{item.domain}}</span>
+                  <img src="../assets/home/16px_close_black@2x.png" alt="" @click.stop="delectHistroyFun(index)">
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="home_content" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
+        <div class="home_content" @click="histroycloseFun" @click.stop v-show="contentShow" :class="{home_content_show:contentShow}">
           <div class="home_content_result">
             <div class="result_left">
               <span>{{resultData.dom_name}}</span>
@@ -713,8 +849,12 @@
                 </div>
                 <div v-else-if="resultData.dom_state===0||resultData.dom_state===5" class="Registered">
                   <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(resultData)">Owner:{{resultData.showAddress}}</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click.stop="copyFun(resultData)">
+                    <span>Owner:{{resultData.showAddress}}</span>
+                    <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                  </div>
                   <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{resultData.expire_date_show}}</div>
+                  <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(resultData.inscribe_id)">INS#{{resultData.number}}</div>
                 </div>
                 <div v-else>
                   <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
@@ -741,8 +881,12 @@
                     </div>
                     <div v-else-if="item.dom_state===0||item.dom_state===5" class="Registered">
                       <div class="result_left_bottom_item" style="color:#75749F;background:rgba(58,56,123,0.1)">Registered</div>
-                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">Owner:{{resultData.showAddress}}</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="copyFun(item)">
+                        <span>Owner:{{item.showAddress}}</span>
+                        <img class="copy_img" src="../assets/home/icon_16px_copy@2x.png" alt="">
+                      </div>
                       <div class="result_left_bottom_item" style="margin-left:8px;background:rgba(137,140,181,0.1)">Expiration Date:{{item.expire_date_show}}</div>
+                      <div class="result_left_bottom_item result_left_bottom_item_copy" style="margin-left:8px;background:rgba(137,140,181,0.1)" @click="toINSFun(item.inscribe_id)">INS#{{item.number}}</div>
                     </div>
                     <div v-else>
                       <div class="result_left_bottom_item" style="color:#EEA119;background:rgba(238,161,25,0.1)">Registering</div>
@@ -805,22 +949,28 @@
                   </div>
                 </div>
                 <div class="cart_fee" v-if="item.isPort" :class="{cart_fee_anmil:item.isPort}">
-                  <div class="cart_fee_left">
-                    <span>Gas Fee</span>
-                    <div class="cart_fee_left_dec">The gas fee fluctuates and is updated every 10 seconds</div>
-                    <div style="margin-top:18px">Service Fee</div>
-                    <div class="cart_fee_right_ze_none">Service Fee Basic Discount</div>
-                    <!-- <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">Service Fee Promotion Discount</div> -->
-                    <div>Payable Service Fee</div>
+                  <div class="cart_fee_item">
+                    <span class="cart_fee_item_main_title">Gas Fee</span>
+                    <span class="cart_fee_item_main_value">{{item.fee.gas_fee}} BTC</span>
                   </div>
-                  <div class="cart_fee_right">
-                    <span>{{item.fee.gas_fee}}</span>
-                    <div class="cart_fee_left_dec" style="color:#ffffff">option</div>
+                  <div class="cart_fee_item">
+                    <span class="cart_fee_item_chaild_title">The gas fee fluctuates and is updated every 10 seconds</span>
+                  </div>
+                  <div class="cart_fee_item" style="margin-top:8px">
+                    <span class="cart_fee_item_main_title">Service Fee</span>
                     <div>
-                      <div class="cart_fee_right_ze">&nbsp;&nbsp;&nbsp;{{item.fee.origin_service_fee}} BTC</div>
-                      <div class="cart_fee_right_ze_none">- {{item.fee.promo_service_fee}} BTC</div>
-                      <!-- <div class="cart_fee_right_ze_none" v-if="item.promcode_fee>0">- {{item.promcode_fee}} BTC</div> -->
-                      <div class="cart_fee_right_ze_nor">&nbsp;&nbsp;&nbsp;{{item.fee.service_fee}} BTC</div>
+                      <span class="cart_fee_right_ze cart_fee_item_chaild_title">{{item.fee.origin_service_fee}} BTC</span>
+                      <span class="cart_fee_item_main_value">&nbsp;&nbsp;&nbsp;{{item.fee.service_fee}} BTC</span>
+                    </div>
+                  </div>
+                  <div class="cart_fee_child_box">
+                    <div class="cart_fee_item">
+                      <span class="cart_fee_item_chaild_title">Basic Discount</span>
+                      <span class="cart_fee_item_chaild_title">- {{item.fee.promo_service_fee}} BTC</span>
+                    </div>
+                    <div class="cart_fee_item" v-if="item.promcode_fee>0">
+                      <span class="cart_fee_item_chaild_title">Promotion Discount</span>
+                      <span class="cart_fee_item_chaild_title">- {{item.promcode_fee}} BTC</span>
                     </div>
                   </div>
                 </div>
@@ -858,34 +1008,35 @@
               <div v-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.economyFee" style="color:red">Minimun Fee：{{gasSelectData.economyFee}}sats/vB</div>
               <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
             </div>
-            <!-- <div class="cart_right_gas" style="margin-top:10px">
+            <div class="cart_right_gas" style="margin-top:10px">
               <img src="../assets/cart/16px_icon_promote@2x.png" alt="">
               <span>Promo Code</span>
-            </div> -->
-            <!-- <div class="promoDiv">
+            </div>
+            <div class="promoDiv">
               <input v-model="promo_code_input" placeholder="Enter Promo Code" class="codeInput" />
               <div class="promoDivButton" :class='{unisatGray:!promo_code_input}' @click="confirmCodeFun">Confirm</div>
-            </div> -->
+            </div>
             <div class="cart_right_line"></div>
-            <div class="cart_fee cart_fee_gas">
-              <div class="cart_fee_left">
-                <span>Total Gas Fee</span>
-                <div style="margin-top:15px">
-                  <span>Total Service Fee</span>
-                  <div class="service_code">Service Fee Basic Discount</div>
-                  <!-- <div class="service_code" style="margin-top:10px" v-if="gasTotalData.total_promcode_fee>0">Service Fee Promotion Discount</div> -->
-                </div>
-                <div style="margin-top:2px">Payable Service Fee</div>
+            <div class="cart_total_fee">
+              <div class="cart_fee_item">
+                <span class="cart_fee_item_main_title">Gas Fee</span>
+                <span class="cart_fee_item_main_value">{{gasTotalData.total_gas_fee}} BTC</span>
               </div>
-              <div>
-                <span>{{gasTotalData.total_gas_fee}} BTC</span>
-                <div class="cart_fee_gas_right">
-                  <div class="cart_fee_gas_right_com">
-                    <span class="cart_fee_right_ze">{{gasTotalData.total_origin_service_fee}} BTC</span>
-                    <div class="service_code">- {{gasTotalData.total_promo_service_fee}} BTC</div>
-                    <!-- <div class="service_code" v-if="gasTotalData.total_promcode_fee>0">- {{gasTotalData.total_promcode_fee}} BTC</div> -->
-                  </div>
-                  <div>{{gasTotalData.total_service_fee}} BTC</div>
+              <div class="cart_fee_item" style="margin-top:8px">
+                <span class="cart_fee_item_main_title">Service Fee</span>
+                <div>
+                  <span class="cart_fee_right_ze cart_fee_item_chaild_title">{{gasTotalData.total_origin_service_fee}} BTC</span>
+                  <span class="cart_fee_item_main_value">&nbsp;&nbsp;&nbsp;{{gasTotalData.total_service_fee}} BTC</span>
+                </div>
+              </div>
+              <div class="cart_fee_child_box">
+                <div class="cart_fee_item">
+                  <span class="cart_fee_item_chaild_title">Basic Discount</span>
+                  <span class="cart_fee_item_chaild_title">- {{gasTotalData.total_promo_service_fee}} BTC</span>
+                </div>
+                <div class="cart_fee_item" v-if="gasTotalData.total_promcode_fee>0">
+                  <span class="cart_fee_item_chaild_title">Promotion Discount</span>
+                  <span class="cart_fee_item_chaild_title">- {{gasTotalData.total_promcode_fee}} BTC</span>
                 </div>
               </div>
             </div>
@@ -919,8 +1070,7 @@ import EmptyCart from '../components/emptyCart'
 import { InputNumber, Message, Spin } from 'view-ui-plus'
 import { validate } from 'bitcoin-address-validation';
 import apis from '../util/apis/apis'
-import { copyAction } from '../util/func/index'
-import BigNumber from "bignumber.js";
+import { copyAction, changeStatusFun } from '../util/func/index'
 const Decimal = require('decimal.js');
 const moment = require('moment');
 
@@ -938,6 +1088,8 @@ export default {
   },
   data() {
     return {
+      historyList: [],
+      histroyBoolean: false,
       receiveAddressHeadShow: null,
       promo_code_input: "",
       orderCode: null,
@@ -955,7 +1107,9 @@ export default {
         owner_address: null,
         expire_date: null,
         showAddress: null,
-        expire_date_show: null
+        expire_date_show: null,
+        inscribe_id: null,
+        number: null
       },
       linkList: [],
       cartList: [],
@@ -988,6 +1142,31 @@ export default {
     }
   },
   methods: {
+    toINSFun(id) {
+      let url = "https://ordinals.com/inscription/" + id;
+      window.open(url, '_blank');
+    },
+    historyseachFun(item) {
+      this.searchText = item.domain;
+      this.searchFun()
+    },
+    delectHistroyFun(index) {
+      this.historyList.splice(index, 1);
+      if (this.historyList.length === 0) {
+        localStorage.removeItem("historyList")
+        this.histroyBoolean = false
+      } else {
+        localStorage.historyList = JSON.stringify(this.historyList);
+      }
+    },
+    clearHistoryFun() {
+      localStorage.removeItem("historyList");
+      this.historyList = []
+      this.histroyBoolean = false
+    },
+    histroycloseFun() {
+      this.histroyBoolean = false;
+    },
     copyFun(item) {
       copyAction(item.owner_address)
     },
@@ -1067,12 +1246,11 @@ export default {
       } else {
         param.rate_fee = this.gasSelectData.value;
       }
-      // if (type === 1) {
-      //   param.promo_code = this.promo_code_input
-      // } else {
-      //   param.promo_code = this.promo_code
-      // }
-      param.promo_code = ""
+      if (type === 1) {
+        param.promo_code = this.promo_code_input
+      } else {
+        param.promo_code = this.promo_code
+      }
       this.$axios({
         method: "post",
         data: param,
@@ -1115,17 +1293,20 @@ export default {
             this.gasTotalData.usd_value = data.total_fee_usd;
             this.spanBoolean = false;
             this.contentShow = false;
-            // if (this.promo_code_input) {
-            //   this.promo_code = this.promo_code_input;
-            //   localStorage.promo_code = this.promo_code;
-            // }
+            if (type === 1) {
+              this.promo_code = this.promo_code_input;
+              localStorage.promo_code = this.promo_code;
+            }
           } else {
             this.spanBoolean = false
             if (res.data.code === 500) {
               return
             }
             if (res.data.message === 'promo_rate error') {
-              this.gasTotalData.total_promcode_fee = 0
+              this.gasTotalData.total_promcode_fee = 0;
+              this.promo_code = "";
+              localStorage.removeItem('promo_code')
+              this.goToCartFun();
             }
             Message.error(res.data.message)
           }
@@ -1223,7 +1404,7 @@ export default {
       this.queryMoreDomainFun()
     },
     isInputFun(e) {
-      this.searchText = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
+      this.searchText = e.target.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '');
       if (e.target.value) {
         this.searchStutas = true;
       } else {
@@ -1231,8 +1412,17 @@ export default {
       }
     },
     onfucusFun() {
-      if (this.searchStutas) {
-        // this.contentShow = true;
+      let historyList = localStorage.historyList;
+      if (historyList) {
+        let arr = JSON.parse(historyList);
+        let set = new Set(arr.map((item) => JSON.stringify(item)));
+        this.historyList = [...set].map((item) => JSON.parse(item));
+        localStorage.historyList = JSON.stringify(this.historyList)
+      } else {
+        return
+      }
+      if (historyList.length > 0) {
+        this.histroyBoolean = true;
       }
     },
     addLinkFun(item) {
@@ -1344,6 +1534,7 @@ export default {
     },
     queryDomainFun() {
       this.spanResultBoolean = true;
+      this.histroyBoolean = false
       let param = {};
       param.domain = this.searchText + ".btc"
       this.$axios({
@@ -1358,6 +1549,7 @@ export default {
           res.data.data.isSelect = false;
           let data = res.data.data;
           data.domain = data.dom_name;
+          data = changeStatusFun(data);
           if (data.dom_state != 9) {
             data.showAddress = this.showAddressFun(data.owner_address)
             data.expire_date_show = moment(data.expire_date).format("YYYY-MM-DD HH:mm:ss")
@@ -1367,6 +1559,12 @@ export default {
               data.isSelect = true
             }
           })
+          let temp = {};
+          temp.domain = this.searchText;
+          this.historyList.unshift(temp);
+          this.historyList = this.historyList.slice(0, 20);
+          localStorage.historyList = JSON.stringify(this.historyList);
+          this.histroyBoolean = false
           this.spanResultBoolean = false;
           this.resultData = data;
         }
@@ -1388,8 +1586,7 @@ export default {
       param.out_wallet = this.receiveAddress;
       param.rate_fee = Number(value);
       param.source = "btc_domain";
-      // param.promo_code = this.promo_code;
-      param.promo_code = "";
+      param.promo_code = this.promo_code;
       this.$axios({
         method: "post",
         data: param,
@@ -1410,14 +1607,14 @@ export default {
             this.spanBoolean = false
           } else {
             this.orderCode = "";
-            // localStorage.removeItem(promo_code)
+            localStorage.removeItem('promo_code')
             this.spanBoolean = false
             Message.error(res.data.message)
           }
         }
       }).catch(err => {
         this.orderCode = "";
-        // localStorage.removeItem(promo_code)
+        localStorage.removeItem('promo_code')
         this.spanBoolean = false
       });
     },
@@ -1432,9 +1629,9 @@ export default {
   },
   mounted() {
     let cartListlocal = localStorage.cartList;
-    // if (localStorage.promo_code) {
-    //   this.promo_code = localStorage.promo_code;
-    // }
+    if (localStorage.promo_code) {
+      this.promo_code = localStorage.promo_code;
+    }
     if (cartListlocal) {
       this.cartNum = JSON.parse(cartListlocal).length
     }

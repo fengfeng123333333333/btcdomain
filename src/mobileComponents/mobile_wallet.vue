@@ -337,7 +337,7 @@
           <canvas id="canvas"></canvas>
         </div>
         <div class="copyBox">
-          <span class="copyBoxContent">{{wallet}}</span>
+          <span class="copyBoxContent">{{monywallet}}</span>
           <img src="../assets/cart/16px_icon_copy@2x.png" alt="" @click="copyActionFun(4)">
         </div>
       </div>
@@ -351,12 +351,14 @@
         <div class="send_inscript_box">
           <div class="send_btc_title">To</div>
           <input v-model="sendBtcaddress" @input="jiexiFun" type="text" class="set_input" placeholder="Bitcoin address or .btc domain name">
-          <div :class="{jiexiError:!jiexiType}">{{showAddressFun(jiexiAddress)}}</div>
+          <div v-if="jiexiType">{{showAddressFun(jiexiAddress)}}</div>
+          <div class="jiexiError" v-else>{{jiexiAddress}}</div>
           <div class="send_btc_title">
             <span>Amount</span>
             <span class="send_btc_title_balance">Balance：{{personBalanceData.amount}} BTC</span>
           </div>
-          <input v-model="sendAmount" type="text" class="set_input" placeholder="Amount">
+          <input v-model="sendAmount" @input="isnumberFun" type="text" class="set_input" placeholder="Amount">
+          <div class="jiexiError" v-if="isnumber">Please input number in Amount</div>
           <div class="send_inscript_dec">Select the network fee you want to pay:</div>
           <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
@@ -413,16 +415,21 @@ export default {
       spanBoolean: false,
       historyList: [],
       balance: null,
-      wallet: null,
+      monywallet: null,
       receive_btc_boolean: false,
       send_btc_boolean: false,
       gasSelectData: {},
       personBalanceData: {},
       sendAmount: null,
       gasList: [],
+      isnumber: false
     }
   },
   methods: {
+    isnumberFun(e) {
+      let isnumber = isNaN(e.target.value)
+      this.isnumber = isnumber
+    },
     domainChangeFun(type) {
       let param = {};
       param.domain = this.sendBtcaddress
@@ -462,6 +469,11 @@ export default {
     },
     confirmFun() {
       if (this.loadingBoolean) {
+        return
+      }
+      let isnumber = isNaN(this.sendAmount)
+      if (isnumber) {
+        Message.error("Please input number in Amount")
         return
       }
       if (!this.sendBtcaddress) {
@@ -594,11 +606,19 @@ export default {
       this.gasSelectData.name = item.name;
     },
     jiexiFun(e) {
-      if (this.sendBtcaddress.endsWith(".btc")) {
-        this.domainChangeFun(1)
-      }
       if (!e.target.value) {
         this.jiexiAddress = null;
+      } else {
+        if (this.sendBtcaddress.endsWith(".btc")) {
+          this.domainChangeFun(1)
+        } else {
+          if (!validate(e.target.value)) {
+            this.jiexiAddress = "the address is error"
+            this.jiexiType = false;
+          } else {
+            this.jiexiAddress = null;
+          }
+        }
       }
     },
     choseMaskFun(index) {
@@ -657,7 +677,7 @@ export default {
       let avail = new BigNumber(this.personBalanceData.amount);
       if (one.gte(avail)) {
         Message.warning(
-          "max value you must transfer is " + this.personBalanceData.amount + "btc"
+          "The maximum transfer amount cannot exceed  " + this.personBalanceData.amount + "btc"
         );
         return;
       }
@@ -699,9 +719,13 @@ export default {
             amount: targetSat.toNumber(),
             feeRate: feeRate,
           };
-          const { txID, txHex } = await sendBTCTransFun(sBtcResq);
-          // submit
-          this.pushTx(txHex);
+          try {
+            const { txID, txHex } = await sendBTCTransFun(sBtcResq);
+            this.pushTx(txHex);
+          } catch (error) {
+            this.loadingBoolean = false;
+            Message.error(error.toString());
+          }
         }
       }).catch(err => {
         this.loadingBoolean = false;
@@ -733,13 +757,13 @@ export default {
     },
     copyActionFun(index, item) {
       if (index === 1) {
-        copyAction(this.wallet)
+        copyAction(this.monywallet)
       } else if (index === 2) {
         copyAction(item.address)
       } else if (index === 3) {
         copyAction(item.txid)
       } else if (index === 4) {
-        copyAction(this.wallet)
+        copyAction(this.monywallet)
       }
     },
     changePageFun() { },
@@ -786,7 +810,58 @@ export default {
     },
     receiveBtcFun() {
       this.$emit("receiveBtc")
-    }
+    },
+    balanceFun() {
+      this.$axios({
+        method: "get",
+        url: apis.oldBalanceApi + "?address=" + this.monywallet,
+        headers: {
+          "Content-Type": "application/json",
+          'X-Client': 'UniSat Wallet'
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.message === "OK") {
+            let balance = res.data.result
+            this.inscriptionsFun(balance.confirm_amount)
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
+    inscriptionsFun(confirm_amount) {
+      this.$axios({
+        method: "get",
+        url: apis.inscriptionsApi + "?address=" + this.monywallet,
+        headers: {
+          "Content-Type": "application/json",
+          'X-Client': 'UniSat Wallet'
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.message === "OK") {
+            let inscriptions = res.data.result;
+            let totalSatoshi = new BigNumber(0);
+            inscriptions.forEach(element => {
+              if (element.detail) {
+                let tmp = new BigNumber(element.detail.output_value)
+                totalSatoshi = totalSatoshi.plus(tmp)
+              }
+            });
+            let amout_tmp = new BigNumber(confirm_amount);
+            let amount_sat = amout_tmp.multipliedBy(100000000);
+            let available_sat = amount_sat.minus(totalSatoshi);
+            let balance = available_sat.div(100000000).toPrecision(8).toString();
+            this.balance = parseFloat(balance).toFixed(8);
+          } else {
+            Message.error(res.data.message)
+          }
+        }
+      }).catch(err => {
+      });
+    },
   },
   mounted() {
     if (localStorage.walletType != 'metaMask') {
@@ -794,10 +869,10 @@ export default {
     }
     this.personBalanceData.amount = localStorage.balance;
     this.loginType = localStorage.walletType
-    this.balance = localStorage.balance;
-    this.wallet = localStorage.bitcoin_address;
+    this.monywallet = localStorage.bitcoin_address;
     this.walletShow = this.showAddressFun(localStorage.bitcoin_address)
     this.recentHistoryFun();
+    this.balanceFun()
   }
 }
 </script>

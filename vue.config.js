@@ -17,7 +17,7 @@ module.exports = defineConfig({
     ],
   },
   
-  // outputDir: 'dist-main',
+  outputDir: 'dist-main',
   productionSourceMap:false,
   devServer: {
     host: '0.0.0.0',

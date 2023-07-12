@@ -2,12 +2,12 @@
 <style scoped>
 .head_app {
   width: 100%;
-  height: 0.7rem;
-  padding: 0 0.2rem;
+  height: 70px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 0.01rem solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: absolute;
   top: 0;
   left: 0;
@@ -18,21 +18,21 @@
   align-items: center;
 }
 .head_logo {
-  width: 1.36rem;
-  height: 0.14rem;
-  margin-right: 0.2rem;
+  width: 136px;
+  height: 14px;
+  margin-right: 20px;
   cursor: pointer;
 }
 .head_left_line {
-  width: 0.01rem;
-  height: 0.3rem;
+  width: 1px;
+  height: 30px;
   background: #ffffff;
-  margin-right: 0.2rem;
+  margin-right: 20px;
 }
 .head_nav_item {
-  width: 1.24rem;
-  height: 0.4rem;
-  line-height: 0.4rem;
+  width: 124px;
+  height: 40px;
+  line-height: 40px;
   text-align: center;
   font-size: 16px;
   font-family: Poppins-Regular, Poppins;
@@ -45,32 +45,32 @@
   align-items: center;
 }
 .head_right_content {
-  width: 1.4rem;
-  height: 0.4rem;
+  width: 140px;
+  height: 40px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.2rem;
+  border-radius: 20px;
   text-align: center;
-  line-height: 0.4rem;
-  font-size: 0.14rem;
+  line-height: 40px;
+  font-size: 14px;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
   color: #ffffff;
-  margin-right: 0.2rem;
+  margin-right: 20px;
   cursor: pointer;
 }
 .cart {
-  width: 0.4rem;
-  height: 0.4rem;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
 }
 .head_right_content_has {
-  width: 1.85rem;
-  height: 0.4rem;
+  width: 185px;
+  height: 40px;
   background: rgba(255, 255, 255, 0.3);
-  border-radius: 0.2rem;
-  padding-left: 0.04rem;
-  padding-right: 0.1rem;
-  font-size: 0.16rem;
+  border-radius: 20px;
+  padding-left: 4px;
+  padding-right: 10px;
+  font-size: 16px;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #ffffff;
@@ -85,28 +85,28 @@
   align-items: center;
 }
 .avater_def {
-  width: 0.32rem;
-  height: 0.32rem;
-  margin-right: 0.06rem;
+  width: 32px;
+  height: 32px;
+  margin-right: 6px;
   border-radius: 50%;
 }
 .arrow_down {
-  width: 0.16rem;
-  height: 0.16rem;
+  width: 16px;
+  height: 16px;
 }
 .out_login_box {
   position: absolute;
   left: 0;
-  top: 0.48rem;
-  width: 1.92rem;
+  top: 48px;
+  width: 192px;
   height: 0;
   background: #ffffff;
-  box-shadow: 0px 0.1rem 0.24rem 0px rgba(17, 15, 77, 0.1);
-  border-radius: 0.08rem;
+  box-shadow: 0px 10px 24px 0px rgba(17, 15, 77, 0.1);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 0.2rem;
+  padding-top: 20px;
   animation: out_login_box 0.2s forwards;
   overflow: hidden;
 }
@@ -115,12 +115,12 @@
     height: 0;
   }
   to {
-    height: 1.66rem;
+    height: 166px;
   }
 }
 .out_login_avater {
-  width: 0.4rem;
-  height: 0.4rem;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 .out_login_address {
@@ -131,12 +131,12 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #2e2f3e;
-  margin-top: 0.1rem;
+  margin-top: 10px;
 }
 .out_login_address img {
-  width: 0.16rem;
-  height: 0.16rem;
-  margin-left: 0.08rem;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
 }
 .out_login_disconnent {
   display: flex;
@@ -145,12 +145,12 @@
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #868899;
-  margin-top: 0.38rem;
+  margin-top: 38px;
 }
 .out_login_disconnent img {
-  margin-right: 0.08rem;
-  width: 0.24rem;
-  height: 0.24rem;
+  margin-right: 8px;
+  width: 24px;
+  height: 24px;
 }
 </style>
 <template>

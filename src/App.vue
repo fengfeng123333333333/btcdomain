@@ -125,4 +125,17 @@ body::-webkit-scrollbar {
 .mobile_button_loading {
   margin-right: 0.016rem;
 }
+.copy_img {
+  width: 16px;
+  height: 16px;
+  margin-left: 5px;
+}
+.result_left_bottom_item {
+  display: flex;
+  align-items: center;
+}
+.copy_moobile_img {
+  width: 0.32rem;
+  height: 0.32rem;
+}
 </style>
