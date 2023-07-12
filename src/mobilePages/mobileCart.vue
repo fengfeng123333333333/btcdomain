@@ -518,14 +518,14 @@
             <div v-else-if="gasSelectData.name==='Custom'&&gasSelectData.customValue<gasSelectData.avg">This fee is below the average, which may lead to a long wait time for inscription.</div>
           </div>
           <div class="cart_right_line"></div>
-          <div class="cart_right_gas">
+          <!-- <div class="cart_right_gas">
             <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
             <span>Promo Code</span>
           </div>
           <div class="promoDiv">
             <input v-model="promo_code_input" placeholder="Enter Promo Code" class="codeInput" />
             <div class="promoDivButton" :class='{unisatGray:!promo_code_input}' @click="confirmCodeFun">Confirm</div>
-          </div>
+          </div> -->
         </div>
         <div class="cart_fee_total">
           <div class="cart_fee_com">
