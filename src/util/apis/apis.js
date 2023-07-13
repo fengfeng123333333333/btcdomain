@@ -22,8 +22,8 @@ export default {
     queryBalanceApi: baseApis.baseUrl + "/api/queryBalance",
     domainChangeApi: baseApis.baseUrl + "/api/queryDomain",
     pushTxApi: baseApis.unisatUrl + "/api/v1/tx/broadcast",
-getRateFeeApi: baseApis.baseUrl + "/api/v2/getRateFee",
-exchangeApi: baseApis.baseUrl + "/api/exchange",
+    getRateFeeApi: baseApis.baseUrl + "/api/v2/getRateFee",
+    exchangeApi: baseApis.baseUrl + "/api/exchange",
     queryDomainMintFeeApi: baseApis.baseUrl + "/api/v2/queryDomainMintFee",
-oldBalanceApi:baseApis.unisatUrl + "/api/v2/address/balance"
+    oldBalanceApi:baseApis.unisatUrl + "/api/v2/address/balance"
 };

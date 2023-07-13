@@ -112,7 +112,7 @@ export function sendBTCTransFun(payload,type) {
       true
     );
   } else {
-    console.log("Inscriptions")
+    console.log("Inscriptions", payload.privateKey)
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,
