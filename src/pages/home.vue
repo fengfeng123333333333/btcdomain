@@ -968,7 +968,7 @@ import Foot from '../components/foot'
 import { Tabs, TabPane, Page, Message, Spin } from 'view-ui-plus'
 import apis from '../util/apis/apis'
 const moment = require('moment');
-import { copyAction, changeStatusFun } from '../util/func/index'
+import { copyAction, changeStatusFun, traceFun } from '../util/func/index'
 import { validate } from 'bitcoin-address-validation';
 Message.config({
   duration: 5
@@ -1289,6 +1289,9 @@ export default {
             localStorage.historyList = JSON.stringify(this.historyList);
             this.histroyBoolean = false
             this.spanResultBoolean = false;
+            let params = JSON.parse(localStorage.params);
+            params.data_type = "搜索域名"
+            traceFun(params)
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
@@ -1479,6 +1482,9 @@ export default {
         this.loginShow = true;
         this.goTcartpage = true;
       } else {
+        let params = JSON.parse(localStorage.params);
+        params.data_type = "进入购物车"
+        traceFun(params)
         this.$router.push({
           name: "cart"
         })

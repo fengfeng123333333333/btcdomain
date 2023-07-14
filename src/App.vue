@@ -4,37 +4,84 @@
 
 <script>
 import apis from './util/apis/apis'
-
+import { traceFun } from './util/func/index'
+import tp from "tp-js-sdk";
 export default {
   name: 'App',
+  data() {
+    return {
+      params: {
+        data_type: "",
+        reffer: "",
+        trace_id: "",
+        source_id: "",
+        view_type: "",
+      }
+    }
+  },
   mounted() {
     if ((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile |BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i))) {
       let url = window.location.href;
+      if (window.foxwallet && window.foxwallet.bitcoin) {
+        this.params.view_type = "foxWallet"
+      } else if (typeof window.ethereum != 'undefined' && !tp.isConnected()) {
+        this.params.view_type = "metamask"
+      } else if (tp.isConnected()) {
+        this.params.view_type = "tokenPocket"
+      } else {
+        this.params.view_type = "h5"
+      }
+      this.params.reffer = ""
+      console.log("view_type", this.params.view_type)
       if (url.indexOf("mobile_") == -1) {
         this.$router.push({
           name: "mobile_home"
         })
       }
+    } else {
+      this.params.view_type = "pc"
+      this.params.reffer = document.referrer
     }
-    // document.referrer:当前网页从哪里链接来的
+
+    if (!document.referrer) {
+      this.params.data_type = "直接进入app"
+    } else {
+      if (window.location.href.indexOf("srouceID") != -1) {
+        console.log(window.location)
+        let url = window.location.href;
+        let index = url.indexOf("=")
+        this.params.source_id = url.slice(index + 1)
+        this.params.data_type = "官网进入APP";
+      }
+    }
+    let traceId = localStorage.traceId;
+    if (!traceId) {
+      this.enterNumFun()
+    } else {
+      this.params.trace_id = traceId
+      traceFun(this.params)
+    }
     console.log(document.referrer)
-    this.enterNumFun()
   },
   methods: {
     enterNumFun() {
       this.$axios({
-        method: "post",
+        method: "get",
         url: apis.enterNumApi,
         headers: {
           "Content-Type": "application/json",
         },
       }).then(res => {
         if (res.status == "200") {
-          if (res.data.code === 0) { }
+          if (res.data.code === 0) {
+            this.params.trace_id = res.data.data
+            localStorage.traceId = res.data.data
+            traceFun(this.params)
+          }
         }
       }).catch(err => {
       });
-    }
+    },
   }
 }
 </script>

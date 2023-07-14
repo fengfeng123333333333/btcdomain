@@ -579,7 +579,7 @@ import MobileLogin from '@/mobileComponents/mobileLogin.vue'
 import MobileEmptyCart from '@/mobileComponents/mobileEmptyCart'
 import { validate } from 'bitcoin-address-validation';
 import apis from '../util/apis/apis'
-import { copyAction } from '../util/func/index'
+import { copyAction, traceFun } from '../util/func/index'
 import BigNumber from "bignumber.js";
 const Decimal = require('decimal.js');
 const moment = require('moment');
@@ -762,6 +762,9 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
+            let params = JSON.parse(localStorage.params);
+            params.data_type = "下单"
+            traceFun(params)
             this.$router.push({
               name: "mobile_order",
               query: {

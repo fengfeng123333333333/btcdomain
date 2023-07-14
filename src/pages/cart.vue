@@ -1070,7 +1070,7 @@ import EmptyCart from '../components/emptyCart'
 import { InputNumber, Message, Spin } from 'view-ui-plus'
 import { validate } from 'bitcoin-address-validation';
 import apis from '../util/apis/apis'
-import { copyAction, changeStatusFun } from '../util/func/index'
+import { copyAction, changeStatusFun, traceFun } from '../util/func/index'
 const Decimal = require('decimal.js');
 const moment = require('moment');
 
@@ -1597,6 +1597,9 @@ export default {
       }).then(res => {
         if (res.status == "200") {
           if (res.data.code === 0) {
+            let params = JSON.parse(localStorage.params);
+            params.data_type = "下单"
+            traceFun(params)
             this.$router.push({
               name: "order",
               query: {

@@ -191,7 +191,7 @@
       
 <script>
 import Login from './login.vue'
-import { copyAction } from '../util/func/index'
+import { copyAction, traceFun } from '../util/func/index'
 import apis from '../util/apis/apis'
 export default {
   components: {
@@ -260,11 +260,18 @@ export default {
       })
     },
     toCartPageFun() {
+      let herf = window.location.href;
+      if (herf.indexOf('cart') != -1) {
+        return
+      }
       let address = localStorage.bitcoin_address;
       if (address) {
         this.$router.push({
           name: "cart"
         })
+        let params = JSON.parse(localStorage.params);
+        params.data_type = "进入购物车"
+        traceFun(params)
       } else {
         this.typePage = true
         this.walletTypeBoolean = true

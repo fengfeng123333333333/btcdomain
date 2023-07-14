@@ -841,7 +841,7 @@
 import MobileHead from '@/mobileComponents/mobileHead.vue'
 import MobileFoot from '@/mobileComponents/mobileFoot.vue'
 import apis from '../util/apis/apis'
-import { copyAction, changeStatusFun } from '../util/func/index'
+import { copyAction, changeStatusFun, traceFun } from '../util/func/index'
 const moment = require('moment');
 import { validate } from 'bitcoin-address-validation';
 import { Message } from 'view-ui-plus'
@@ -1001,6 +1001,9 @@ export default {
             localStorage.historyList = JSON.stringify(this.historyList);
             this.histroyBoolean = false;
             this.spanResultBoolean = false;
+            let params = JSON.parse(localStorage.params);
+            params.data_type = "搜索域名"
+            traceFun(params)
           } else {
             this.contentShow = false
             this.spanResultBoolean = false;
@@ -1274,6 +1277,9 @@ export default {
         this.loginShow = true;
         this.goTcartpage = true;
       } else {
+        let params = JSON.parse(localStorage.params);
+        params.data_type = "进入购物车"
+        traceFun(params)
         this.$router.push({
           name: "mobile_cart"
         })

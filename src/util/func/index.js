@@ -13,6 +13,9 @@ import {
 } from 'view-ui-plus'
 import BigNumber from "bignumber.js";
 import * as GENERATIVE_SDK from 'generative-sdk';
+import axios from 'axios'
+import apis from '../apis/apis'
+
 const defaultPath = "m/86'/0'/0'/0/0";
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -20,6 +23,37 @@ const GivingMsg = "Welcome to the secure sites, btcdomains.io and btcwallet.netw
 
 function toXOnly(pubKey) {
   return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+}
+function traceDataTypeFun(type){
+  // let index = null;
+  // if (type === "直接进入app") {
+  //   index='0'
+  // } else if (type === "搜索域名") {
+  //   index='1'
+  // }else if (type === "搜索域名") {
+  //   index='1'
+  // } else {
+  //   index=""
+  // }
+  return type
+}
+export function traceFun(params) {
+  params.data_type=traceDataTypeFun(params.data_type)
+  axios({
+    method: "post",
+    url: apis.traceApi,
+    data: params,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then(res => {
+    if (res.status == "200") {
+      if (res.data.code === "SUCCESS") { 
+        localStorage.params = JSON.stringify(params);
+      }
+    }
+  }).catch(err => {
+  });
 }
 export async function generateBitcoinAddr(type,deviceType) {
   if (type === 'metaMask'||deviceType==='mobile') {
