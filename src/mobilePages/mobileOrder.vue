@@ -1475,10 +1475,8 @@ export default {
           this.isPay = 2
           this.payStatusBoolean = true;
           Message.info("submit transaction: " + res.data);
-          console.log(res)
         } else {
           Message.error(res.msg);
-          console.log("error", res)
         }
       });
     },

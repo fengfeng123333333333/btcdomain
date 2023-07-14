@@ -1540,7 +1540,6 @@ export default {
       const weivalue = num.multipliedBy(100000000).toNumber()
       const recipient = this.monywallet;
       const tx = new btc.Transaction();
-      console.log(localStorage.public_key)
       const publicKey = hex.decode(localStorage.public_key)
       const p2wpkh2 = btc.p2wpkh(publicKey, bitcoinTestnet);
       const p2sh = btc.p2sh(p2wpkh2, bitcoinTestnet);
@@ -1578,7 +1577,6 @@ export default {
           this.isPay = 2
           this.payStatusBoolean = true;
           Message.info("submit transaction: " + response.txid);
-          console.log(response)
         },
         onCancel: () => Message.info("Request canceled"),
       };

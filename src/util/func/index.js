@@ -98,9 +98,7 @@ export function sendBTCTransFun(payload,type) {
   const sendAmount = new BigNumber(payload.amount || '0');
   const utxos = formatUTXOs(payload.utxos);
   const inscriptions = formatInscriptions(payload.inscriptions);
-  console.log(payload)
   if (type === "sendBtc") {
-    console.log("sendBtc")
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,
@@ -112,7 +110,6 @@ export function sendBTCTransFun(payload,type) {
       true
     );
   } else {
-    console.log("Inscriptions", payload.privateKey)
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,
