@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import apis from './util/apis/apis'
 
 export default {
   name: 'App',
@@ -14,6 +15,25 @@ export default {
           name: "mobile_home"
         })
       }
+    }
+    // document.referrer:当前网页从哪里链接来的
+    console.log(document.referrer)
+    this.enterNumFun()
+  },
+  methods: {
+    enterNumFun() {
+      this.$axios({
+        method: "post",
+        url: apis.enterNumApi,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(res => {
+        if (res.status == "200") {
+          if (res.data.code === 0) { }
+        }
+      }).catch(err => {
+      });
     }
   }
 }

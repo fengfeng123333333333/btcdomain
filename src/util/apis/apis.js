@@ -25,5 +25,7 @@ export default {
     getRateFeeApi: baseApis.baseUrl + "/api/v2/getRateFee",
     exchangeApi: baseApis.baseUrl + "/api/exchange",
     queryDomainMintFeeApi: baseApis.baseUrl + "/api/v2/queryDomainMintFee",
-    oldBalanceApi:baseApis.unisatUrl + "/api/v2/address/balance"
+    oldBalanceApi: baseApis.unisatUrl + "/api/v2/address/balance",
+    enterNumApi: baseApis.baseUrl + "/api/v2/getTraceId",
+    traceApi: baseApis.baseUrl + "/api/v2/trace",
 };
