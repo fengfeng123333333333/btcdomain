@@ -238,6 +238,7 @@ export default {
       let signer = await provider.getSigner();
       let sig = await signer.signMessage(this.GivingMsg);
       const seed = ethers.toUtf8Bytes(ethers.keccak256(ethers.toUtf8Bytes(sig)));
+      console.log("seedseed", seed)
       // const bip32 = BIP32Factory(ecc);
       let root = bip32.fromSeed(Buffer.from(seed.slice(2)));
       const taprootChild = root.derivePath(this.defaultPath);
