@@ -980,7 +980,7 @@
           <div class="cart_right">
             <span class="cart_right_title">Order</span>
             <div class="cart_right_numeber display_com">
-              <span>Total number</span>
+              <span>Total Number</span>
               <span class="cart_right_numeber_value">{{cartNum}}</span>
             </div>
             <div class="cart_right_receivce display_com">
@@ -993,7 +993,7 @@
             <div class="cart_right_line"></div>
             <div class="cart_right_gas">
               <img src="../assets/cart/16px_icon_gasrate@2x.png" alt="">
-              <span>Gas rate</span>
+              <span>Gas Rate</span>
             </div>
             <div class="gas_tab">
               <div class="gas_tab_item" @click="changeGasFun(item)" :class="{gas_tab_item_sel:item.isSelect}" v-for="(item,index) in gasList" :key="index">
@@ -1567,6 +1567,9 @@ export default {
           this.histroyBoolean = false
           this.spanResultBoolean = false;
           this.resultData = data;
+          let params = JSON.parse(localStorage.params);
+          params.data_type = "搜索域名"
+          traceFun(params)
         }
       }).catch(err => {
         this.spanResultBoolean = false;

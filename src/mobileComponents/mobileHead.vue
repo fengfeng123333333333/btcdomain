@@ -216,7 +216,6 @@ export default {
         } else {
           this.showAddress = null
         }
-        console.log("showData", val)
       }
     },
     goTcartpage: {
@@ -328,7 +327,6 @@ export default {
       if (value) {
         this.avaterImg = value;
       }
-      console.log("avaterFun", value)
     },
     toHomeFun() {
       this.$router.push({
@@ -361,7 +359,6 @@ export default {
           if (res.data.code === 0) {
             if (res.data.data.length > 0) {
               this.avaterImg = res.data.data[0].content_url;
-              console.log("this.avaterImg", this.avaterImg)
             }
             this.spanBoolean = false;
           } else {

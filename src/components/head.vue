@@ -293,6 +293,9 @@ export default {
       }
       this.$emit("cartChange")
       this.walletTypeBoolean = false;
+      let params = JSON.parse(localStorage.params);
+      params.data_type = "进入购物车"
+      traceFun(params)
       if (this.goTcartpageChild) {
         this.$router.push({
           name: "cart"

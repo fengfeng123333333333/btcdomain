@@ -420,7 +420,7 @@
     <script>
 import apis from '../util/apis/apis'
 const moment = require('moment');
-import { copyAction } from '../util/func/index'
+import { copyAction, traceFun } from '../util/func/index'
 import { Spin } from 'view-ui-plus'
 export default {
   components: {
@@ -544,6 +544,9 @@ export default {
           }
           this.spanResultBoolean = false;
           this.resultData = data;
+          let params = JSON.parse(localStorage.params);
+          params.data_type = "搜索域名"
+          traceFun(params)
         }
       }).catch(err => {
         this.spanResultBoolean = false;

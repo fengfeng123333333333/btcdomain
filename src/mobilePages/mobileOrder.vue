@@ -873,7 +873,7 @@
             </div>
             <div class="order_pay_show" v-if="item.isSelect">
               <div class="cart_right_numeber display_com">
-                <span>Total number</span>
+                <span>Total Number</span>
                 <span class="cart_right_numeber_value">{{feeData.domain_number}}</span>
               </div>
               <div class="cart_right_receivce display_com">
@@ -1475,10 +1475,8 @@ export default {
           this.isPay = 2
           this.payStatusBoolean = true;
           Message.info("submit transaction: " + res.data);
-          console.log(res)
         } else {
           Message.error(res.msg);
-          console.log("error", res)
         }
       });
     },

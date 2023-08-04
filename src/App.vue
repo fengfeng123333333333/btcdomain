@@ -32,38 +32,68 @@ export default {
         this.params.view_type = "h5"
       }
       this.params.reffer = ""
-      console.log("view_type", this.params.view_type)
       if (url.indexOf("mobile_") == -1) {
-        this.$router.push({
-          name: "mobile_home"
-        })
+        if (window.location.href.indexOf("sourceID") != -1) {
+          let url = window.location.href;
+          let index = url.indexOf("=")
+          this.$router.push({
+            name: "mobile_home",
+            query: {
+              sourceID: this.queryURLParams(window.location.href).sourceID,
+              traceId: this.queryURLParams(window.location.href).traceId
+            }
+          })
+        } else {
+          this.$router.push({
+            name: "mobile_home",
+          })
+        }
       }
     } else {
-      this.params.view_type = "pc"
+      this.params.view_type = "pc";
       this.params.reffer = document.referrer
     }
 
     if (!document.referrer) {
       this.params.data_type = "直接进入app"
+      if (window.location.href.indexOf("sourceID") != -1) {
+        this.params.source_id = this.queryURLParams(window.location.href).sourceID
+      }
     } else {
-      if (window.location.href.indexOf("srouceID") != -1) {
-        console.log(window.location)
-        let url = window.location.href;
-        let index = url.indexOf("=")
-        this.params.source_id = url.slice(index + 1)
+      if (window.location.href.indexOf("sourceID") != -1) {
+        this.params.source_id = this.queryURLParams(window.location.href).sourceID
         this.params.data_type = "官网进入APP";
       }
     }
-    let traceId = localStorage.traceId;
+    let traceId = null;
+    if (window.location.href.indexOf("?") == -1) {
+      traceId = null;
+    } else {
+      traceId = this.queryURLParams(window.location.href).traceId;
+    }
+    if (traceId) {
+      localStorage.traceId = traceId;
+    } else if (localStorage.traceId) {
+      traceId = localStorage.traceId
+    }
     if (!traceId) {
       this.enterNumFun()
     } else {
       this.params.trace_id = traceId
       traceFun(this.params)
     }
-    console.log(document.referrer)
   },
   methods: {
+    queryURLParams(url) {
+      let urlArr = url.split("?")[1];
+      let obj = {}; // 声明参数对象
+      let arr = urlArr.split("&"); // 以&符号分割为数组
+      for (let i = 0; i < arr.length; i++) {
+        let arrNew = arr[i].split("="); // 以"="分割为数组
+        obj[arrNew[0]] = arrNew[1];
+      }
+      return obj;
+    },
     enterNumFun() {
       this.$axios({
         method: "get",

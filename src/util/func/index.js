@@ -25,20 +25,27 @@ function toXOnly(pubKey) {
   return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
 }
 function traceDataTypeFun(type){
-  // let index = null;
-  // if (type === "直接进入app") {
-  //   index='0'
-  // } else if (type === "搜索域名") {
-  //   index='1'
-  // }else if (type === "搜索域名") {
-  //   index='1'
-  // } else {
-  //   index=""
-  // }
-  return type
+  let index = null;
+  if (type === "直接进入app") {
+    index='open_app'
+  } else if (type === "搜索域名") {
+    index='search_domain'
+  }else if (type === "进入购物车") {
+    index='go_to_cart'
+  } else if(type==='下单'){
+    index="create_order"
+  } else if(type==='官网进入APP'){
+    index="try_now"
+  }else {
+    index=""
+  }
+  return index
 }
 export function traceFun(params) {
   params.data_type=traceDataTypeFun(params.data_type)
+  if(params.data_type==='try_now'){
+    return
+  }
   axios({
     method: "post",
     url: apis.traceApi,
@@ -132,9 +139,7 @@ export function sendBTCTransFun(payload,type) {
   const sendAmount = new BigNumber(payload.amount || '0');
   const utxos = formatUTXOs(payload.utxos);
   const inscriptions = formatInscriptions(payload.inscriptions);
-  console.log(payload)
   if (type === "sendBtc") {
-    console.log("sendBtc")
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,
@@ -146,7 +151,6 @@ export function sendBTCTransFun(payload,type) {
       true
     );
   } else {
-    console.log("Inscriptions", payload.privateKey)
     return GENERATIVE_SDK.createTx(
       payload.privateKey,
       utxos,

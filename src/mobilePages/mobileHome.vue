@@ -864,6 +864,8 @@ export default {
   },
   data() {
     return {
+      sourceID: null,
+      trace_id: null,
       cartBoolean: false,
       goTcartpage: false,
       spanMoreBoolean: false,
@@ -1003,6 +1005,12 @@ export default {
             this.spanResultBoolean = false;
             let params = JSON.parse(localStorage.params);
             params.data_type = "搜索域名"
+            if (this.sourceID) {
+              params.source_id = this.sourceID
+            }
+            if (this.traceId) {
+              params.trace_id = this.traceId
+            }
             traceFun(params)
           } else {
             this.contentShow = false
@@ -1369,6 +1377,16 @@ export default {
       let url = "https://www.blockchain.com/explorer/transactions/btc/" + id;
       window.open(url, '_blank');
     },
+    queryURLParams(url) {
+      let urlArr = url.split("?")[1];
+      let obj = {}; // 声明参数对象
+      let arr = urlArr.split("&"); // 以&符号分割为数组
+      for (let i = 0; i < arr.length; i++) {
+        let arrNew = arr[i].split("="); // 以"="分割为数组
+        obj[arrNew[0]] = arrNew[1];
+      }
+      return obj;
+    },
   },
   mounted() {
     let cartListlocal = localStorage.cartList;
@@ -1376,6 +1394,8 @@ export default {
       this.cartListlocal = JSON.parse(cartListlocal)
     }
     this.querySuccessDomainFun()
+    this.sourceID = this.queryURLParams(window.location.href).sourceID;
+    this.traceId = this.queryURLParams(window.location.href).traceId;
   }
 }
 </script>
